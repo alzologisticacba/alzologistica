@@ -11,27 +11,35 @@ async function consultar() {
   }
 
   try {
-    const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRd7JnQO1Le0zrFoTtwzm3DpuUJh-h4GxfX8F3a2RD7H69pMufbZPgILKVX6NuiT6RO7LbVKG76XAdh/pub?gid=0&single=true&output=tsv";
+    const url = `https://script.google.com/macros/s/AKfycbwRM0oh-SZFaBnFNxhvIHETRTIVPmpUahaDHbvR82Dp6N-AR3Jj-bqhuZjIGppPeeKdSg/exec?codigo=${encodeURIComponent(codigo)}`;
     const response = await fetch(url);
-    const text = await response.text();
+    const data = await response.json();
 
-    const lines = text.split("\n").map(line => line.split("\t"));
-    const data = lines.slice(1);
-    const fila = data.find(row => row[0] === codigo);
-
-    if (fila) {
-      resultado.innerHTML = `
-        <p><strong>Cliente:</strong> ${fila[3] || '-'}</p>
-        <p><strong>Pedido:</strong> ${fila[1]}</p>
-        <p><strong>Fecha de entrega:</strong> ${fila[2]}</p>
-      `;
+    if (data.error) {
+      resultado.innerHTML = `<p><strong>Error:</strong> ${data.error}</p>`;
     } else {
-      resultado.innerHTML = "<p><strong>Error:</strong> Código de cliente no encontrado.</p>";
+      resultado.innerHTML = `
+        <p><strong>Cliente:</strong> ${data.cliente}</p>
+        <p><strong>Día de Venta:</strong> ${data.diaVenta}</p>
+        <p><strong>Día de Reparto:</strong> ${data.diaReparto}</p>
+        <p class="linea-contacto">
+          <strong>Vendedor:</strong> ${data.nombreVendedor}
+          <a href="https://wa.me/54${data.telefonoVendedor}" target="_blank" class="wsp-link">
+            <i class="fab fa-whatsapp"></i> ${data.telefonoVendedor}
+          </a>
+        </p>
+        <p class="linea-contacto">
+          <strong>Repartidor:</strong> ${data.nombreRepartidor} &nbsp; 
+          <a href="https://wa.me/54${data.telefonoRepartidor}" target="_blank" class="wsp-link">
+            <i class="fab fa-whatsapp"></i> ${data.telefonoRepartidor}
+          </a>
+        </p>
+      `;
     }
 
     resultado.classList.add("resultado-activo");
   } catch (err) {
-    resultado.innerHTML = "<p><strong>Error:</strong> No se pudo acceder a la hoja.</p>";
+    resultado.innerHTML = "<p><strong>Error:</strong> No se pudo acceder al servidor.</p>";
     resultado.classList.add("resultado-activo");
     console.error(err);
   }

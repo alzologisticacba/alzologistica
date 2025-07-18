@@ -433,3 +433,29 @@ h2 {
 .conecta-button:hover {
   transform: scale(1.1);
 }
+
+
+.linea-contacto {
+  font-size: 16px;
+  margin-top: 12px;
+  color: #333;
+}
+
+.wsp-link {
+  margin-left: 8px;
+  text-decoration: none;
+  color: #075e54;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wsp-link i {
+  color: #25D366;
+  font-size: 18px;
+}
+
+.wsp-link:hover {
+  color: #128C7E;
+}
