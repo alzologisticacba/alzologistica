@@ -1,0 +1,435 @@
+
+    :root {
+      --bg-color: #e0f7ff;
+      --text-color: #333;
+      --box-bg: #ffffff;
+      --box-shadow: rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: var(--text-color);
+    }
+
+    .login-box {
+      background: var(--box-bg);
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px var(--box-shadow);
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.8s ease-out forwards;
+      margin-top: 300px;
+      margin-bottom: 300px;
+      padding-bottom: 90px;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+.icon {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 0;
+  background: url('/alzocalidadbuena.png') no-repeat center/contain;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #00b7ff;
+  margin-top: 0;
+}
+
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 40px 12px 40px;
+      font-size: 19px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      background-color: transparent;
+      color: inherit;
+    }
+
+    .input-group i {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background: linear-gradient(to right, #00bfff, #1a75ff);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #0099cc, #005ce6);
+    }
+
+#resultado {
+  margin-top: 20px;
+}
+
+.resultado-activo {
+  background-color: #f0faff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #333;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 18px;
+}
+#contacto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.contact-link {
+  font-size: 18px;
+  color: #00b7ff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+  margin: 0;
+}
+
+.contact-link h5 {
+  margin: 0px;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.contact-link i {
+  font-size: 20px;
+}
+
+.contact-link:hover {
+  color: #128C7E;
+}
+
+#contacto-titulo {
+  margin-top: 30px;
+  text-align: center;
+}
+
+#contacto-titulo h3 {
+  font-size: 20px;
+  font-weight: 900;
+  color: #333;
+}
+
+#contacto-titulo span {
+  font-size: 22px;
+  display: inline-block;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+.titulo-contacto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight:900;
+}
+
+.flecha {
+  font-size: 20px;
+  animation: bounce 1s infinite;
+  color: #1a75ff;
+}
+
+#contacto .contact-link:not(:last-child) {
+  margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .login-box {
+    max-width: 700px;         /* Más ancho */
+    padding: 30px 80px;       /* Más espacio horizontal, menos vertical */
+    border-radius: 20px;
+  }
+
+  .icon {
+    width: 560px;
+    height: 560x;
+    margin-bottom: 2px;      /* Menos margen inferior */
+  }
+
+  h2 {
+    font-size: 32px;
+    margin: 0 0 20px 0;       /* Menos margen abajo */
+  }
+
+  .input-group {
+    margin-bottom: 16px;      /* Comprime entre inputs */
+  }
+
+  .input-group input {
+    font-size: 18px;
+    padding: 10px 36px;
+  }
+
+  button {
+    font-size: 18px;
+    padding: 10px 0;
+  }
+
+  #resultado {
+    font-size: 18px;
+    padding: 12px;
+  }
+  .popup-content img {
+    max-width: 500px; /* límite en PC */
+  }
+}
+.whatsapp-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: center; /* Para alinear horizontalmente */
+  flex-direction: row-reverse; /* Invertir orden para que el botón quede a la derecha */
+}
+
+.whatsapp-button {
+  background-color: #25d365;
+  color: white;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+  animation: bounceWhatsApp 1.8s infinite;
+}
+
+.whatsapp-button:hover {
+  transform: scale(1.1);
+}
+
+@keyframes bounceWhatsApp {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-12px);
+  }
+  60% {
+    transform: translateY(-6px);
+  }
+}
+
+.pulse {
+  animation: pulseAnim 1.5s infinite;
+}
+
+@keyframes pulseAnim {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(37, 211, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}
+
+.whatsapp-menu {
+  display: none;
+  flex-direction: column;
+  background: #e9fef220;
+  border-radius: 12px;
+  border: 1px solid #25D366;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  margin-right: 12px; /* Separación horizontal */
+  padding: 8px 0;
+  animation: fadeInMenu 0.3s ease-out;
+}
+
+.whatsapp-menu a {
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #075e54;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s ease;
+}
+
+.whatsapp-menu a:hover {
+  background: #dffae7;
+}
+
+@keyframes fadeInMenu {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.whatsapp-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 8px 0 4px;
+  color: #075e54;
+  border-bottom: 1px solid #c3f5d3;
+  margin-bottom: 4px;
+  background-color: #075e54;
+  color: #ffffff;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* fondo oscuro SÍ se mantiene */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.popup-content {
+  background: transparent; /* fondo blanco eliminado */
+  border-radius: 12px;
+  padding: 0;
+  max-width: 90%;
+  max-height: 90%;
+  box-shadow: none; /* sin sombra en el contenedor */
+  position: relative;
+  animation: fadeIn 0.4s ease;
+}
+
+.popup-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* sombra SOLO en la imagen */
+  display: block;
+}
+
+/* Botón de cerrar destacado */
+.popup-close {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border-radius: 50%;
+  font-size: 20px;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+  z-index: 10001;
+  transition: background 0.2s ease;
+}
+
+.popup-close:hover {
+  color: #ffffff;
+  background: #f33131;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
+.conecta-container {
+  position: fixed;
+  bottom: 20px; /* Igual que WhatsApp */
+  left: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
+.conecta-button {
+  background-color: white;
+  border-radius: 50%;
+  padding: 10px;
+  width: 64px;
+  height: 64px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.conecta-button img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.conecta-button:hover {
+  transform: scale(1.1);
+}
