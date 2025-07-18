@@ -10,6 +10,9 @@ async function consultar() {
     return;
   }
 
+  resultado.innerHTML = '<div class="spinner"></div>';
+  resultado.classList.add("resultado-activo");
+
   try {
     const url = `https://script.google.com/macros/s/AKfycbwRM0oh-SZFaBnFNxhvIHETRTIVPmpUahaDHbvR82Dp6N-AR3Jj-bqhuZjIGppPeeKdSg/exec?codigo=${encodeURIComponent(codigo)}`;
     const response = await fetch(url);
