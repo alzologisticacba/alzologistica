@@ -227,7 +227,9 @@ h2 {
     padding: 12px;
   }
   .popup-content img {
-    max-width: 500px; /* límite en PC */
+     display: block;         /* Convierte la imagen en un elemento en bloque */
+    margin: 0 auto;         /* Centra horizontalmente */
+    max-width: 300px;
   }
 }
 .whatsapp-container {
@@ -355,8 +357,8 @@ h2 {
   background: transparent; /* fondo blanco eliminado */
   border-radius: 12px;
   padding: 0;
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 80%;
+  max-height: 80%;
   box-shadow: none; /* sin sombra en el contenedor */
   position: relative;
   animation: fadeIn 0.4s ease;
