@@ -134,6 +134,43 @@
 .cta-card:hover{ transform: translateY(-2px); box-shadow: 0 18px 36px rgba(0,0,0,.3); }
 .cta-card:active{ transform: translateY(0); filter: brightness(.98); }
 
+.cta-card2 {
+    display:grid;
+  grid-template-columns: 1fr auto;
+  align-items:center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 22px;
+  border-radius: 20px;
+  text-decoration:none;
+  color: #ffffffee;
+  background: linear-gradient(90deg, #8d98ff 0%,  #2E17FF 100%); /* verde → celeste */
+  box-shadow: 0 14px 28px rgba(0,0,0,.25);
+  transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.cta-card2:hover{ transform: translateY(-2px); box-shadow: 0 18px 36px rgba(0,0,0,.3); }
+.cta-card2:active{ transform: translateY(0); filter: brightness(.98); }
+
+.cta-card3 {
+    display:grid;
+  grid-template-columns: 1fr auto;
+  align-items:center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 22px;
+  border-radius: 20px;
+  text-decoration:none;
+  color: #ffffffee;
+  background: linear-gradient(90deg, #ff2222 0%, #000000 100%); /* verde → celeste */
+  box-shadow: 0 14px 28px rgba(0,0,0,.25);
+  transition: transform .12s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.cta-card3:hover{ transform: translateY(-2px); box-shadow: 0 18px 36px rgba(0,0,0,.3); }
+.cta-card3:active{ transform: translateY(0); filter: brightness(.98); }
+
+
 .cta-text .cta-title{
   font: 800 24px/1.1 "Poppins", system-ui, sans-serif;
 }
@@ -172,6 +209,20 @@
             </div>
             <div class="cta-badge">Ir</div>
         </a>
+        <a class="cta-card2" href="https://wa.me/5493513276516" target="_blank" rel="noopener">
+            <div class="cta-text">
+                <div class="cta-title">Yohana Novarino</div>
+                <div class="cta-sub">Canal Digital</div>
+            </div>
+             <div class="photo"><img src="img/vendedores/Yohana Novarino.webp" alt="Yohana Novarino" loading="lazy" decoding="async"></div>
+        </a>
+        <a class="cta-card3" href="https://wa.me/5493516316968" target="_blank" rel="noopener">
+            <div class="cta-text">
+                <div class="cta-title">Emiliano Moreno</div>
+                <div class="cta-sub">Canal Mayorista</div>
+            </div>
+             <div class="photo"><img src="img/vendedores/Emiliano Moreno.webp" alt="Emiliano Moreno" loading="lazy" decoding="async"></div>
+        </a>
     <div id="seller-list" class="list" aria-label="Listado de vendedores"></div>
 
 
@@ -182,21 +233,21 @@
   <script>
 
     const SELLERS = [
-      { id: "v1", name: "Federico Torres",  phone: "5493518561081", photo: "img/vendedores/Federico Torres.webp" },
-      { id: "v2", name: "Nicolas Tabera",      phone: "5493515138800", photo: "img/vendedores/Nicolas Tavera.webp"  },
-      { id: "v3", name: "Claudio Tevez",  phone: "5493517680109", photo: "img/vendedores/Claudio Tevez.webp"  },
-      { id: "v3", name: "Gustavo Martinez",  phone: "5493518561704", photo: "img/vendedores/Gustavo Martinez.webp"  },
-      { id: "v3", name: "Joel Sanrame",  phone: "5493516316971", photo: "img/vendedores/Joel Sanrame.webp"  },
-      { id: "v3", name: "Nicolas Escobar",  phone: "5493515303045", photo: "img/vendedores/Nicolas Escobar.webp"  },
-      { id: "v3", name: "Nicolas Ossman",  phone: "5493517024074", photo: "img/vendedores/Nicolas Ossman.webp"  },
-      { id: "v3", name: "Yesica Sosa",  phone: "549", photo: "img/vendedores/Yesica Sosa.webp"  },
-      { id: "v3", name: "Yesica Tisera",  phone: "549", photo: "img/vendedores/Yesica Tisera.webp"  },
-      { id: "v3", name: "Daniel Rodriguez",  phone: "549", photo: "img/vendedores/Daniel Rodriguez.webp"  },
-      { id: "v3", name: "Eliana Machado",  phone: "5493518560195", photo: "img/vendedores/Eliana Machado.webp"  },
-      { id: "v3", name: "Fernando Castro",  phone: "5493517680109", photo: "img/vendedores/Fernando Castro.webp"  },
-      { id: "v3", name: "German Maidana",  phone: "5493518560368", photo: "img/vendedores/German Maidana.webp"  },
-      { id: "v3", name: "Jaquie Abba",  phone: "5493518560488", photo: "img/vendedores/Jaquie Abba.webp"  },
-      { id: "v3", name: "Lucas Gomez",  phone: "5493518560586", photo: "img/vendedores/Lucas Gomez.webp"  }
+      { id: "v3", name: "Federico Torres",  phone: "5493518561081", photo: "img/vendedores/Federico Torres.webp" },
+      { id: "v4", name: "Nicolas Tabera",      phone: "5493515138800", photo: "img/vendedores/Nicolas Tavera.webp"  },
+      { id: "v5", name: "Claudio Tevez",  phone: "5493517680109", photo: "img/vendedores/Claudio Tevez.webp"  },
+      { id: "v6", name: "Gustavo Martinez",  phone: "5493518561704", photo: "img/vendedores/Gustavo Martinez.webp"  },
+      { id: "v7", name: "Joel Sanrame",  phone: "5493516316971", photo: "img/vendedores/Joel Sanrame.webp"  },
+      { id: "v8", name: "Nicolas Escobar",  phone: "5493515303045", photo: "img/vendedores/Nicolas Escobar.webp"  },
+      { id: "v9", name: "Nicolas Ossman",  phone: "5493517024074", photo: "img/vendedores/Nicolas Ossman.webp"  },
+      { id: "v10", name: "Yesica Sosa",  phone: "5493518559471", photo: "img/vendedores/Yesica Sosa.webp"  },
+      { id: "v11", name: "Yesica Tisera",  phone: "5493513276820", photo: "img/vendedores/Yesica Tisera.webp"  },
+      { id: "v12", name: "Daniel Rodriguez",  phone: "5493518559685", photo: "img/vendedores/Daniel Rodriguez.webp"  },
+      { id: "v13", name: "Eliana Machado",  phone: "5493518560195", photo: "img/vendedores/Eliana Machado.webp"  },
+      { id: "v14", name: "Fernando Castro",  phone: "5493517680109", photo: "img/vendedores/Fernando Castro.webp"  },
+      { id: "v15", name: "German Maidana",  phone: "5493518560368", photo: "img/vendedores/German Maidana.webp"  },
+      { id: "v16", name: "Jaquie Abba",  phone: "5493518560488", photo: "img/vendedores/Jaquie Abba.webp"  },
+      { id: "v17", name: "Lucas Gomez",  phone: "5493518560586", photo: "img/vendedores/Lucas Gomez.webp"  }
     ];
 
     // Render
