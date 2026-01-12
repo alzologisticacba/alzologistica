@@ -1,6 +1,6 @@
 import { defineConfig } from "astro/config";
-import githubPages from "@astrojs/github-pages";
 
 export default defineConfig({
-  adapter: githubPages(),
+  site: "https://alzologistica.com",
+  // base: "/",  // en dominio raíz suele ser "/"
 });
