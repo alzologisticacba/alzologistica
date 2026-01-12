@@ -1,0 +1,183 @@
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+.soy-cliente-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.login-box {
+  width: min(520px, 100%);
+  background: rgb(255, 255, 255);
+  border-radius: 20px;
+  padding: 28px 20px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+  color: #000000;
+} 
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  font-family: "Poppins", sans-serif;
+  background-color: #0c2551;
+  color: #FFF;
+}
+
+input::placeholder {
+  color: #FFF;
+}
+
+#btn-consultar {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: large;
+  font-family: "Poppins", sans-serif;
+  background-color: #0c2551;
+  color: #FFF;
+}
+
+#resultado.resultado-activo {
+  margin-top: 16px;
+}
+
+/* Tarjeta */
+#resultado.resultado-activo {
+  background: #eaf6ff;                 /* celeste suave */
+  border-radius: 16px;
+  padding: 22px 22px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  color: #0c2551;
+}
+
+/* Párrafos/filas */
+#resultado p {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;             /* centrado como en la captura */
+  gap: 8px;
+  line-height: 1.25;
+  font-size: 16px;
+}
+
+/* Etiquetas (Cliente:, Día de Venta:, etc.) */
+#resultado p strong {
+  font-weight: 700;
+  color: #0c2551;
+}
+
+/* Filas que tienen contacto + WhatsApp */
+#resultado .linea-contacto {
+  flex-wrap: wrap;                      /* por si en mobile no entra */
+}
+
+/* Link WhatsApp */
+#resultado .wsp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  color: #0c2551;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(37, 211, 102, 0.12);
+  transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
+}
+
+/* Ícono WhatsApp (emoji como en tu captura) */
+#resultado .wsp-link::before {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Hover / active */
+#resultado .wsp-link:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  background: rgba(37, 211, 102, 0.18);
+}
+
+#resultado .wsp-link:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+/* Mobile: un poco más compacto */
+@media (max-width: 480px) {
+  #resultado.resultado-activo {
+    padding: 18px 16px;
+  }
+
+  #resultado p {
+    font-size: 15px;
+  }
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #00bfff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ayuda-cliente {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+.ayuda-cliente i {
+  font-size: 14px;
+  color: #000000;
+}
+
+.ayuda-cliente a {
+  color: #000000;
+  text-decoration: none;
+  font-style: italic;
+  transition: color 0.2s ease;
+}
+
+.ayuda-cliente a:hover {
+  color: #00bfff;
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .soy-cliente-page {
+    min-height: calc(100vh - 96px); /* altura real del header */
+    padding-top: 120px;             /* empuja el contenido hacia abajo */
+    place-items: start center;      /* deja de centrar vertical absoluto */
+  }
+}
+
+@media (min-width: 768px) {
+  .login-box {
+    margin-top: 0;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
+  }
+}

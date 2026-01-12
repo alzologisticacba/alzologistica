@@ -1,0 +1,764 @@
+:root {
+  --primary-blue: #2556ff;
+  --secondary-blue: #2cc6bb;
+  --card-bg: #ffffff;
+  --text-dark: #05304a;
+  --max-width: 1120px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  /* FONDO NUEVO */
+  background: #020617 url("/img/fondo-alzo.png") center center / cover no-repeat fixed;
+  color: #ffffff;
+  overflow-x: clip; 
+}
+/* CONTENEDOR PRINCIPAL */
+.page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  /* sin padding lateral, sólo arriba y abajo */
+  padding: 24px 0 64px;
+}
+
+.hero,
+.clients-section,
+.contact-section {
+  padding-inline: 16px;
+}
+
+/* HERO */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+
+  /* que el hero llene la pantalla */
+  min-height: 100vh;
+  justify-content: center;
+
+  /* un poco de aire interno */
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  /* que la siguiente sección arranque justo después */
+  margin-bottom: 0;
+}
+
+.hero-header {
+  max-width: 520px;
+}
+
+.hero-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.hero-logo-img {
+  height: 200px;          /* tamaño base desktop */
+  width: auto;
+  display: block;
+}
+
+.hero-subtitle {
+  font-size: 28px;
+  font-weight:bold;
+  margin-top: 4px;
+  color:#ffffff88;
+}
+
+.hero-text {
+  margin-top: 12px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* HEADER SUPERIOR */
+.top-nav {
+  position: fixed;            /* fijo al hacer scroll */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 26px 0;
+  backdrop-filter: blur(8px);
+}
+
+.top-nav-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;   /* centrado horizontal */
+  gap: 16px;
+}
+
+.top-nav-title {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.top-nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* links centrados */
+  gap: 18px;
+  font-size: 18px;
+}
+
+.top-nav-links a {
+  color: #ffffff;
+  text-decoration: none;
+  opacity: 0.8;
+  position: relative;
+  transition: opacity 0.2s ease;
+}
+
+.top-nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  border-radius: 999px;
+  background: #2f80ff;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+
+.top-nav-links a:hover {
+  opacity: 1;
+}
+
+.top-nav-links a:hover::after {
+  transform: scaleX(1);
+}
+
+/* mobile: nav compacto pero siempre centrado */
+@media (max-width: 600px) {
+  .top-nav-inner {
+    flex-direction: column;
+  }
+
+  .top-nav-links {
+    flex-wrap: wrap;
+    font-size: 14px;
+  }
+}
+
+.brand-carousel {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.brand-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+
+  /* se setea por JS */
+  animation: scroll-logos var(--dur, 18s) linear infinite;
+}
+
+.brand-set {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding-right: 32px;
+}
+
+.brand-set img {
+  height: 110px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+@keyframes scroll-logos {
+  to { transform: translateX(calc(-1 * var(--scroll, 0px))); }
+}
+
+@media (max-width: 480px) {
+  .brand-set img { height: 90px; }
+}
+
+
+.brand-carousel::before,
+.brand-carousel::after {
+  content: none;
+}
+
+
+/* TARJETAS SOY / QUIERO SER CLIENTE */
+.clients-section {
+  min-height: 100vh;              /* ocupa toda la pantalla */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+.client-section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.client-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  margin-bottom: 48px;
+}
+
+.client-card {
+  background: var(--card-bg);
+  color: #0C2551;
+  border-radius: 24px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.client-card h3 {
+  font-size: 30px;
+  margin: 0 0 8px;   /* antes suele ser grande por default */
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.client-card p {
+  margin: 0 0 12px;   /* antes 16px */
+  line-height: 1.25;
+  font-size: 16px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: #0C2551;
+  color: #ffffff;
+}
+
+/* GRID CLIENTES (layout tipo Excalidraw) */
+.clients-grid {
+  width: 100%;
+  max-width: var(--max-width);
+  display: grid;
+  gap: 32px;
+}
+
+/* stats grandes */
+.clients-stat {
+  color: #ffffff;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clients-stat-number {
+  font-size: 32px;
+}
+
+.clients-stat-label {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+/* asignación de áreas del grid */
+.clients-stat--clientes {
+  grid-area: statClientes;
+}
+
+.client-card--top {
+  grid-area: cardTop;
+}
+
+.client-card--bottom {
+  grid-area: cardBottom;
+}
+
+.clients-stat--pedidos {
+  grid-area: statPedidos;
+}
+
+.client-card-img {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  margin: 0 auto 0px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 480px) {
+  .client-card-img {
+    max-width: 220px;
+  }
+}
+
+/* MOBILE: 1) Soy cliente 2) +4000 3) +1M 4) Quiero ser cliente */
+@media (max-width: 767px) {
+  .clients-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 32px;
+    grid-template-areas:
+      "cardTop"
+      "statClientes"
+      "cardBottom"
+      "statPedidos";
+
+  }
+
+  .clients-stat {
+    align-items: center;      /* centra horizontalmente el bloque */
+    text-align: center;       /* centra el texto */
+  }
+
+  .clients-stat-number {
+    font-size: 52px;
+  }
+
+  .clients-stat-label {
+    font-size: 16px;
+  }
+
+  .client-card {
+    max-width: 100%;
+  }
+}
+
+/* Layout desktop: como el boceto */
+@media (min-width: 768px) {
+  .clients-grid {
+    max-width: 1000px;  /* un poco más angosto que el contenedor general */
+    margin-inline: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));   /* 2 columnas */
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "statClientes cardTop"
+      "cardBottom  statPedidos";
+    column-gap: 40px;
+    row-gap: 40px;
+    align-items: center;
+  }
+
+  .clients-stat--clientes {
+    justify-self: center;          /* más hacia el centro */
+    align-items: flex-start;
+  }
+
+  .client-card--top {
+    justify-self: center;          /* card centrada */
+  }
+
+  .client-card--bottom {
+    justify-self: center;          /* card centrada */
+  }
+
+  .clients-stat--pedidos {
+    justify-self: center;          /* más hacia el centro */
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  /* cards más angostas en desktop */
+  .client-card {
+    max-width: 460px;
+    width: 100%;
+  }
+
+  .clients-stat-number {
+    font-size: 62px;
+  }
+
+  .clients-stat-label {
+    font-size: 20px;
+  }
+}
+
+
+/* ------ Borde animado para Soy/Quiero ser cliente ------ */
+.client-card--highlight {
+  position: relative;
+  background: transparent;           /* el fondo real va en el pseudo-elemento */
+  z-index: 0;
+}
+
+/* Capa de borde con gradiente animado */
+.client-card--highlight::before {
+  content: "";
+  position: absolute;
+  inset: -2px;                       /* grosor del borde */
+  border-radius: 24px;               /* igual que la card */
+  background: linear-gradient(
+    120deg,
+    #2f80ff,
+    #2cc6bb,
+    #2f80ff
+  );
+  background-size: 200% 200%;
+  animation: cardBorderGlow 3s linear infinite;
+  z-index: -2;
+}
+
+/* Capa interna blanca para que no se pinte todo el interior */
+.client-card--highlight::after {
+  content: "";
+  position: absolute;
+  inset: 4px;                        /* separación entre borde y contenido */
+  border-radius: 20px;
+  background: #ffffff;
+  z-index: -1;
+}
+
+/* Asegura que el contenido quede sobre las capas del borde */
+.client-card--highlight > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Animación del gradiente del borde */
+@keyframes cardBorderGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* BLOQUE CONECTA MARKET (layout tipo boceto) */
+/* ===== SECCIÓN CONECTA: full width sin scroll lateral ===== */
+
+.conecta-section {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+
+  background: #020617 url("/img/conecta-fondo.png") center / cover no-repeat;
+  background-attachment: fixed;
+
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* Contenedor que respeta el ancho de la página */
+.conecta-inner {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 40px 16px;
+}
+
+/* Layout 2 columnas (logo izquierda / card derecha) */
+.conecta-layout {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: center;
+}
+
+/* Lado izquierdo: logo de Conecta */
+.conecta-logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conecta-logo-img {
+  max-width: 100%;
+  width: 320px;      /* tamaño base desktop */
+  height: auto;
+}
+
+/* Lado derecho: tarjeta blanca, como en el boceto */
+.conecta-card {
+  color: #ffffff;
+  border-radius: 24px;
+  padding: 36px 32px;
+  text-align: left;
+}
+
+.conecta-card h2 {
+  font-size: 32px;
+  margin: 0 0 12px;
+}
+
+.conecta-card p {
+  margin: 0 0 20px;
+  font-size: 16px;
+}
+
+.conecta-btn {
+  margin-top: 4px;
+}
+
+/* MOBILE: apilar logo arriba y tarjeta abajo */
+@media (max-width: 767px) {
+  .conecta-layout {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 28px;
+  }
+
+  .conecta-logo-img {
+    width: 220px;
+  }
+
+  .conecta-card {
+    text-align: center;
+    padding: 28px 20px;
+  }
+
+  .conecta-card h2 {
+    font-size: 26px;
+  }
+}
+
+/* CONTACTO */
+.contact-section {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contact-section h2 {
+  font-size: 42px;
+  margin-bottom: 40px;
+}
+
+.contact-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap:26px;
+}
+
+.contact-card {
+  background: var(--card-bg);
+  color: var(--text-dark);
+  border-radius: 24px;
+  padding: 24px 16px;   /* un poco menos de padding */
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;             /* menos espacio entre elementos */
+}
+
+.contact-card span {
+  font-size: 28px;
+  font-weight:bold;
+}
+
+.contact-card small {
+  font-size: 20px;
+  opacity: 0.9;
+}
+
+/* Botón/ícono estilo WhatsApp */
+.whatsapp-icon {
+  width: min(500px, 100%);
+  max-width: 100%;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px; 
+}
+
+.whatsapp-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 480px) {
+  .whatsapp-icon {
+    height: 90px;
+  }
+}
+
+.btn-whatsapp {
+  margin-top: 12px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: none;
+  background: #25d366;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+}
+
+
+/* Estado base: transición suave */
+.btn,
+.btn-primary,
+.btn-whatsapp {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+}
+
+/* Hover: leve “elevación” y más sombra */
+.btn:hover,
+.btn-primary:hover,
+.btn-whatsapp:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+}
+
+/* Click (active): pequeño saltito hacia abajo */
+.btn:active,
+.btn-primary:active,
+.btn-whatsapp:active {
+  transform: translateY(1px) scale(0.96);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  filter: brightness(0.98);
+}
+
+@media (max-width: 480px) {
+  .hero-logo-img {
+    height: 100px;        /* un poco más chico en pantallas chicas */
+  }
+
+  .hero-subtitle {
+    font-size: 24px;
+  }
+
+  .brand-track img {
+    height: 110px;   /* más grandes en mobile */
+  }
+
+  .page {
+    padding-inline: 12px;
+  }
+}
+/* TABLET / DESKTOP */
+@media (min-width: 768px) {
+  .hero {
+    flex-direction: column;
+    align-items: center;       /* centrado */
+    text-align: center;        /* textos centrados */
+    gap: 24px;
+  }
+
+  .hero-header {
+    max-width: 640px;
+    text-align: center;
+  }
+  .brand-carousel {
+    width: 100%;                 /* ocupa todo el ancho */
+    max-width: 100%;
+    margin-top: 8px;
+  }
+
+  .client-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* DESKTOP ANCHO */
+@media (min-width: 1024px) {
+ .hero {
+    flex-direction: column;   /* logo + textos + carrusel en columna */
+    align-items: center;
+    text-align: center;
+    gap: 32px;
+  }
+
+  .hero-header {
+    max-width: 720px;
+    text-align: center;
+  }
+
+  .brand-carousel {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 12px;
+  }
+}
+
+@media (min-width: 768px) {
+  .client-card {
+    max-width: 380px;   
+    padding: 20px 18px; 
+  }
+
+  .client-card h3 {
+    font-size: 26px;
+  }
+
+  .client-card p {
+    font-size: 14px;
+  }
+
+  .client-card-img {
+    max-width: 180px;
+  }
+
+  .btn {
+    font-size: 16px;
+    padding: 9px 18px;
+  }
+}
