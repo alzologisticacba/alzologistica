@@ -1,32 +1,61 @@
 ---
 import "../styles/global.css";
 
-const { title = "Alzo" } = Astro.props;
+const {
+  title = "Alzo Logística | Distribuidor Mayorista en Córdoba",
+  description = "Alzo Logística es un distribuidor mayorista en Córdoba. Abastecemos kioscos, autoservicios y supermercados con marcas líderes.",
+  canonical = "https://alzologistica.com/"
+} = Astro.props;
 ---
 
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" href="img/alzo_logo.png" />
-    <title>{title}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y71FG34K3B"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        gtag('config', 'G-Y71FG34K3B');
-    </script>
-  </head>
+  <!-- SEO base -->
+  <title>{title}</title>
+  <meta
+    name="description"
+    content="Alzo Logística es un distribuidor mayorista en Córdoba. Abastecemos kioscos, autoservicios y supermercados con marcas líderes."
+  />
+  <link rel="canonical" href="https://alzologistica.com/" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:title" content={title} />
+  <meta
+    property="og:description"
+    content="Alzo Logística es un distribuidor mayorista en Córdoba. Abastecemos kioscos, autoservicios y supermercados con marcas líderes."
+  />
+  <meta property="og:url" content="https://alzologistica.com/" />
+  <meta property="og:type" content="website" />
+  <!-- Opcional: agregá una imagen real para compartir -->
+  <!-- <meta property="og:image" content="https://alzologistica.com/img/og.jpg" /> -->
+
+  <!-- Favicon (sin 'public/', ruta absoluta) -->
+  <link rel="icon" type="image/png" href="/img/alzo_logo.png" />
+
+  <!-- Fonts / Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y71FG34K3B"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y71FG34K3B');
+  </script>
+</head>
   <body>
     <main class="page">
       <slot />
