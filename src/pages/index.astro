@@ -1,8 +1,17 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+// SEO específico de Home (recomendado: keyword + Córdoba)
+const title = "Alzo";
+const description =
+  "Distribuidor mayorista en Córdoba. Abastecemos kioscos, autoservicios y supermercados con marcas líderes. Pedidos ágiles y atención por WhatsApp.";
+
+// Canonical robusto (si tenés site configurado en astro.config, mejor usar Astro.site)
+const canonical = "https://alzologistica.com/";
+
 ---
 
-<BaseLayout title="Alzo">
+<BaseLayout {title} {description} {canonical}>
 
   <header class="top-nav">
     <div class="top-nav-inner">
