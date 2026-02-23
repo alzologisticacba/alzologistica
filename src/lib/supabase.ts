@@ -1,31 +1,15 @@
 // src/lib/supabase.ts
-// ⚠️  Este archivo solo se ejecuta en el SERVIDOR (Astro API routes)
-// Nunca importar desde componentes React del cliente
-
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseKey = import.meta.env.SUPABASE_SERVICE_KEY;
 
+// En build estático sin variables, exportar cliente dummy para no romper el build
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Faltan variables de entorno SUPABASE_URL o SUPABASE_SERVICE_KEY");
+  console.warn("⚠️  SUPABASE_URL o SUPABASE_SERVICE_KEY no definidas — modo build estático");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Tipos basados en tu tabla `articulos`
-export interface Articulo {
-  codigo: number;
-  descripcion: string;
-  proveedor: string;
-  rubro: string;
-  precioFinal: number;
-  descuento: number;
-  multiplo: number;
-  orden: number;
-  tiempoExclusivo: boolean;
-  fechaInicio: string | null;
-  fechaFinal: string | null;
-  familiaNombre: string;
-  stock: number;
-}
+export const supabase = createClient(
+  supabaseUrl ?? "https://placeholder.supabase.co",
+  supabaseKey ?? "placeholder-key"
+);
