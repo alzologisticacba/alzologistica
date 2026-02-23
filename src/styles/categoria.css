@@ -1,0 +1,12 @@
+/* =============================================
+   categoria.css — estilos de página de categoría
+   Complementa 247.css. No duplicar variables.
+   ============================================= */
+
+/* La grilla ya está en 247.css */
+/* Este archivo puede quedar vacío o agregar overrides específicos */
+
+/* Skeleton en grilla normal */
+.product-grid .product-card--skeleton {
+  min-height: 240px;
+}

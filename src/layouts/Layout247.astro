@@ -1,0 +1,43 @@
+---
+// src/layouts/Layout247.astro
+const {
+  title       = "Alzo 24/7 | Pedidos rápidos",
+  description = "Alzo 24/7: pedí al por mayor en Córdoba.",
+  canonical   = "https://alzologistica.com/247",
+} = Astro.props;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href="/img/alzo_logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        min-height: 100vh;
+        background: #f0f2f5;
+        font-family: "Montserrat", system-ui, sans-serif;
+        color: #1a1a2e;
+        overflow-x: hidden;
+      }
+      main, .page {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        min-height: unset !important;
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
