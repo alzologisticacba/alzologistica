@@ -1,6 +1,5 @@
 // src/lib/supabaseClient.ts
-// Cliente de Supabase para uso en el BROWSER (componentes React)
-// Usa la clave anon (pública) — segura para el cliente
+// Cliente Supabase para uso en el BROWSER (componentes React)
 import { createClient } from "@supabase/supabase-js";
 
 const url = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -12,5 +11,11 @@ if (!url || !key) {
 
 export const supabaseClient = createClient(
   url ?? "https://placeholder.supabase.co",
-  key ?? "placeholder"
+  key ?? "placeholder",
+  {
+    db: { schema: "public" },
+    global: {
+      headers: { Accept: "application/json" },
+    },
+  }
 );
