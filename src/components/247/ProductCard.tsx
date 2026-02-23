@@ -31,7 +31,7 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
   return (
     <article
       className="product-card"
-      onClick={() => window.location.href = `/247/producto/${articulo.codigo}`}
+      onClick={() => window.location.href = `/247/producto/?codigo=${articulo.codigo}`}
       style={{ cursor: "pointer" }}
     >
       {tieneDescuento && <div className="product-card__badge">-{articulo.descuento}%</div>}

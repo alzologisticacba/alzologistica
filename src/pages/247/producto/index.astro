@@ -1,0 +1,10 @@
+---
+// src/pages/247/producto/index.astro
+// Página estática — el código se lee desde URL params en el cliente
+import Layout247 from "../../../layouts/Layout247.astro";
+import ProductoDetalle from "../../../components/247/ProductoDetalle";
+import "../../../styles/247.css";
+---
+<Layout247 title="Producto | Alzo 24/7">
+  <ProductoDetalle client:only="react" />
+</Layout247>

@@ -15,7 +15,7 @@ export default function ComboCard({ combo }: { combo: Combo }) {
   return (
     <article
       className="product-card combo-card"
-      onClick={() => window.location.href = `/247/combo/${combo.cod_combo}`}
+      onClick={() => window.location.href = `/247/combo/?cod_combo=${combo.cod_combo}`}
       style={{ cursor: "pointer" }}
     >
       <div className="product-card__img-wrap">
