@@ -34,11 +34,30 @@ interface Props {
 
 export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props) {
   const isGrid2x2 = filtro.grid2x2 ?? false;
-  const [items, setItems]   = useState<any[]>([]);
+  const [items, setItems]     = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [seed, setSeed]       = useState(0);
+
+  // Refrescar al volver atrás con flecha/historial del navegador
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setSeed(s => s + 1); // página restaurada desde bfcache
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setSeed(s => s + 1);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
 
   useEffect(() => {
+    setLoading(true);
     async function fetchData() {
+      setLoading(true);
       try {
         const sectionId = id ?? "";
         if (filtro.combos) {
@@ -106,7 +125,7 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
       }
     }
     fetchData();
-  }, []);
+  }, [seed]);
 
   if (!loading && items.length === 0) return null;
 

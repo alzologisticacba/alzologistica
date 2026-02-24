@@ -64,12 +64,10 @@ export default function ProductoDetalle() {
         else {
           setArticulo(data);
           setCantidad(data.multiplo || 1);
-          // Guardar familiaNombre en historial de vistos
+          // Guardar la familia del último producto visto
           try {
-            const vistos = JSON.parse(localStorage.getItem("alzo_vistos") ?? "[]");
-            if (data.familiaNombre && !vistos.includes(data.familiaNombre)) {
-              vistos.unshift(data.familiaNombre);
-              localStorage.setItem("alzo_vistos", JSON.stringify(vistos.slice(0, 5)));
+            if (data.familiaNombre) {
+              localStorage.setItem("alzo_ultimo_visto", data.familiaNombre);
             }
           } catch {}
         }

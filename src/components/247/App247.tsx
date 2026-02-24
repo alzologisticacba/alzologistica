@@ -30,10 +30,10 @@ export default function App247() {
       }
     } catch {}
 
-    // Leer familias de productos vistos
+    // Leer la familia del último producto visto
     try {
-      const vistos = JSON.parse(localStorage.getItem("alzo_vistos") ?? "[]");
-      if (vistos.length > 0) setFamiliasVistos(vistos);
+      const ultimoVisto = localStorage.getItem("alzo_ultimo_visto");
+      if (ultimoVisto) setFamiliasVistos([ultimoVisto]);
     } catch {}
 
     return () => window.removeEventListener("cart-updated", sync);
