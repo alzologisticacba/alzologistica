@@ -4,6 +4,7 @@ import { useArticulos } from "./hooks/useArticulos";
 import { useRubros } from "./hooks/useRubros";
 import ProductCard from "./ProductCard";
 import Header247 from "./Header247";
+import PageFooterSection from "./PageFooterSection";
 
 interface CategoryPageProps {
   familia?: string;
@@ -35,6 +36,7 @@ export default function CategoryPage({ familia: familiaProp, titulo: tituloProp 
   });
 
   return (
+    <>
     <div className="app-247">
       {/* Header FUERA del shell para que sea full-width */}
       <Header247 showBack={true} />
@@ -71,5 +73,7 @@ export default function CategoryPage({ familia: familiaProp, titulo: tituloProp 
         )}
       </div>
     </div>
+    {!loading && <PageFooterSection />}
+  </>
   );
 }

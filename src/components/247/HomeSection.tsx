@@ -4,25 +4,43 @@ import ProductCard from "./ProductCard";
 import ComboCard from "./ComboCard";
 import { supabaseClient } from "../../lib/supabaseClient";
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// IDs de secciones que deben mostrarse en orden aleatorio
+const SHUFFLE_IDS = new Set(["todos", "cigarrillos"]);
+
 interface Filtro {
+  id?: string;
   familia?: string;
+  familias?: string[];   // múltiples familias para "según tu pedido"
+  grid2x2?: boolean;
   descuento?: boolean;
   combos?: boolean;
 }
 
 interface Props {
+  id?: string;
   titulo: string;
   filtro: Filtro;
   verTodosHref: string;
 }
 
-export default function HomeSection({ titulo, filtro, verTodosHref }: Props) {
+export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props) {
+  const isGrid2x2 = filtro.grid2x2 ?? false;
   const [items, setItems]   = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        const sectionId = id ?? "";
         if (filtro.combos) {
           const { data } = await supabaseClient
             .from("combos")
@@ -31,18 +49,55 @@ export default function HomeSection({ titulo, filtro, verTodosHref }: Props) {
             .limit(10);
           setItems(data ?? []);
         } else {
-          let query = supabaseClient
-            .from("articulos")
-            .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
-            .gt("stock", 0)
-            .order("orden", { ascending: true })
-            .limit(10);
+          // Para "todos": obtener total y elegir un offset aleatorio
+          let result: any[] = [];
+          if (sectionId === "todos") {
+            // Traer un pool grande desde un offset aleatorio y elegir 10 distintos
+            const EXCLUIR_FAMILIAS = ["Cigarrillos", "Tabaco", "Tabacos", "Cigarros", "Cigarette"];
+            const { count } = await supabaseClient
+              .from("articulos")
+              .select("*", { count: "exact", head: true })
+              .gt("stock", 0)
+              .not("familiaNombre", "in", `(${EXCLUIR_FAMILIAS.join(",")})`);
+            const total = count ?? 0;
+            const poolSize = 80;
+            const maxOffset = Math.max(0, total - poolSize);
+            const offset = Math.floor(Math.random() * maxOffset);
+            const { data: pool } = await supabaseClient
+              .from("articulos")
+              .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+              .gt("stock", 0)
+              .not("familiaNombre", "in", `(${EXCLUIR_FAMILIAS.join(",")})`)
+              .order("orden", { ascending: true })
+              .range(offset, offset + poolSize - 1);
+            // Shuffle el pool completo y tomar los primeros 10
+            result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+          } else if (filtro.familias && filtro.familias.length > 0) {
+            // Sección "Según tu último pedido" — productos random de esas familias
+            const { data: pool } = await supabaseClient
+              .from("articulos")
+              .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+              .gt("stock", 0)
+              .in("familiaNombre", filtro.familias)
+              .order("orden", { ascending: true })
+              .limit(80);
+            result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+          } else {
+            let query = supabaseClient
+              .from("articulos")
+              .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+              .gt("stock", 0)
+              .order("orden", { ascending: true })
+              .limit(10);
 
-          if (filtro.familia)   query = query.ilike("familiaNombre", filtro.familia);
-          if (filtro.descuento) query = query.gt("descuento", 0).order("descuento", { ascending: false });
+            if (filtro.familia)   query = query.ilike("familiaNombre", filtro.familia);
+            if (filtro.descuento) query = query.gt("descuento", 0).order("descuento", { ascending: false });
 
-          const { data } = await query;
-          setItems(data ?? []);
+            const { data } = await query;
+            result = data ?? [];
+            if (SHUFFLE_IDS.has(sectionId)) result = shuffleArray(result);
+          }
+          setItems(result);
         }
       } catch (e) {
         console.error(e);
@@ -61,7 +116,7 @@ export default function HomeSection({ titulo, filtro, verTodosHref }: Props) {
         <h2 className="home-section__titulo">{titulo}</h2>
         <a href={verTodosHref} className="home-section__ver-todos">ver todos →</a>
       </div>
-      <div className="home-section__row">
+      <div className={isGrid2x2 ? "home-section__grid2x2" : "home-section__row"}>
         {loading
           ? [...Array(4)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
           : filtro.combos

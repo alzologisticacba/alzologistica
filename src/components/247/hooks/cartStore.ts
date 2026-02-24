@@ -8,6 +8,7 @@ export interface CartItem {
   cantidad: number;
   multiplo: number;
   descuento: number;
+  familiaNombre?: string;
   tipo: "articulo" | "combo";
 }
 

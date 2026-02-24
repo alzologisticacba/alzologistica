@@ -2,6 +2,7 @@
 import { useState, useEffect, useDeferredValue } from "react";
 import Header247 from "./Header247";
 import ComboCard from "./ComboCard";
+import PageFooterSection from "./PageFooterSection";
 import { supabaseClient } from "../../lib/supabaseClient";
 
 interface Combo {
@@ -34,6 +35,7 @@ export default function CombosPage() {
     : combos;
 
   return (
+    <>
     <div className="app-247">
       <Header247 showBack={true} />
       <div className="shell-247">
@@ -71,5 +73,7 @@ export default function CombosPage() {
         )}
       </div>
     </div>
+    {!loading && <PageFooterSection />}
+  </>
   );
 }

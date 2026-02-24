@@ -140,7 +140,7 @@ export default function Header247({
           </div>
           <a href="/247/descuentos" className="h247nav-btn">Descuentos</a>
           <a href="/247/combos"     className="h247nav-btn">Combos</a>
-          <a href="/247/todos"      className="h247nav-btn">Todos</a>
+          <a href="/247/pedidos"    className="h247nav-btn">Tus Pedidos</a>
         </nav>
 
       </div>

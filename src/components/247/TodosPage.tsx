@@ -2,6 +2,7 @@
 import { useState, useDeferredValue, useEffect } from "react";
 import Header247 from "./Header247";
 import ProductCard from "./ProductCard";
+import PageFooterSection from "./PageFooterSection";
 import { useArticulos } from "./hooks/useArticulos";
 import { supabaseClient } from "../../lib/supabaseClient";
 
@@ -36,6 +37,7 @@ export default function TodosPage() {
   function handleFamilia(f: string)  { setFamilia(f); setPage(1); }
 
   return (
+    <>
     <div className="app-247">
       <Header247 showBack={true} />
       <div className="shell-247">
@@ -92,5 +94,7 @@ export default function TodosPage() {
         )}
       </div>
     </div>
+    {!loading && <PageFooterSection />}
+  </>
   );
 }

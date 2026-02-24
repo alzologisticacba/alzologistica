@@ -22,6 +22,7 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
       precioFinal: articulo.precioFinal,
       multiplo:    articulo.multiplo || 1,
       descuento:   articulo.descuento,
+      familiaNombre: articulo.familiaNombre,
       tipo:        "articulo",
     });
     setAgregado(true);

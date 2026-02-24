@@ -32,6 +32,7 @@ const SELLERS = [
   { id: "v15", nombre: "German Maidana",   phone: "5493518560368", photo: "/img/vendedores/German Maidana.webp" },
   { id: "v16", nombre: "Andres Mazzia",    phone: "5493518560488", photo: "/img/vendedores/Andres Mazzia.png" },
   { id: "v17", nombre: "Lucas Gomez",      phone: "5493518560586", photo: "/img/vendedores/Lucas Gomez.webp" },
+  { id: "v18", nombre: "Prueba",      phone: "5493512260685", photo: "" },
 ];
 
 function fmt(n: number) {
@@ -167,9 +168,14 @@ export default function CarritoPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [step, setStep]           = useState<"user" | "seller">("user");
   const [user, setUser]           = useState<UserData | null>(null);
+  const [tienePedidos, setTienePedidos] = useState(false);
 
   useEffect(() => {
     setItems([...getCart()]);
+    try {
+      const p = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
+      setTienePedidos(Array.isArray(p) && p.length > 0);
+    } catch {}
     const sync = () => setItems([...getCart()]);
     window.addEventListener("cart-updated", sync);
     window.addEventListener("storage", sync);
@@ -224,10 +230,30 @@ export default function CarritoPage() {
     setStep("seller");
   }
 
-  function handleSend(phone: string) {
+  async function handleSend(phone: string) {
     const u = user ?? loadUser();
     if (!u) { setStep("user"); return; }
+
+    const vendedorNombre = SELLERS.find(s => s.phone === phone)?.nombre ?? phone;
     const msg = `Hola! Soy *${u.nombre}* (${u.telefono}). Quiero hacer el siguiente pedido:\n\n${items.map(i => `• ${i.cantidad}x ${i.descripcion} — ${fmt(i.precioFinal * i.cantidad)}`).join("\n")}\n\n*Total: ${fmt(totalPrecio)}*`;
+
+    const pedido = {
+      nombre:   u.nombre,
+      telefono: u.telefono,
+      vendedor: vendedorNombre,
+      items:    items.map(i => ({ codigo: i.codigo, descripcion: i.descripcion, cantidad: i.cantidad, precioFinal: i.precioFinal, descuento: i.descuento, familiaNombre: i.familiaNombre ?? "" })),
+      total:    totalPrecio,
+    };
+
+    try { await supabase.from("pedidos").insert(pedido); } catch {}
+
+    try {
+      const h = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
+      h.unshift({ ...pedido, created_at: new Date().toISOString() });
+      localStorage.setItem("alzo_pedidos", JSON.stringify(h.slice(0, 20)));
+      setTienePedidos(true);
+    } catch {}
+
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
     clearCart();
     setItems([]);
@@ -256,6 +282,9 @@ export default function CarritoPage() {
               <p className="cart-empty__sub">Agrega productos desde nuestros catálogos</p>
               <div className="cart-empty__btns">
                 <a href="/247" className="cart-empty__btn cart-empty__btn--solid">Volver al inicio</a>
+                {tienePedidos && (
+                  <a href="/247/pedidos" className="cart-empty__btn cart-empty__btn--ghost">Ver pedidos anteriores</a>
+                )}
               </div>
             </div>
           ) : (

@@ -41,7 +41,7 @@ const LINKS: FooterLink[] = [
 
 export default function Footer247() {
   return (
-    <footer className="footer247">
+    <footer className="footer247" suppressHydrationWarning>
       <div className="footer247__inner">
         <div className="footer247__grid">
           {LINKS.map((item, i) => (

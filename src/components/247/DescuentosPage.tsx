@@ -2,6 +2,7 @@
 import { useState, useDeferredValue } from "react";
 import Header247 from "./Header247";
 import ProductCard from "./ProductCard";
+import PageFooterSection from "./PageFooterSection";
 import { useArticulos } from "./hooks/useArticulos";
 
 export default function DescuentosPage() {
@@ -14,6 +15,7 @@ export default function DescuentosPage() {
   } as any);
 
   return (
+    <>
     <div className="app-247">
       <Header247 showBack={true} />
       <div className="shell-247">
@@ -36,5 +38,7 @@ export default function DescuentosPage() {
         )}
       </div>
     </div>
+    {!loading && <PageFooterSection />}
+  </>
   );
 }
