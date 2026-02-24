@@ -995,6 +995,7 @@
   gap: 6px;
   padding: 0;
   justify-self: start;
+  text-decoration: none;
 }
 .cart-header__back:hover { opacity: 0.8; }
 

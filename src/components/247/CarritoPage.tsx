@@ -238,7 +238,7 @@ export default function CarritoPage() {
     <div className="cart-app">
       {/* Header */}
       <header className="cart-header">
-        <a href="/247" className="cart-header__back">← Volver al inicio</a>
+        <a href="/247" className="cart-header__back">← Volver</a>
         <h1 className="cart-header__title">Tu carrito</h1>
         {items.length > 0
           ? <button className="cart-header__vaciar" onClick={vaciar}>🗑 Vaciar</button>
@@ -255,8 +255,7 @@ export default function CarritoPage() {
               <h2 className="cart-empty__title">Tu carrito está vacío</h2>
               <p className="cart-empty__sub">Agrega productos desde nuestros catálogos</p>
               <div className="cart-empty__btns">
-                <a href="/247/todos" className="cart-empty__btn cart-empty__btn--solid">Ver Catálogo</a>
-                <a href="/247/categoria/cigarrillos" className="cart-empty__btn cart-empty__btn--outline">Cigarrillos</a>
+                <a href="/247" className="cart-empty__btn cart-empty__btn--solid">Volver al inicio</a>
               </div>
             </div>
           ) : (
