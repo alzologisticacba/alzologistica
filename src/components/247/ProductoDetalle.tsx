@@ -123,13 +123,24 @@ export default function ProductoDetalle() {
                   <p className="pd__precio-unit">precio por unidad</p>
                 </div>
 
-                <table className="pd__details">
-                  <tbody>
-                    {articulo.uxb > 1 && <tr><td>Unidades por bulto</td><td><strong>{articulo.uxb}</strong></td></tr>}
-                    {articulo.multiplo > 1 && <tr><td>Múltiplo de venta</td><td><strong>×{articulo.multiplo}</strong></td></tr>}
-                    <tr><td>Código</td><td><strong>#{articulo.codigo}</strong></td></tr>
-                  </tbody>
-                </table>
+                <div className="pd__chips">
+                  {articulo.uxb > 1 && (
+                    <div className="pd__chip">
+                      <span className="pd__chip-label">📦 Bulto</span>
+                      <span className="pd__chip-val">{articulo.uxb} un.</span>
+                    </div>
+                  )}
+                  {articulo.multiplo > 1 && (
+                    <div className="pd__chip">
+                      <span className="pd__chip-label">🔢 Múltiplo</span>
+                      <span className="pd__chip-val">×{articulo.multiplo}</span>
+                    </div>
+                  )}
+                  <div className="pd__chip pd__chip--code">
+                    <span className="pd__chip-label">Código</span>
+                    <span className="pd__chip-val">#{articulo.codigo}</span>
+                  </div>
+                </div>
 
                 <div className="pd__cantidad-wrap">
                   <span className="pd__cantidad-label">Cantidad:</span>

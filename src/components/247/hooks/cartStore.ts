@@ -1,5 +1,5 @@
 // src/components/247/hooks/cartStore.ts
-// Usa window como estado global para compartir entre instancias React separadas
+// Persiste en localStorage para sobrevivir navegación entre páginas
 
 export interface CartItem {
   codigo: number;
@@ -11,41 +11,49 @@ export interface CartItem {
   tipo: "articulo" | "combo";
 }
 
-declare global {
-  interface Window { __alzo_cart__: CartItem[]; }
+const KEY = "alzo_cart";
+
+function load(): CartItem[] {
+  try {
+    return JSON.parse(localStorage.getItem(KEY) ?? "[]");
+  } catch { return []; }
 }
 
-function getStore(): CartItem[] {
-  if (typeof window === "undefined") return [];
-  if (!window.__alzo_cart__) window.__alzo_cart__ = [];
-  return window.__alzo_cart__;
+function save(cart: CartItem[]) {
+  try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch {}
 }
 
-export function getCart()      { return getStore(); }
-export function getCartCount() { return getStore().reduce((s, i) => s + i.cantidad, 0); }
+function dispatch() {
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new CustomEvent("cart-updated"));
+}
+
+export function getCart(): CartItem[]  { return load(); }
+export function getCartCount(): number { return load().reduce((s, i) => s + i.cantidad, 0); }
 
 export function addToCart(item: Omit<CartItem, "cantidad">) {
-  const cart     = getStore();
+  const cart     = load();
   const existing = cart.find(i => i.codigo === item.codigo);
   if (existing) {
     existing.cantidad += item.multiplo || 1;
   } else {
     cart.push({ ...item, cantidad: item.multiplo || 1 });
   }
-  window.dispatchEvent(new CustomEvent("cart-updated"));
+  save(cart);
+  dispatch();
 }
 
 export function removeFromCart(codigo: number) {
-  window.__alzo_cart__ = getStore().filter(i => i.codigo !== codigo);
-  window.dispatchEvent(new CustomEvent("cart-updated"));
+  save(load().filter(i => i.codigo !== codigo));
+  dispatch();
 }
 
 export function clearCart() {
-  window.__alzo_cart__ = [];
-  window.dispatchEvent(new CustomEvent("cart-updated"));
+  save([]);
+  dispatch();
 }
 
 export function updateQuantity(codigo: number, cantidad: number) {
-  window.__alzo_cart__ = getStore().map(i => i.codigo === codigo ? { ...i, cantidad } : i);
-  window.dispatchEvent(new CustomEvent("cart-updated"));
+  save(load().map(i => i.codigo === codigo ? { ...i, cantidad } : i));
+  dispatch();
 }

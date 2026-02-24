@@ -20,20 +20,15 @@ export const GET: APIRoute = async ({ url }) => {
       .gt("stock", 0)
       .order("orden", { ascending: true });
 
-    if (familia) query = query.eq("familiaNombre", familia);
-    if (rubro)   query = query.eq("rubro", rubro);
+    if (familia) query = query.ilike("familiaNombre", familia); // ← ilike para case-insensitive
+    if (rubro)   query = query.ilike("rubro", rubro);
     if (q)       query = query.ilike("descripcion", `%${q}%`);
 
     query = query.range(offset, offset + limit - 1);
 
     const { data, error, count } = await query;
 
-    if (error) {
-      return new Response(
-        JSON.stringify({ error: error.message }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
 
     return new Response(
       JSON.stringify({
@@ -43,9 +38,6 @@ export const GET: APIRoute = async ({ url }) => {
       { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=60" } }
     );
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 };

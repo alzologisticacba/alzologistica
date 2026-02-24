@@ -1,37 +1,59 @@
 // src/components/247/HomeSection.tsx
-// Sección de la home: título + "ver todos" + fila horizontal de cards
-
 import { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import ComboCard from "./ComboCard";
+import { supabaseClient } from "../../lib/supabaseClient";
 
-interface HomeSectionProps {
+interface Filtro {
+  familia?: string;
+  descuento?: boolean;
+  combos?: boolean;
+}
+
+interface Props {
   titulo: string;
-  endpoint: string;
-  tipo: "articulo" | "combo";
+  filtro: Filtro;
   verTodosHref: string;
 }
 
-export default function HomeSection({ titulo, endpoint, tipo, verTodosHref }: HomeSectionProps) {
-  const [data, setData]       = useState<any[]>([]);
+export default function HomeSection({ titulo, filtro, verTodosHref }: Props) {
+  const [items, setItems]   = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [vacio, setVacio]     = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    fetch(endpoint)
-      .then(r => r.json())
-      .then(json => {
-        const items = json.data ?? [];
-        setData(items);
-        setVacio(items.length === 0);
-      })
-      .catch(() => setVacio(true))
-      .finally(() => setLoading(false));
-  }, [endpoint]);
+    async function fetchData() {
+      try {
+        if (filtro.combos) {
+          const { data } = await supabaseClient
+            .from("combos")
+            .select("cod_combo, nombre, precio, descripcion, imagen")
+            .eq("activo", true)
+            .limit(10);
+          setItems(data ?? []);
+        } else {
+          let query = supabaseClient
+            .from("articulos")
+            .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+            .gt("stock", 0)
+            .order("orden", { ascending: true })
+            .limit(10);
 
-  // No mostrar la sección si está vacía (ej: sin descuentos)
-  if (!loading && vacio) return null;
+          if (filtro.familia)   query = query.ilike("familiaNombre", filtro.familia);
+          if (filtro.descuento) query = query.gt("descuento", 0).order("descuento", { ascending: false });
+
+          const { data } = await query;
+          setItems(data ?? []);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (!loading && items.length === 0) return null;
 
   return (
     <section className="home-section">
@@ -39,17 +61,12 @@ export default function HomeSection({ titulo, endpoint, tipo, verTodosHref }: Ho
         <h2 className="home-section__titulo">{titulo}</h2>
         <a href={verTodosHref} className="home-section__ver-todos">ver todos →</a>
       </div>
-
       <div className="home-section__row">
         {loading
-          ? [...Array(4)].map((_, i) => (
-              <div key={i} className="product-card product-card--skeleton home-section__card-skeleton" />
-            ))
-          : data.map((item, i) =>
-              tipo === "combo"
-                ? <ComboCard key={item.cod_combo ?? i} combo={item} />
-                : <ProductCard key={item.codigo ?? i} articulo={item} compact />
-            )
+          ? [...Array(4)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
+          : filtro.combos
+            ? items.map(c => <ComboCard key={c.cod_combo} combo={c} />)
+            : items.map(a => <ProductCard key={a.codigo} articulo={a} />)
         }
       </div>
     </section>
