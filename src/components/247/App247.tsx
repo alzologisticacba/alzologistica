@@ -12,6 +12,7 @@ export default function App247() {
   const [cartCount, setCartCount] = useState(() => { try { return JSON.parse(localStorage.getItem("alzo_cart") ?? "[]").reduce((s: number, i: any) => s + i.cantidad, 0); } catch { return 0; } });
   const [familiasUltimoPedido, setFamiliasUltimoPedido] = useState<string[]>([]);
   const [familiasVistos, setFamiliasVistos] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
   const deferredQ = useDeferredValue(busqueda);
   const buscando  = deferredQ.length >= 2;
 
@@ -36,6 +37,7 @@ export default function App247() {
       if (ultimoVisto) setFamiliasVistos([ultimoVisto]);
     } catch {}
 
+    setMounted(true);
     return () => window.removeEventListener("cart-updated", sync);
   }, []);
 
@@ -71,7 +73,7 @@ export default function App247() {
         {buscando
           ? <SearchResults q={deferredQ} />
           : <div className="home-sections">
-              {SECCIONES.map(s => (
+              {mounted && SECCIONES.map(s => (
                 <HomeSection key={s.id} id={s.id} titulo={s.titulo} filtro={s.filtro} verTodosHref={s.verTodosHref} />
               ))}
               <CategoriesSection />
