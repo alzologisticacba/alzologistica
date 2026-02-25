@@ -12,6 +12,7 @@ export default function DescuentosPage() {
   const { data, meta, loading } = useArticulos({
     q:        deferredQ || undefined,
     descuento: true,
+    limit:    200,
   } as any);
 
   return (
