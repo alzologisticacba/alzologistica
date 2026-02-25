@@ -2502,3 +2502,32 @@
   width: 100%;
   min-width: 0;
 }
+
+/* ── Imágenes en ProductCard ── */
+.product-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+
+/* ── Imagen en ProductoDetalle ── */
+.pd__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  display: block;
+}
+
+/* Agregar al final de 247.css */
+.cart-item__img--photo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #f7f8fc;
+  flex-shrink: 0;
+  display: block;
+}

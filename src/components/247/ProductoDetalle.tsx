@@ -45,6 +45,7 @@ function BtnAgregar({ articulo, cantidad }: { articulo: Articulo; cantidad: numb
 
 export default function ProductoDetalle() {
   const [articulo, setArticulo] = useState<Articulo | null>(null);
+  const [imgError, setImgError]   = useState(false);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(false);
   const [cantidad, setCantidad] = useState(1);
@@ -111,7 +112,15 @@ export default function ProductoDetalle() {
             <div className="pd__body">
               <div className="pd__img-col">
                 <div className="pd__img-wrap">
-                  <div className="pd__img-placeholder">📦</div>
+                  {imgError
+                    ? <div className="pd__img-placeholder">📦</div>
+                    : <img
+                        src={`https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos/${articulo.codigo}.png`}
+                        alt={articulo.descripcion}
+                        className="pd__img"
+                        onError={() => setImgError(true)}
+                      />
+                  }
                 </div>
                 {tieneDescuento && <div className="pd__badge">-{articulo.descuento}% OFF</div>}
               </div>
@@ -129,13 +138,24 @@ export default function ProductoDetalle() {
                   <p className="pd__precio-unit">precio por unidad</p>
                 </div>
 
-                <table className="pd__details">
-                  <tbody>
-                    {articulo.uxb > 1 && <tr><td>Unidades por bulto</td><td><strong>{articulo.uxb}</strong></td></tr>}
-                    {articulo.multiplo > 1 && <tr><td>Múltiplo de venta</td><td><strong>×{articulo.multiplo}</strong></td></tr>}
-                    <tr><td>Código</td><td><strong>#{articulo.codigo}</strong></td></tr>
-                  </tbody>
-                </table>
+                <div className="pd__chips">
+                  {articulo.uxb > 1 && (
+                    <div className="pd__chip">
+                      <span className="pd__chip-label">📦 Bulto</span>
+                      <span className="pd__chip-val">{articulo.uxb} un.</span>
+                    </div>
+                  )}
+                  {articulo.multiplo > 1 && (
+                    <div className="pd__chip">
+                      <span className="pd__chip-label">🔢 Múltiplo</span>
+                      <span className="pd__chip-val">×{articulo.multiplo}</span>
+                    </div>
+                  )}
+                  <div className="pd__chip pd__chip--code">
+                    <span className="pd__chip-label">Código</span>
+                    <span className="pd__chip-val">#{articulo.codigo}</span>
+                  </div>
+                </div>
 
                 <div className="pd__cantidad-wrap">
                   <span className="pd__cantidad-label">Cantidad:</span>

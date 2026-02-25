@@ -1,4 +1,5 @@
 // src/components/247/CarritoPage.tsx
+import React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { getCart, clearCart, removeFromCart, updateQuantity } from "./hooks/cartStore";
 import { supabaseClient as supabase } from "../../lib/supabaseClient";
@@ -163,6 +164,23 @@ function StepSeller({ user, totalPrecio, cartMessage, onSend }: StepSellerProps)
 
 // ── Componente principal ───────────────────────────────────────────────────
 
+
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
+
+function CartItemImg({ codigo }: { codigo: number }) {
+  const [error, setError] = React.useState(false);
+  if (error) return <div className="cart-item__img">📦</div>;
+  return (
+    <img
+      src={`${IMG_BASE}/${codigo}.png`}
+      alt=""
+      className="cart-item__img cart-item__img--photo"
+      onError={() => setError(true)}
+      loading="lazy"
+    />
+  );
+}
+
 export default function CarritoPage() {
   const [items, setItems]         = useState<CartItem[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -241,7 +259,7 @@ export default function CarritoPage() {
       nombre:   u.nombre,
       telefono: u.telefono,
       vendedor: vendedorNombre,
-      items:    items.map(i => ({ codigo: i.codigo, descripcion: i.descripcion, cantidad: i.cantidad, precioFinal: i.precioFinal, descuento: i.descuento, familiaNombre: i.familiaNombre ?? "" })),
+      items:    items.map(i => ({ codigo: i.codigo, descripcion: i.descripcion, cantidad: i.cantidad, precioFinal: i.precioFinal, descuento: i.descuento })),
       total:    totalPrecio,
     };
 
@@ -291,7 +309,7 @@ export default function CarritoPage() {
             <div className="cart-items">
               {items.map(item => (
                 <div key={item.codigo} className="cart-item">
-                  <div className="cart-item__img">📦</div>
+                  <CartItemImg codigo={item.codigo} />
                   <div className="cart-item__info">
                     <p className="cart-item__desc">{item.descripcion}</p>
                     <div className="cart-item__meta">
