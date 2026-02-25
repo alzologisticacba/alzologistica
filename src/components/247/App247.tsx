@@ -24,10 +24,15 @@ export default function App247() {
     try {
       const pedidos = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
       if (pedidos.length > 0) {
-        const familias = [...new Set<string>(
-          (pedidos[0].items ?? []).map((i: any) => i.familiaNombre).filter(Boolean)
-        )];
-        setFamiliasUltimoPedido(familias);
+        const items = pedidos[0].items ?? [];
+        const familias = [...new Set<string>(items.map((i: any) => i.familiaNombre).filter(Boolean))];
+        if (familias.length > 0) {
+          setFamiliasUltimoPedido(familias);
+        } else if (items.length > 0) {
+          // Fallback: si no hay familiaNombre, usar los rubros o marcar con codigos
+          const codigos = items.map((i: any) => i.codigo).filter(Boolean);
+          if (codigos.length > 0) setFamiliasUltimoPedido(["__codigos__:" + codigos.join(",")]);
+        }
       }
     } catch {}
 

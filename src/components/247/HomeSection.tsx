@@ -92,15 +92,39 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
             // Shuffle el pool completo y tomar los primeros 10
             result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
           } else if (filtro.familias && filtro.familias.length > 0) {
-            // Sección "Según tu último pedido" — productos random de esas familias
-            const { data: pool } = await supabaseClient
-              .from("articulos")
-              .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
-              .gt("stock", 0)
-              .in("familiaNombre", filtro.familias)
-              .order("orden", { ascending: true })
-              .limit(80);
-            result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+            // Sección "Según tu último pedido"
+            const primeraFamilia = filtro.familias[0];
+            if (primeraFamilia.startsWith("__codigos__:")) {
+              // Fallback: buscar por códigos directamente
+              const codigos = primeraFamilia.replace("__codigos__:", "").split(",").map(Number);
+              const { data: pool } = await supabaseClient
+                .from("articulos")
+                .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+                .gt("stock", 0)
+                .in("codigo", codigos);
+              // Con los codigos obtenemos las familias reales y traemos más productos
+              const familias = [...new Set((pool ?? []).map((p: any) => p.familiaNombre).filter(Boolean))];
+              if (familias.length > 0) {
+                const { data: masPool } = await supabaseClient
+                  .from("articulos")
+                  .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+                  .gt("stock", 0)
+                  .in("familiaNombre", familias)
+                  .limit(80);
+                result = shuffleArray(masPool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+              } else {
+                result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+              }
+            } else {
+              const { data: pool } = await supabaseClient
+                .from("articulos")
+                .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+                .gt("stock", 0)
+                .in("familiaNombre", filtro.familias)
+                .order("orden", { ascending: true })
+                .limit(80);
+              result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+            }
           } else {
             let query = supabaseClient
               .from("articulos")
