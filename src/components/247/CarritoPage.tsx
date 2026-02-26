@@ -18,21 +18,6 @@ type UserData = { nombre: string; telefono: string };
 const LS_USER = "alzo_user_v1";
 
 const SELLERS = [
-  { id: "v3",  nombre: "Federico Torres",  phone: "5493518561081", photo: "/img/vendedores/Federico Torres.webp" },
-  { id: "v4",  nombre: "Nicolas Tabera",   phone: "5493515138800", photo: "/img/vendedores/Nicolas Tavera.webp" },
-  { id: "v5",  nombre: "Claudio Tevez",    phone: "5493517680109", photo: "/img/vendedores/Claudio Tevez.webp" },
-  { id: "v6",  nombre: "Gustavo Martinez", phone: "5493518561704", photo: "/img/vendedores/Gustavo Martinez.webp" },
-  { id: "v7",  nombre: "Joel Sanrame",     phone: "5493516316971", photo: "/img/vendedores/Joel Sanrame.webp" },
-  { id: "v8",  nombre: "Nicolas Escobar",  phone: "5493515303045", photo: "/img/vendedores/Nicolas Escobar.webp" },
-  { id: "v9",  nombre: "Nicolas Ossman",   phone: "5493517024074", photo: "/img/vendedores/Nicolas Ossman.webp" },
-  { id: "v10", nombre: "Matias Dominguez", phone: "5493518559471", photo: "/img/vendedores/Matias Dominguez.png" },
-  { id: "v11", nombre: "Franco Cofre",     phone: "5493513276820", photo: "/img/vendedores/Franco Cofre.png" },
-  { id: "v12", nombre: "Daniel Rodriguez", phone: "5493518559685", photo: "/img/vendedores/Daniel Rodriguez.webp" },
-  { id: "v13", nombre: "Eliana Machado",   phone: "5493518560195", photo: "/img/vendedores/Eliana Machado.webp" },
-  { id: "v14", nombre: "Fernando Castro",  phone: "5493517680109", photo: "/img/vendedores/Fernando Castro.webp" },
-  { id: "v15", nombre: "German Maidana",   phone: "5493518560368", photo: "/img/vendedores/German Maidana.webp" },
-  { id: "v16", nombre: "Andres Mazzia",    phone: "5493518560488", photo: "/img/vendedores/Andres Mazzia.png" },
-  { id: "v17", nombre: "Lucas Gomez",      phone: "5493518560586", photo: "/img/vendedores/Lucas Gomez.webp" },
   { id: "v18", nombre: "Prueba",      phone: "5493512260685", photo: "" },
 ];
 
