@@ -263,19 +263,22 @@ export default function CarritoPage() {
       total:    totalPrecio,
     };
 
-    try { await supabase.from("pedidos").insert(pedido); } catch {}
+    // iOS Safari bloquea window.open() después de await
+    // → abrir WhatsApp PRIMERO, luego hacer el resto async
+    location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 
+    clearCart();
+    setItems([]);
+    setModalOpen(false);
+
+    // Guardar en background (no bloquea la navegación)
+    supabase.from("pedidos").insert(pedido).catch(() => {});
     try {
       const h = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
       h.unshift({ ...pedido, created_at: new Date().toISOString() });
       localStorage.setItem("alzo_pedidos", JSON.stringify(h.slice(0, 20)));
       setTienePedidos(true);
     } catch {}
-
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
-    clearCart();
-    setItems([]);
-    setModalOpen(false);
   }
 
   return (
