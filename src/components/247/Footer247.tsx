@@ -20,14 +20,14 @@ const LINKS: FooterLink[] = [
     img: "/img/247/comercialfooter.png",
     titulo: "Área Comercial",
     descripcion: "Contactá a nuestro equipo de ventas para asesoramiento personalizado.",
-    href: "https://wa.me/5493513276516",
+    href: `https://wa.me/5493513276516?text=${encodeURIComponent("Hola vengo de Alzo 24/7! Quiero obtener asesoramiento para mi punto de venta!")}`,
     label: "Contactar vendedor",
   },
   {
     img: "/img/247/mayoristafooter.png",
     titulo: "Mayoristas",
     descripcion: "Accedé a precios especiales y condiciones exclusivas para revendedores.",
-    href: "https://wa.me/5493516316968",
+    href: `https://wa.me/5493516316968?text=${encodeURIComponent("Hola vengo de Alzo 24/7! Quiero obtener asesoramiento para mayoristas!")}`,
     label: "Canal mayorista",
   },
   {
