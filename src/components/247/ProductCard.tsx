@@ -35,12 +35,14 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
   function handleAgregar(e: React.MouseEvent) {
     e.stopPropagation();
     addToCart({
-      codigo:      articulo.codigo,
-      descripcion: articulo.descripcion,
-      precioFinal: articulo.precioFinal,
-      multiplo:    articulo.multiplo || 1,
-      descuento:   articulo.descuento,
-      tipo:        "articulo",
+      codigo:        articulo.codigo,
+      descripcion:   articulo.descripcion,
+      precioFinal:   articulo.precioFinal,
+      multiplo:      articulo.multiplo || 1,
+      descuento:     articulo.descuento,
+      familiaNombre: articulo.familiaNombre ?? "",
+      rubro:         articulo.rubro ?? "",
+      tipo:          "articulo",
     });
     setAgregado(true);
     setTimeout(() => setAgregado(false), 1500);

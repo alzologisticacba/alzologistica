@@ -101,13 +101,19 @@ export default function PedidosPage() {
   const [nombre, setNombre]     = useState<string>("");
 
   useEffect(() => {
-    // Leer usuario del localStorage
     try {
       const u = JSON.parse(localStorage.getItem("alzo_user_v1") ?? "null");
       if (u?.nombre) setNombre(u.nombre);
 
+      // Mostrar localStorage INMEDIATAMENTE (fuente de verdad principal)
+      const local = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
+      if (local.length > 0) {
+        setPedidos(local);
+        setLoading(false);
+      }
+
+      // Intentar enriquecer con Supabase en background (sin bloquear)
       if (u?.telefono) {
-        // Intentar traer desde Supabase
         supabaseClient
           .from("pedidos")
           .select("id, created_at, vendedor, items, total")
@@ -116,22 +122,18 @@ export default function PedidosPage() {
           .limit(50)
           .then(({ data }) => {
             if (data && data.length > 0) {
-              setPedidos(data as Pedido[]);
-            } else {
-              // Fallback a localStorage
-              const local = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
-              setPedidos(local);
+              // Merge: Supabase + localStorage, sin duplicados por created_at
+              const supaIds = new Set(data.map((p: any) => p.created_at));
+              const soloLocal = local.filter((p: any) => !supaIds.has(p.created_at));
+              const merged = [...data, ...soloLocal]
+                .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .slice(0, 50);
+              setPedidos(merged as Pedido[]);
             }
           })
-          .catch(() => {
-            const local = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
-            setPedidos(local);
-          })
+          .catch(() => {})
           .finally(() => setLoading(false));
       } else {
-        // Sin usuario registrado
-        const local = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
-        setPedidos(local);
         setLoading(false);
       }
     } catch {

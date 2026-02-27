@@ -36,13 +36,14 @@ function BtnAgregar({ articulo, cantidad }: { articulo: Articulo; cantidad: numb
   const [agregado, setAgregado] = React.useState(false);
   function handleAgregar() {
     addToCart({
-      codigo:       articulo.codigo,
-      descripcion:  articulo.descripcion,
-      precioFinal:  articulo.precioFinal,
-      multiplo:     cantidad,
-      descuento:    articulo.descuento,
-      familiaNombre: articulo.familiaNombre,
-      tipo:         "articulo",
+      codigo:        articulo.codigo,
+      descripcion:   articulo.descripcion,
+      precioFinal:   articulo.precioFinal,
+      multiplo:      cantidad,
+      descuento:     articulo.descuento,
+      familiaNombre: articulo.familiaNombre ?? "",
+      rubro:         articulo.rubro ?? "",
+      tipo:          "articulo",
     });
     setAgregado(true);
     setTimeout(() => setAgregado(false), 1800);

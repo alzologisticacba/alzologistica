@@ -128,7 +128,7 @@ function StepSeller({ user, totalPrecio, cartMessage, onSend }: StepSellerProps)
           <button key={s.id} className="alzomodal-seller-card"
             onClick={() => onSend(s.phone)}>
             <div className="alzomodal-seller-card__photo">
-              {!imgErrors[s.id]
+              {s.photo && !imgErrors[s.id]
                 ? <img src={s.photo} alt={s.nombre}
                     onError={() => setImgErrors(p => ({ ...p, [s.id]: true }))} />
                 : <span className="alzomodal-seller-card__initials">
@@ -164,6 +164,16 @@ function CartItemImg({ codigo }: { codigo: number }) {
       loading="lazy"
     />
   );
+}
+
+// ── Google Sheets Webhook ──
+// Pegá acá la URL de tu Apps Script deployment
+const SHEETS_WEBHOOK = "https://script.google.com/macros/s/AKfycbwO9AAj5nj8vQKpEnYm30MgycWGXhdF-G4e6cn5xejlEzl8qQO1_eAgVJKhJOcJjsD7mQ/exec";
+
+// Genera un nro de seguimiento tipo ALZ-00123
+function generarNroSeguimiento(): string {
+  const n = Math.floor(Math.random() * 99999).toString().padStart(5, "0");
+  return `ALZ-${n}`;
 }
 
 export default function CarritoPage() {
@@ -238,32 +248,87 @@ export default function CarritoPage() {
     if (!u) { setStep("user"); return; }
 
     const vendedorNombre = SELLERS.find(s => s.phone === phone)?.nombre ?? phone;
-    const msg = `Hola! Soy *${u.nombre}* (${u.telefono}). Quiero hacer el siguiente pedido:\n\n${items.map(i => `• ${i.cantidad}x ${i.descripcion} — ${fmt(i.precioFinal * i.cantidad)}`).join("\n")}\n\n*Total: ${fmt(totalPrecio)}*`;
+    const nroSeguimiento = generarNroSeguimiento();
+    const lineasMsg = items.map(i => {
+      const precioUnitario = fmt(i.precioFinal);
+      const totalItem      = fmt(i.precioFinal * i.cantidad);
+      const descLine       = i.descuento > 0 ? ` | Desc: -${i.descuento}%` : "";
+      return `• ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}`;
+    }).join("\n");
+    const separadorMsg = "─".repeat(30);
+    const msg = `Hola soy *${u.nombre}*!\nHice este pedido por Alzo 24/7\n\n${lineasMsg}\n\n${separadorMsg}\n*Total: ${fmt(totalPrecio)}*\nNumero de seguimiento: ${nroSeguimiento}`;
 
     const pedido = {
-      nombre:   u.nombre,
-      telefono: u.telefono,
-      vendedor: vendedorNombre,
-      items:    items.map(i => ({ codigo: i.codigo, descripcion: i.descripcion, cantidad: i.cantidad, precioFinal: i.precioFinal, descuento: i.descuento })),
-      total:    totalPrecio,
+      nombre:          u.nombre,
+      telefono:        u.telefono,
+      vendedor:        vendedorNombre,
+      nro_seguimiento: nroSeguimiento,
+      items:           items.map(i => ({
+        codigo:       i.codigo,
+        descripcion:  i.descripcion,
+        rubro:        i.rubro ?? "",
+        familiaNombre: i.familiaNombre ?? "",
+        cantidad:     i.cantidad,
+        precioFinal:  i.precioFinal,
+        descuento:    i.descuento,
+      })),
+      total: totalPrecio,
     };
 
-    // iOS Safari bloquea window.open() después de await
-    // → abrir WhatsApp PRIMERO, luego hacer el resto async
-    location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    // 1. Guardar historial sincrónicamente ANTES de todo (iOS navega antes del async)
+    const pedidoConFecha = { ...pedido, created_at: new Date().toISOString() };
+    try {
+      const h = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
+      h.unshift(pedidoConFecha);
+      localStorage.setItem("alzo_pedidos", JSON.stringify(h.slice(0, 20)));
+    } catch {}
 
+    // 2. Enviar a Google Sheets con sendBeacon (sobrevive la navegación en iOS)
+    //    Mismo patrón que PellaClick: payload como URLSearchParams
+    try {
+      const sheetPayload = {
+        nro_seguimiento: nroSeguimiento,
+        fecha:           new Date().toISOString(),
+        cod_vendedor:    phone,
+        vendedor_nombre: vendedorNombre,
+        skus:            items.length,
+        unidades:        items.reduce((s, i) => s + i.cantidad, 0),
+        total:           totalPrecio,
+        // items como string JSON dentro del payload (igual que PellaClick)
+        items: JSON.stringify(items.map(i => ({
+          sku:        i.codigo,
+          name:       i.descripcion,
+          rubro:      i.rubro ?? "",
+          familia:    i.familiaNombre ?? "",
+          qty:        i.cantidad,
+          price:      i.precioFinal,
+          discount:   i.descuento,
+          subtotal:   i.precioFinal * i.cantidad,
+        }))),
+      };
+      const body = new URLSearchParams({ payload: JSON.stringify(sheetPayload) }).toString();
+      // sendBeacon: funciona aunque el navegador navegue, no bloquea
+      if (navigator.sendBeacon) {
+        const blob = new Blob([body], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
+        navigator.sendBeacon(SHEETS_WEBHOOK, blob);
+      } else {
+        fetch(SHEETS_WEBHOOK, {
+          method:  "POST",
+          mode:    "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+          body,
+        }).catch(() => {});
+      }
+    } catch {}
+
+    // 3. Guardar en Supabase en background
+    supabase.from("pedidos").insert(pedido).then(() => {}).catch(() => {});
+
+    // 4. iOS Safari: navegar AL FINAL (después de guardar todo)
     clearCart();
     setItems([]);
     setModalOpen(false);
-
-    // Guardar en background (no bloquea la navegación)
-    supabase.from("pedidos").insert(pedido).catch(() => {});
-    try {
-      const h = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
-      h.unshift({ ...pedido, created_at: new Date().toISOString() });
-      localStorage.setItem("alzo_pedidos", JSON.stringify(h.slice(0, 20)));
-      setTienePedidos(true);
-    } catch {}
+    location.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   }
 
   return (
