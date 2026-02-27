@@ -1,5 +1,5 @@
 // src/components/247/HomeSection.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ProductCard from "./ProductCard";
 import ComboCard from "./ComboCard";
 import { supabaseClient } from "../../lib/supabaseClient";
@@ -153,20 +153,38 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
 
   if (!loading && items.length === 0) return null;
 
+  const rowRef = useRef<HTMLDivElement>(null);
+  const scroll = (dir: "left" | "right") => {
+    if (rowRef.current) rowRef.current.scrollBy({ left: dir === "right" ? 320 : -320, behavior: "smooth" });
+  };
+
   return (
     <section className="home-section">
       <div className="home-section__header">
         <h2 className="home-section__titulo">{titulo}</h2>
         <a href={verTodosHref} className="home-section__ver-todos">ver todos →</a>
       </div>
-      <div className={isGrid2x2 ? "home-section__grid2x2" : "home-section__row"}>
-        {loading
-          ? [...Array(4)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
-          : filtro.combos
-            ? items.map(c => <ComboCard key={c.cod_combo} combo={c} />)
+      {isGrid2x2 ? (
+        <div className="home-section__grid2x2">
+          {loading
+            ? [...Array(4)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
             : items.map(a => <ProductCard key={a.codigo} articulo={a} />)
-        }
-      </div>
+          }
+        </div>
+      ) : (
+        <div className="home-section__row-wrap">
+          <button className="home-section__arrow home-section__arrow--left" onClick={() => scroll("left")} aria-label="Anterior">‹</button>
+          <div className="home-section__row" ref={rowRef}>
+            {loading
+              ? [...Array(4)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
+              : filtro.combos
+                ? items.map(c => <ComboCard key={c.cod_combo} combo={c} />)
+                : items.map(a => <ProductCard key={a.codigo} articulo={a} />)
+            }
+          </div>
+          <button className="home-section__arrow home-section__arrow--right" onClick={() => scroll("right")} aria-label="Siguiente">›</button>
+        </div>
+      )}
     </section>
   );
 }

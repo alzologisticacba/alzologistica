@@ -6,6 +6,8 @@ import CategoriesSection from "./CategoriesSection";
 import SearchResults from "./SearchResults";
 import { getCartCount } from "./hooks/cartStore";
 import Footer247 from "./Footer247";
+import BrandSection from "./BrandSection";
+import { supabaseClient } from "../../lib/supabaseClient";
 
 export default function App247() {
   const [busqueda, setBusqueda] = useState("");
@@ -13,6 +15,7 @@ export default function App247() {
   const [familiasUltimoPedido, setFamiliasUltimoPedido] = useState<string[]>([]);
   const [familiasVistos, setFamiliasVistos] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [marcas, setMarcas]   = useState<{seccion: string; titulo: string}[]>([]);
   const deferredQ = useDeferredValue(busqueda);
   const buscando  = deferredQ.length >= 2;
 
@@ -42,28 +45,34 @@ export default function App247() {
       if (ultimoVisto) setFamiliasVistos([ultimoVisto]);
     } catch {}
 
+    // Cargar marcas con secciones activas
+    supabaseClient
+      .from("articulos")
+      .select("seccion")
+      .gt("stock", 0)
+      .not("seccion", "is", null)
+      .neq("seccion", "")
+      .then(({ data }) => {
+        if (!data) return;
+        const slugs = [...new Set(data.map((r: any) => r.seccion).filter(Boolean))] as string[];
+        const todas = slugs.map(s => ({
+          seccion: s,
+          titulo: s.charAt(0).toUpperCase() + s.slice(1),
+        }));
+        // Shuffle Fisher-Yates para mostrar 3 random cada vez
+        for (let i = todas.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [todas[i], todas[j]] = [todas[j], todas[i]];
+        }
+        setMarcas(todas);
+      });
+
     setMounted(true);
     return () => window.removeEventListener("cart-updated", sync);
   }, []);
 
-  const SECCIONES = [
-    { id: "descuentos",  titulo: "Descuentos Exclusivos",          filtro: { descuento: true },                                    verTodosHref: "/247/descuentos" },
-    ...(familiasVistos.length > 0 ? [{
-      id: "vistos",
-      titulo: "Inspirado en lo último que viste",
-      filtro: { familias: familiasVistos },
-      verTodosHref: "/247/todos",
-    }] : []),
-    { id: "combos",      titulo: "Combos",                         filtro: { combos: true },                                      verTodosHref: "/247/combos" },
-    ...(familiasUltimoPedido.length > 0 ? [{
-      id: "ultimo-pedido",
-      titulo: "Según tu último pedido",
-      filtro: { familias: familiasUltimoPedido, grid2x2: true },
-      verTodosHref: "/247/todos",
-    }] : []),
-    { id: "todos",       titulo: "Todos los productos",            filtro: {},                                                    verTodosHref: "/247/todos" },
-    { id: "cigarrillos", titulo: "Cigarrillos",                    filtro: { familia: "Cigarrillos" },                           verTodosHref: "/247/categoria/cigarrillos" },
-  ];
+  // 3 marcas random del total disponible
+  const marcasRandom = marcas.slice(0, 3); // ya vienen shuffleadas al cargar
 
   return (
     <div className="app-247">
@@ -78,9 +87,26 @@ export default function App247() {
         {buscando
           ? <SearchResults q={deferredQ} />
           : <div className="home-sections">
-              {mounted && SECCIONES.map(s => (
-                <HomeSection key={s.id} id={s.id} titulo={s.titulo} filtro={s.filtro} verTodosHref={s.verTodosHref} />
-              ))}
+              {mounted && <>
+                {/* 1. Descuentos */}
+                <HomeSection id="descuentos" titulo="Descuentos Exclusivos" filtro={{ descuento: true }} verTodosHref="/247/descuentos" />
+                {/* 2. Inspirado en lo último que viste */}
+                {familiasVistos.length > 0 && <HomeSection id="vistos" titulo="Inspirado en lo último que viste" filtro={{ familias: familiasVistos }} verTodosHref="/247/todos" />}
+                {/* 3. Sección marca 1 */}
+                {marcasRandom[0] && <BrandSection seccion={marcasRandom[0].seccion} titulo={marcasRandom[0].titulo} />}
+                {/* 4. Combos */}
+                <HomeSection id="combos" titulo="Combos" filtro={{ combos: true }} verTodosHref="/247/combos" />
+                {/* 5. Según tu último pedido */}
+                {familiasUltimoPedido.length > 0 && <HomeSection id="ultimo-pedido" titulo="Según tu último pedido" filtro={{ familias: familiasUltimoPedido, grid2x2: true }} verTodosHref="/247/todos" />}
+                {/* 6. Sección marca 2 */}
+                {marcasRandom[1] && <BrandSection seccion={marcasRandom[1].seccion} titulo={marcasRandom[1].titulo} />}
+                {/* 7. Todos los productos */}
+                <HomeSection id="todos" titulo="Todos los productos" filtro={{}} verTodosHref="/247/todos" />
+                {/* 8. Sección marca 3 */}
+                {marcasRandom[2] && <BrandSection seccion={marcasRandom[2].seccion} titulo={marcasRandom[2].titulo} />}
+                {/* 9. Cigarrillos */}
+                <HomeSection id="cigarrillos" titulo="Cigarrillos" filtro={{ familia: "Cigarrillos" }} verTodosHref="/247/categoria/cigarrillos" />
+              </>}
               <CategoriesSection />
             </div>
         }

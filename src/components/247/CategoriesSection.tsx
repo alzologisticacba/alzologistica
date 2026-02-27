@@ -4,30 +4,28 @@ import { supabaseClient } from "../../lib/supabaseClient";
 
 // Íconos emoji por familia — agregá/modificá según tus familias reales
 const FAMILIA_ICONS: Record<string, string> = {
-  "Cigarrillos":              "🚬",
-  "Golosinas":                "🍬",
-  "Bebidas":                  "🥤",
-  "Bebidas con Alcohol":      "🍺",
-  "Snacks":                   "🍿",
-  "Lácteos":                  "🥛",
-  "Limpieza":                 "🧹",
-  "Perfumería":               "🧴",
-  "Conservas":                "🥫",
-  "Fiambres":                 "🥩",
-  "Panadería":                "🍞",
-  "Congelados":               "🧊",
-  "Almacén":                  "🛒",
-  "Electrónica":              "📱",
-  "Ferretería":               "🔧",
-  "Librería":                 "📚",
-  "Juguetes":                 "🧸",
-  "Ropa":                     "👕",
-  "Calzado":                  "👟",
-  "Mascotas":                 "🐾",
-  "Farmacia":                 "💊",
-  "Herramientas":             "🔨",
-  "Caramelos Masticables":    "🍬",
-  "Chicles":                  "🫧",
+  // Familias exactas de la BD
+  "Almacen":           "🛒",
+  "Bebidas":           "🥤",
+  "Chocolates":        "🍫",
+  "Cigarrillos":       "🚬",
+  "Cuidado del Hogar": "🧹",
+  "Cuidado Personal":  "🧴",
+  "Golosinas":         "🍬",
+  "Harinas":           "🌾",
+  "Libreria":          "📚",
+  "Varios":            "📦",
+  // Extras por si agregan más
+  "Bebidas con Alcohol": "🍺",
+  "Snacks":            "🍿",
+  "Lácteos":           "🥛",
+  "Conservas":         "🥫",
+  "Panadería":         "🍞",
+  "Congelados":        "🧊",
+  "Farmacia":          "💊",
+  "Caramelos Masticables": "🍬",
+  "Chicles":           "🫧",
+  "Mascotas":          "🐾",
 };
 
 function getIcon(familia: string) {
@@ -56,7 +54,9 @@ const PALETA = [
   { bg: "#fef9c3", icon: "#ca8a04" },
 ];
 
-export default function CategoriesSection() {
+interface CatProps { brandBg?: string; brandText?: string; }
+
+export default function CategoriesSection({ brandBg, brandText }: CatProps = {}) {
   const [familias, setFamilias] = useState<string[]>([]);
   const [loading, setLoading]   = useState(true);
 
@@ -71,10 +71,13 @@ export default function CategoriesSection() {
       });
   }, []);
 
+  const sectionStyle = brandBg ? { backgroundColor: brandBg } : {};
+  const titleStyle   = brandText ? { color: brandText } : {};
+
   if (loading) return (
-    <div className="cat-section">
+    <div className="cat-section" style={sectionStyle}>
       <div className="cat-section__head">
-        <h2 className="cat-section__title">Categorías</h2>
+        <h2 className="cat-section__title" style={titleStyle}>Categorías</h2>
       </div>
       <div className="cat-section__grid">
         {[...Array(8)].map((_, i) => (
@@ -85,10 +88,10 @@ export default function CategoriesSection() {
   );
 
   return (
-    <div className="cat-section">
+    <div className="cat-section" style={sectionStyle}>
       <div className="cat-section__head">
-        <h2 className="cat-section__title">Categorías</h2>
-        <a href="/247/todos" className="cat-section__ver-todas">Ver todos los productos →</a>
+        <h2 className="cat-section__title" style={titleStyle}>Categorías</h2>
+        <a href="/247/todos" className="cat-section__ver-todas" style={brandText ? { color: brandText } : {}}>Ver todos los productos →</a>
       </div>
 
       <div className="cat-section__grid">

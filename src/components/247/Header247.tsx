@@ -26,13 +26,12 @@ export default function Header247({
   showSearch = false,
   showBack = false,
 }: Props) {
-  // ⚠️ SIEMPRE 0 en SSR para evitar hydration mismatch
   const [count, setCount]       = useState(0);
   const [familias, setFamilias] = useState<string[]>([]);
-  const [open, setOpen]         = useState(false);
+  const [ddOpen, setDdOpen]     = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const ddRef                   = useRef<HTMLDivElement>(null);
 
-  // Leer localStorage SOLO en cliente, después del mount
   useEffect(() => {
     setCount(cartCountProp ?? readCartCount());
     if (cartCountProp !== undefined) return;
@@ -45,12 +44,10 @@ export default function Header247({
     };
   }, []);
 
-  // Cuando App247 actualiza cartCount desde afuera
   useEffect(() => {
     if (cartCountProp !== undefined) setCount(cartCountProp);
   }, [cartCountProp]);
 
-  // Familias para el dropdown
   useEffect(() => {
     supabaseClient
       .from("articulos").select("familiaNombre").gt("stock", 0)
@@ -63,13 +60,19 @@ export default function Header247({
 
   // Cerrar dropdown al clickear afuera
   useEffect(() => {
-    if (!open) return;
+    if (!ddOpen) return;
     const fn = (e: MouseEvent) => {
-      if (ddRef.current && !ddRef.current.contains(e.target as Node)) setOpen(false);
+      if (ddRef.current && !ddRef.current.contains(e.target as Node)) setDdOpen(false);
     };
     document.addEventListener("mousedown", fn);
     return () => document.removeEventListener("mousedown", fn);
-  }, [open]);
+  }, [ddOpen]);
+
+  // Bloquear scroll del body cuando menú abierto
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   function toSlug(f: string) {
     return f.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-");
@@ -118,20 +121,22 @@ export default function Header247({
           </div>
         )}
 
-        {/* Navbar */}
-        <nav className="header-247-nav">
+        {/* ── Navbar desktop ── */}
+        <nav className="header-247-nav header-247-nav--desktop">
+          <a href="/247" className="h247nav-btn">Inicio</a>
+          <a href="/247/pedidos" className="h247nav-btn">Tus Pedidos</a>
           <div className="h247nav-dd" ref={ddRef}>
-            <button className={`h247nav-btn${open ? " h247nav-btn--open" : ""}`} onClick={() => setOpen(o => !o)}>
+            <button className={`h247nav-btn${ddOpen ? " h247nav-btn--open" : ""}`} onClick={() => setDdOpen(o => !o)}>
               Categorías
               <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
-                style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .2s", flexShrink: 0 }}>
+                style={{ transform: ddOpen ? "rotate(180deg)" : "none", transition: "transform .2s", flexShrink: 0 }}>
                 <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            {open && familias.length > 0 && (
+            {ddOpen && familias.length > 0 && (
               <div className="h247nav-dropdown">
                 {familias.map(f => (
-                  <a key={f} href={`/247/categoria/${toSlug(f)}`} className="h247nav-dropdown__item" onClick={() => setOpen(false)}>
+                  <a key={f} href={`/247/categoria/${toSlug(f)}`} className="h247nav-dropdown__item" onClick={() => setDdOpen(false)}>
                     {f}
                   </a>
                 ))}
@@ -140,10 +145,44 @@ export default function Header247({
           </div>
           <a href="/247/descuentos" className="h247nav-btn">Descuentos</a>
           <a href="/247/combos"     className="h247nav-btn">Combos</a>
-          <a href="/247/pedidos"    className="h247nav-btn">Tus Pedidos</a>
         </nav>
 
+        {/* ── Hamburger mobile ── */}
+        <button
+          className="header-247-hamburger"
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Menú"
+        >
+          <span className={`hamburger-bar${menuOpen ? " hamburger-bar--open" : ""}`} />
+          <span className={`hamburger-bar${menuOpen ? " hamburger-bar--open" : ""}`} />
+          <span className={`hamburger-bar${menuOpen ? " hamburger-bar--open" : ""}`} />
+        </button>
+
       </div>
+
+      {/* ── Menú mobile overlay ── */}
+      {menuOpen && (
+        <div className="h247-mobile-menu" onClick={() => setMenuOpen(false)}>
+          <div className="h247-mobile-menu__panel" onClick={e => e.stopPropagation()}>
+            <div className="h247-mobile-menu__head">
+              <span className="h247-mobile-menu__title">Menú</span>
+              <button className="h247-mobile-menu__close" onClick={() => setMenuOpen(false)}>✕</button>
+            </div>
+            <nav className="h247-mobile-menu__nav">
+              <a href="/247"           className="h247-mobile-menu__link" onClick={() => setMenuOpen(false)}>🏠 Inicio</a>
+              <a href="/247/pedidos"   className="h247-mobile-menu__link" onClick={() => setMenuOpen(false)}>📦 Tus Pedidos</a>
+              <a href="/247/descuentos" className="h247-mobile-menu__link" onClick={() => setMenuOpen(false)}>🏷️ Descuentos</a>
+              <a href="/247/combos"    className="h247-mobile-menu__link" onClick={() => setMenuOpen(false)}>🎁 Combos</a>
+              <div className="h247-mobile-menu__separator">Categorías</div>
+              {familias.map(f => (
+                <a key={f} href={`/247/categoria/${toSlug(f)}`} className="h247-mobile-menu__link h247-mobile-menu__link--cat" onClick={() => setMenuOpen(false)}>
+                  {f}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
