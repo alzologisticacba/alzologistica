@@ -38,13 +38,6 @@ export default function FamiliasPage({ titulo, subtitulo, emoji = "✨" }: Props
             <div>
               <h1 className="familias-page__titulo">{titulo}</h1>
               {subtitulo && <p className="familias-page__subtitulo">{subtitulo}</p>}
-              {familias.length > 0 && (
-                <div className="familias-page__tags">
-                  {familias.map(f => (
-                    <span key={f} className="familias-page__tag">{f}</span>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
