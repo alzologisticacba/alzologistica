@@ -27,6 +27,8 @@ const BRAND_COLORS: Record<string, { bg: string; text: string; accent: string }>
   "suerox":    { bg: "#b8d8ff", text: "#041848", accent: "#0848c8" },
   "takis":     { bg: "#0e1217", text: "#f5d020", accent: "#8828d0" },
   "VerdeFlor": { bg: "#d0f0c0", text: "#0a2808", accent: "#187818" },
+  "yummy":     { bg: "#1a2580", text: "#f5d020", accent: "#f5d020" },
+  "zono":      { bg: "#e8faff", text: "#007a9a", accent: "#00b4d8" },
 };
 
 export default function SeccionPage() {

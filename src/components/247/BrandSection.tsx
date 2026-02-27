@@ -24,6 +24,8 @@ const BRAND_COLORS: Record<string, { bg: string; text: string }> = {
   "suerox":    { bg: "#b8d8ff", text: "#041848" },
   "takis":     { bg: "#0e1217", text: "#f5d020" },
   "VerdeFlor": { bg: "#d0f0c0", text: "#0a2808" },
+  "yummy":     { bg: "#1a2580", text: "#f5d020" },
+  "zono":      { bg: "#e8faff", text: "#007a9a" },
 };
 
 function shuffleArray<T>(arr: T[]): T[] {
