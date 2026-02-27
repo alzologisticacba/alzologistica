@@ -15,7 +15,7 @@ export interface Articulo {
 }
 
 interface Meta { total: number; page: number; limit: number; totalPages: number; }
-interface Filters { familia?: string; rubro?: string; q?: string; page?: number; limit?: number; descuento?: boolean; seccion?: string; }
+interface Filters { familia?: string; familias?: string[]; rubro?: string; q?: string; page?: number; limit?: number; descuento?: boolean; seccion?: string; }
 
 export function useArticulos(filters: Filters) {
   const [data, setData]       = useState<Articulo[]>([]);
@@ -41,6 +41,7 @@ export function useArticulos(filters: Filters) {
 
     if (filters.familia)   query = query.ilike("familiaNombre", filters.familia);
     if (filters.seccion)   query = query.eq("seccion", filters.seccion);
+    if (filters.familias && filters.familias.length > 0) query = query.in("familiaNombre", filters.familias);
     if (filters.rubro)     query = query.ilike("rubro", filters.rubro);
     if (filters.q)         query = query.ilike("descripcion", `%${filters.q}%`);
     if (filters.descuento) query = (query as any).gt("descuento", 0).order("descuento", { ascending: false });
@@ -54,7 +55,7 @@ export function useArticulos(filters: Filters) {
     }).finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
-  }, [filters.familia, filters.rubro, filters.q, filters.page, filters.limit, filters.descuento, filters.seccion]);
+  }, [filters.familia, filters.familias?.join(","), filters.rubro, filters.q, filters.page, filters.limit, filters.descuento, filters.seccion]);
 
   return { data, meta, loading, error };
 }

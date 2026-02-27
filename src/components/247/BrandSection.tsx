@@ -102,7 +102,13 @@ export default function BrandSection({ seccion, titulo }: Props) {
             ? [...Array(4)].map((_, i) => (
                 <div key={i} className="product-card product-card--skeleton" />
               ))
-            : items.map(a => <ProductCard key={a.codigo} articulo={a} />)
+            : <>
+              {items.map(a => <ProductCard key={a.codigo} articulo={a} />)}
+              <a href={verTodosHref} className="hs-ver-todos-card">
+                <span className="hs-ver-todos-card__icon">→</span>
+                <span className="hs-ver-todos-card__txt">Ver<br/>todos</span>
+              </a>
+            </>
           }
         </div>
         <button className="home-section__arrow home-section__arrow--right" onClick={() => scroll("right")} aria-label="Siguiente">›</button>

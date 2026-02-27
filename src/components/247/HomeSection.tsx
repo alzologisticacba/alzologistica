@@ -30,9 +30,11 @@ interface Props {
   titulo: string;
   filtro: Filtro;
   verTodosHref: string;
+  hideVerTodos?: boolean;
+  maxItems?: number;
 }
 
-export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props) {
+export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerTodos = false, maxItems }: Props) {
   const isGrid2x2 = filtro.grid2x2 ?? false;
   const [items, setItems]     = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,7 +92,7 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
               .order("orden", { ascending: true })
               .range(offset, offset + poolSize - 1);
             // Shuffle el pool completo y tomar los primeros 10
-            result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+            result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : (maxItems ?? 10));
           } else if (filtro.familias && filtro.familias.length > 0) {
             // Sección "Según tu último pedido"
             const primeraFamilia = filtro.familias[0];
@@ -111,9 +113,9 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
                   .gt("stock", 0)
                   .in("familiaNombre", familias)
                   .limit(80);
-                result = shuffleArray(masPool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+                result = shuffleArray(masPool ?? []).slice(0, isGrid2x2 ? 4 : (maxItems ?? 10));
               } else {
-                result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+                result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : (maxItems ?? 10));
               }
             } else {
               const { data: pool } = await supabaseClient
@@ -123,7 +125,7 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
                 .in("familiaNombre", filtro.familias)
                 .order("orden", { ascending: true })
                 .limit(80);
-              result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : 10);
+              result = shuffleArray(pool ?? []).slice(0, isGrid2x2 ? 4 : (maxItems ?? 10));
             }
           } else {
             let query = supabaseClient
@@ -162,7 +164,7 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
     <section className="home-section">
       <div className="home-section__header">
         <h2 className="home-section__titulo">{titulo}</h2>
-        <a href={verTodosHref} className="home-section__ver-todos">ver todos →</a>
+        {!hideVerTodos && <a href={verTodosHref} className="home-section__ver-todos">ver todos →</a>}
       </div>
       {isGrid2x2 ? (
         <div className="home-section__grid2x2">
@@ -177,9 +179,16 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref }: Props)
           <div className="home-section__row" ref={rowRef}>
             {loading
               ? [...Array(4)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
-              : filtro.combos
-                ? items.map(c => <ComboCard key={c.cod_combo} combo={c} />)
-                : items.map(a => <ProductCard key={a.codigo} articulo={a} />)
+              : <>
+                  {filtro.combos
+                    ? items.map(c => <ComboCard key={c.cod_combo} combo={c} />)
+                    : items.map(a => <ProductCard key={a.codigo} articulo={a} />)
+                  }
+                  <a href={verTodosHref} className="hs-ver-todos-card">
+                    <span className="hs-ver-todos-card__icon">→</span>
+                    <span className="hs-ver-todos-card__txt">Ver<br/>todos</span>
+                  </a>
+                </>
             }
           </div>
           <button className="home-section__arrow home-section__arrow--right" onClick={() => scroll("right")} aria-label="Siguiente">›</button>

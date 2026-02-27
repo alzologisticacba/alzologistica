@@ -91,13 +91,13 @@ export default function App247() {
                 {/* 1. Descuentos */}
                 <HomeSection id="descuentos" titulo="Descuentos Exclusivos" filtro={{ descuento: true }} verTodosHref="/247/descuentos" />
                 {/* 2. Inspirado en lo último que viste */}
-                {familiasVistos.length > 0 && <HomeSection id="vistos" titulo="Inspirado en lo último que viste" filtro={{ familias: familiasVistos }} verTodosHref="/247/todos" />}
+                {familiasVistos.length > 0 && <HomeSection id="vistos" titulo="Inspirado en lo último que viste" filtro={{ familias: familiasVistos }} verTodosHref={`/247/vistos/?familias=${encodeURIComponent(familiasVistos.join(","))}`} />}
                 {/* 3. Sección marca 1 */}
                 {marcasRandom[0] && <BrandSection seccion={marcasRandom[0].seccion} titulo={marcasRandom[0].titulo} />}
                 {/* 4. Combos */}
                 <HomeSection id="combos" titulo="Combos" filtro={{ combos: true }} verTodosHref="/247/combos" />
                 {/* 5. Según tu último pedido */}
-                {familiasUltimoPedido.length > 0 && <HomeSection id="ultimo-pedido" titulo="Según tu último pedido" filtro={{ familias: familiasUltimoPedido, grid2x2: true }} verTodosHref="/247/todos" />}
+                {familiasUltimoPedido.length > 0 && <HomeSection id="ultimo-pedido" titulo="Según tu último pedido" filtro={{ familias: familiasUltimoPedido, grid2x2: true }} verTodosHref={`/247/ultimo-pedido/?familias=${encodeURIComponent(familiasUltimoPedido.join(","))}`} />}
                 {/* 6. Sección marca 2 */}
                 {marcasRandom[1] && <BrandSection seccion={marcasRandom[1].seccion} titulo={marcasRandom[1].titulo} />}
                 {/* 7. Todos los productos */}
