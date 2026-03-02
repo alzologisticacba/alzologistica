@@ -12,14 +12,18 @@ export interface CartItem {
   multiplo: number;
   descuento: number;
   tipo: "articulo" | "combo";
+  rubro?: string;           // ← agregar
+  familiaNombre?: string;   // ← agregar
 }
 
 type UserData = { nombre: string; telefono: string };
 const LS_USER = "alzo_user_v1";
 
 const SELLERS = [
-  { id: "v18", nombre: "Prueba",      phone: "5493512260685", photo: "" },
+  { id: "v18", nombre: "Prueba", phone: "5493512260685", photo: "" },
 ];
+
+const PHONE_GENERIC = "5493512260685";
 
 function fmt(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 });
@@ -36,8 +40,6 @@ function loadUser(): UserData | null {
 function saveUser(u: UserData) {
   localStorage.setItem(LS_USER, JSON.stringify(u));
 }
-
-// ── Sub-componentes del modal ──────────────────────────────────────────────
 
 function WaIcon() {
   return (
@@ -60,8 +62,8 @@ function StepUser({ onDone, onCancel }: StepUserProps) {
   async function continuar() {
     const n = nombre.trim();
     const t = telefono.replace(/\D/g, "");
-    if (n.length < 2)   { setErr("Ingresá un nombre válido."); return; }
-    if (t.length < 8)   { setErr("Ingresá un teléfono válido."); return; }
+    if (n.length < 2) { setErr("Ingresá un nombre válido."); return; }
+    if (t.length < 8) { setErr("Ingresá un teléfono válido."); return; }
     setSaving(true);
     setErr("");
     try {
@@ -79,30 +81,25 @@ function StepUser({ onDone, onCancel }: StepUserProps) {
         <div className="alzomodal-form-icon">👤</div>
         <p className="alzomodal-form-desc">Necesitamos tus datos una sola vez para identificar tu pedido.</p>
       </div>
-
       {err && <div className="alzomodal-error">{err}</div>}
-
       <label className="alzomodal-label">
         Nombre
         <input className="alzomodal-input" value={nombre}
           onChange={e => setNombre(e.target.value)}
           placeholder="Ej: Nicolás García" autoFocus />
       </label>
-
       <label className="alzomodal-label">
         Teléfono
         <input className="alzomodal-input" value={telefono}
           onChange={e => setTelefono(e.target.value)}
           placeholder="Ej: 351 555 5555" inputMode="tel" />
       </label>
-
       <div className="alzomodal-actions">
         <button className="alzomodal-btn alzomodal-btn--ghost" onClick={onCancel}>Cancelar</button>
         <button className="alzomodal-btn" onClick={continuar} disabled={saving}>
           {saving ? "Guardando..." : "Continuar →"}
         </button>
       </div>
-
       <p className="alzomodal-hint">🔒 Solo lo usamos para identificar tu pedido. No lo compartimos.</p>
     </div>
   );
@@ -112,14 +109,35 @@ interface StepSellerProps {
   user: UserData;
   totalPrecio: number;
   cartMessage: string;
-  onSend: (phone: string) => void;
+  onSend: (phone: string, introOverride?: string) => void;
 }
 function StepSeller({ user, totalPrecio, cartMessage, onSend }: StepSellerProps) {
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
+  function sendSpecial(tipo: "no-recuerda" | "sin-vendedor") {
+    const intro = tipo === "no-recuerda"
+      ? "Hola! Vengo de Alzo 24/7 y no recuerdo cual es mi vendedor, pero quiero realizar este pedido:"
+      : "Hola! Vengo de Alzo 24/7 y no tengo vendedor, pero quisiera realizar este pedido:";
+    onSend(PHONE_GENERIC, intro);
+  }
+
   return (
     <div className="alzomodal-sellers">
 
+      <div className="alzomodal-sellers__special">
+        <button
+          className="alzomodal-sellers__special-btn"
+          onClick={() => sendSpecial("no-recuerda")}
+        >
+          🤔 No recuerdo cuál es mi vendedor
+        </button>
+        <button
+          className="alzomodal-sellers__special-btn"
+          onClick={() => sendSpecial("sin-vendedor")}
+        >
+          ➕ No tengo vendedor asignado
+        </button>
+      </div>
 
       <p className="alzomodal-sellers__label">Elegí tu vendedor</p>
 
@@ -147,9 +165,6 @@ function StepSeller({ user, totalPrecio, cartMessage, onSend }: StepSellerProps)
   );
 }
 
-// ── Componente principal ───────────────────────────────────────────────────
-
-
 const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
 
 function CartItemImg({ codigo }: { codigo: number }) {
@@ -166,21 +181,18 @@ function CartItemImg({ codigo }: { codigo: number }) {
   );
 }
 
-// ── Google Sheets Webhook ──
-// Pegá acá la URL de tu Apps Script deployment
 const SHEETS_WEBHOOK = "https://script.google.com/macros/s/AKfycbwO9AAj5nj8vQKpEnYm30MgycWGXhdF-G4e6cn5xejlEzl8qQO1_eAgVJKhJOcJjsD7mQ/exec";
 
-// Genera un nro de seguimiento tipo ALZ-00123
 function generarNroSeguimiento(): string {
   const n = Math.floor(Math.random() * 99999).toString().padStart(5, "0");
   return `ALZ-${n}`;
 }
 
 export default function CarritoPage() {
-  const [items, setItems]         = useState<CartItem[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [step, setStep]           = useState<"user" | "seller">("user");
-  const [user, setUser]           = useState<UserData | null>(null);
+  const [items, setItems]               = useState<CartItem[]>([]);
+  const [modalOpen, setModalOpen]       = useState(false);
+  const [step, setStep]                 = useState<"user" | "seller">("user");
+  const [user, setUser]                 = useState<UserData | null>(null);
   const [tienePedidos, setTienePedidos] = useState(false);
 
   useEffect(() => {
@@ -243,7 +255,7 @@ export default function CarritoPage() {
     setStep("seller");
   }
 
-  async function handleSend(phone: string) {
+  async function handleSend(phone: string, introOverride?: string) {
     const u = user ?? loadUser();
     if (!u) { setStep("user"); return; }
 
@@ -256,7 +268,8 @@ export default function CarritoPage() {
       return `• ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}`;
     }).join("\n");
     const separadorMsg = "─".repeat(30);
-    const msg = `Hola soy *${u.nombre}*!\nHice este pedido por Alzo 24/7\n\n${lineasMsg}\n\n${separadorMsg}\n*Total: ${fmt(totalPrecio)}*\nNumero de seguimiento: ${nroSeguimiento}`;
+    const intro = introOverride ?? `Hola soy *${u.nombre}*!\nHice este pedido por Alzo 24/7`;
+    const msg = `${intro}\n\n${lineasMsg}\n\n${separadorMsg}\n*Total: ${fmt(totalPrecio)}*\nNumero de seguimiento: ${nroSeguimiento}`;
 
     const pedido = {
       nombre:          u.nombre,
@@ -264,18 +277,18 @@ export default function CarritoPage() {
       vendedor:        vendedorNombre,
       nro_seguimiento: nroSeguimiento,
       items:           items.map(i => ({
-        codigo:       i.codigo,
-        descripcion:  i.descripcion,
-        rubro:        i.rubro ?? "",
+        codigo:        i.codigo,
+        descripcion:   i.descripcion,
+        rubro:         i.rubro ?? "",
         familiaNombre: i.familiaNombre ?? "",
-        cantidad:     i.cantidad,
-        precioFinal:  i.precioFinal,
-        descuento:    i.descuento,
+        cantidad:      i.cantidad,
+        precioFinal:   i.precioFinal,
+        descuento:     i.descuento,
       })),
       total: totalPrecio,
     };
 
-    // 1. Guardar historial sincrónicamente ANTES de todo (iOS navega antes del async)
+    // 1. Guardar historial sincrónicamente ANTES de todo
     const pedidoConFecha = { ...pedido, created_at: new Date().toISOString() };
     try {
       const h = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
@@ -283,8 +296,7 @@ export default function CarritoPage() {
       localStorage.setItem("alzo_pedidos", JSON.stringify(h.slice(0, 20)));
     } catch {}
 
-    // 2. Enviar a Google Sheets con sendBeacon (sobrevive la navegación en iOS)
-    //    Mismo patrón que PellaClick: payload como URLSearchParams
+    // 2. Enviar a Google Sheets con sendBeacon
     try {
       const sheetPayload = {
         nro_seguimiento: nroSeguimiento,
@@ -294,20 +306,18 @@ export default function CarritoPage() {
         skus:            items.length,
         unidades:        items.reduce((s, i) => s + i.cantidad, 0),
         total:           totalPrecio,
-        // items como string JSON dentro del payload (igual que PellaClick)
         items: JSON.stringify(items.map(i => ({
-          sku:        i.codigo,
-          name:       i.descripcion,
-          rubro:      i.rubro ?? "",
-          familia:    i.familiaNombre ?? "",
-          qty:        i.cantidad,
-          price:      i.precioFinal,
-          discount:   i.descuento,
-          subtotal:   i.precioFinal * i.cantidad,
+          sku:      i.codigo,
+          name:     i.descripcion,
+          rubro:    i.rubro ?? "",
+          familia:  i.familiaNombre ?? "",
+          qty:      i.cantidad,
+          price:    i.precioFinal,
+          discount: i.descuento,
+          subtotal: i.precioFinal * i.cantidad,
         }))),
       };
       const body = new URLSearchParams({ payload: JSON.stringify(sheetPayload) }).toString();
-      // sendBeacon: funciona aunque el navegador navegue, no bloquea
       if (navigator.sendBeacon) {
         const blob = new Blob([body], { type: "application/x-www-form-urlencoded;charset=UTF-8" });
         navigator.sendBeacon(SHEETS_WEBHOOK, blob);
@@ -321,10 +331,10 @@ export default function CarritoPage() {
       }
     } catch {}
 
-    // 3. Guardar en Supabase en background
+    // 3. Supabase en background
     supabase.from("pedidos").insert(pedido).then(() => {}).catch(() => {});
 
-    // 4. iOS Safari: navegar AL FINAL (después de guardar todo)
+    // 4. Navegar al final
     clearCart();
     setItems([]);
     setModalOpen(false);
@@ -333,7 +343,6 @@ export default function CarritoPage() {
 
   return (
     <div className="cart-app">
-      {/* Header */}
       <header className="cart-header">
         <a href="/247" className="cart-header__back">← Volver</a>
         <h1 className="cart-header__title">Tu carrito</h1>
@@ -343,7 +352,6 @@ export default function CarritoPage() {
       </header>
 
       <div className="cart-shell">
-        {/* Items */}
         <div className="cart-items-col">
           {items.length === 0 ? (
             <div className="cart-empty">
@@ -385,7 +393,6 @@ export default function CarritoPage() {
           )}
         </div>
 
-        {/* Resumen */}
         <aside className="cart-summary">
           <h2 className="cart-summary__title">Resumen</h2>
           <div className="cart-summary__row"><span>Productos</span><strong>{totalSKUs} SKUs</strong></div>
@@ -401,21 +408,15 @@ export default function CarritoPage() {
         </aside>
       </div>
 
-      {/* Modal */}
       {modalOpen && (
         <>
           <div className="alzomodal-backdrop" onClick={() => setModalOpen(false)} />
           <div className="alzomodal" role="dialog" aria-modal="true">
             <div className={`alzomodal-card${step === "seller" ? " alzomodal-card--wide" : ""}`}>
-              
-              {/* Header del modal */}
               <div className="alzomodal-head">
                 <div className="alzomodal-head-left">
-  
                   <div>
-                    {step === "user" && (
-                    <p className="alzomodal-step-label">Paso 1 de 2</p>
-                  )}
+                    {step === "user" && <p className="alzomodal-step-label">Paso 1 de 2</p>}
                     <h3 className="alzomodal-title">
                       {step === "user" ? "¿Quién hace el pedido?" : "¿Con quién hablás?"}
                     </h3>
@@ -424,12 +425,10 @@ export default function CarritoPage() {
                 <button className="alzomodal-close" onClick={() => setModalOpen(false)}>✕</button>
               </div>
 
-              {/* Resumen mini del carrito */}
               <div className="alzomodal-cart-pill">
                 🛒 {totalSKUs} producto{totalSKUs !== 1 ? "s" : ""} · {totalUnidades} unidades · <strong>{fmt(totalPrecio)}</strong>
               </div>
 
-              {/* Contenido por paso */}
               <div className="alzomodal-body">
                 {step === "user"
                   ? <StepUser onDone={handleUserDone} onCancel={() => setModalOpen(false)} />
@@ -438,7 +437,6 @@ export default function CarritoPage() {
                       totalPrecio={totalPrecio}
                       cartMessage={cartMessage}
                       onSend={handleSend}
-
                     />
                 }
               </div>

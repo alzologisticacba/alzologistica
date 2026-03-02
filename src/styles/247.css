@@ -3562,3 +3562,31 @@
   .familias-page__hero { padding: 16px; }
   .familias-page__hero-emoji { font-size: 32px; }
 }
+
+.alzomodal-sellers__special {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.alzomodal-sellers__special-btn {
+  width: 100%;
+  background: #f0f2f5;
+  border: 1.5px solid #e0e3ef;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  transition: background .2s, border-color .2s;
+}
+
+.alzomodal-sellers__special-btn:hover {
+  background: #e8f0ff;
+  border-color: #3300ff;
+  color: #3300ff;
+}
