@@ -20,7 +20,7 @@ type UserData = { nombre: string; telefono: string };
 const LS_USER = "alzo_user_v1";
 
 const SELLERS = [
-  { id: "v18", nombre: "Prueba", phone: "5493512260685", photo: "" },
+  { id: "v18", nombre: "Vendedor 1", phone: "5493512260685", photo: "" },
 ];
 
 const PHONE_GENERIC = "5493512260685";
@@ -418,7 +418,7 @@ export default function CarritoPage() {
                   <div>
                     {step === "user" && <p className="alzomodal-step-label">Paso 1 de 2</p>}
                     <h3 className="alzomodal-title">
-                      {step === "user" ? "¿Quién hace el pedido?" : "¿Con quién hablás?"}
+                      {step === "user" ? "¿Quién hace el pedido?" : "¡Envia el pedido a tu vendedor!"}
                     </h3>
                   </div>
                 </div>

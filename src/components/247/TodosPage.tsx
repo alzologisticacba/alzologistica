@@ -29,6 +29,7 @@ export default function TodosPage() {
       .from("articulos")
       .select("codigo, descripcion, precioFinal, descuento, multiplo, rubro, familiaNombre, seccion, stock")
       .gt("stock", 0)
+      .neq("familiaNombre", "Cigarrillos")
       .limit(2000)
       .then(({ data }) => {
         setTodos(data ?? []);
