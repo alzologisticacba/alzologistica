@@ -3,9 +3,11 @@ import { useState, useDeferredValue, useEffect } from "react";
 import Header247 from "./Header247";
 import ProductCard from "./ProductCard";
 import PageFooterSection from "./PageFooterSection";
+import FilterDrawer from "./FilterDrawer";
+import FilterSortBar from "./FilterSortBar";
+import { useFilterSort, applyFilterSort, extractFilterOptions } from "./hooks/useFilterSort";
 import { useArticulos } from "./hooks/useArticulos";
 
-// Colores más saturados — fondo con tinte claro, texto oscuro de la marca
 const BRAND_COLORS: Record<string, { bg: string; text: string; accent: string }> = {
   "alicante":  { bg: "#e8f0d8", text: "#1e3010", accent: "#4a7a20" },
   "bic":       { bg: "#ffe4cc", text: "#7a2e00", accent: "#e15f17" },
@@ -47,6 +49,15 @@ export default function SeccionPage() {
     limit:   200,
   } as any);
 
+  const {
+    filters, setFilters, drawerOpen, drawerMode,
+    openFilter, openSort, closeDrawer, shuffleSeed,
+    removeFamilia, clearSort,
+  } = useFilterSort();
+
+  const { familias } = extractFilterOptions(data);
+  const filtered = applyFilterSort(data, filters, shuffleSeed);
+
   useEffect(() => {
     document.body.style.backgroundColor = brand.bg;
     document.body.style.transition = "background-color 0.4s ease";
@@ -59,7 +70,6 @@ export default function SeccionPage() {
         <Header247 showBack={true} />
         <div className="shell-247">
 
-          {/* Hero banner */}
           <div className="seccion-page__hero">
             <img
               src={`/img/247/secciones/${slug}.png`}
@@ -69,7 +79,6 @@ export default function SeccionPage() {
             />
           </div>
 
-          {/* Buscador */}
           <div className="cat-page__search-wrap"
             style={{ backgroundColor: "#ffffff", borderColor: `${brand.text}30` }}>
             <span className="cat-page__search-icon">🔍</span>
@@ -84,9 +93,17 @@ export default function SeccionPage() {
             {busqueda && (
               <button className="cat-page__search-clear"
                 onClick={() => setBusqueda("")}
-                style={{ color: brand.text }}>✕</button>
+                style={{ color: brand.text }}>X</button>
             )}
           </div>
+
+          <FilterSortBar
+            filters={filters}
+            onOpenFilter={openFilter}
+            onOpenSort={openSort}
+            onRemoveFamilia={removeFamilia}
+            onClearSort={clearSort}
+          />
 
           {loading && (
             <div className="product-grid">
@@ -95,23 +112,33 @@ export default function SeccionPage() {
               ))}
             </div>
           )}
-          {!loading && data.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <p className="cat-page__msg" style={{ color: brand.text }}>Sin productos disponibles.</p>
           )}
-          {!loading && data.length > 0 && (
+          {!loading && filtered.length > 0 && (
             <>
               <p className="cat-page__count" style={{ color: brand.text, opacity: 0.75 }}>
-                {meta?.total ?? data.length} productos
+                {filtered.length} producto{filtered.length !== 1 ? "s" : ""}
               </p>
               <div className="product-grid">
-                {data.map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                {filtered.map(a => <ProductCard key={a.codigo} articulo={a} />)}
               </div>
             </>
           )}
         </div>
-
-
       </div>
+
+      <FilterDrawer
+        open={drawerOpen}
+        onClose={closeDrawer}
+        mode={drawerMode}
+        familiasDisponibles={familias}
+        seccionesDisponibles={[]}
+        filters={filters}
+        onFiltersChange={setFilters}
+        activeCount={filtered.length}
+      />
+
       {!loading && <PageFooterSection />}
     </>
   );

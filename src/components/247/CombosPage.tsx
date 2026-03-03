@@ -3,6 +3,10 @@ import { useState, useEffect, useDeferredValue } from "react";
 import Header247 from "./Header247";
 import ComboCard from "./ComboCard";
 import PageFooterSection from "./PageFooterSection";
+import FilterDrawer from "./FilterDrawer";
+import FilterSortBar from "./FilterSortBar";
+import { useFilterSort } from "./hooks/useFilterSort";
+import type { FilterState } from "./FilterDrawer";
 import { supabaseClient } from "../../lib/supabaseClient";
 
 interface Combo {
@@ -13,11 +17,27 @@ interface Combo {
   imagen?: string;
 }
 
+function applyCombosSort(items: Combo[], filters: FilterState): Combo[] {
+  const result = [...items];
+  switch (filters.sort) {
+    case "precio-asc":  result.sort((a, b) => a.precio - b.precio); break;
+    case "precio-desc": result.sort((a, b) => b.precio - a.precio); break;
+    case "nombre-asc":  result.sort((a, b) => a.nombre.localeCompare(b.nombre)); break;
+    case "nombre-desc": result.sort((a, b) => b.nombre.localeCompare(a.nombre)); break;
+  }
+  return result;
+}
+
 export default function CombosPage() {
   const [combos, setCombos]     = useState<Combo[]>([]);
   const [loading, setLoading]   = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const deferredQ               = useDeferredValue(busqueda);
+
+  const {
+    filters, setFilters, drawerOpen, drawerMode,
+    openSort, closeDrawer, clearSort,
+  } = useFilterSort();
 
   useEffect(() => {
     supabaseClient
@@ -30,9 +50,11 @@ export default function CombosPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtrados = deferredQ
+  const porBusqueda = deferredQ
     ? combos.filter(c => c.nombre.toLowerCase().includes(deferredQ.toLowerCase()))
     : combos;
+
+  const filtrados = applyCombosSort(porBusqueda, filters);
 
   return (
     <>
@@ -42,7 +64,7 @@ export default function CombosPage() {
         <h1 className="cat-page__titulo">Combos</h1>
 
         <div className="cat-page__search-wrap">
-          <span className="cat-page__search-icon">🔍</span>
+          <span className="cat-page__search-icon">SEARCH</span>
           <input
             type="search"
             className="cat-page__search"
@@ -50,8 +72,15 @@ export default function CombosPage() {
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
-          {busqueda && <button className="cat-page__search-clear" onClick={() => setBusqueda("")}>✕</button>}
+          {busqueda && <button className="cat-page__search-clear" onClick={() => setBusqueda("")}>X</button>}
         </div>
+
+        <FilterSortBar
+          filters={filters}
+          onOpenFilter={openSort}
+          onOpenSort={openSort}
+          onClearSort={clearSort}
+        />
 
         {loading && (
           <div className="product-grid">
@@ -73,7 +102,17 @@ export default function CombosPage() {
         )}
       </div>
     </div>
+
+    <FilterDrawer
+      open={drawerOpen}
+      onClose={closeDrawer}
+      mode="ordenar"
+      filters={filters}
+      onFiltersChange={setFilters}
+      activeCount={filtrados.length}
+    />
+
     {!loading && <PageFooterSection />}
-  </>
+    </>
   );
 }

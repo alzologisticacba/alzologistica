@@ -1,6 +1,7 @@
 // src/components/247/Header247.tsx
 import { useState, useEffect, useRef } from "react";
 import { supabaseClient } from "../../lib/supabaseClient";
+import SearchSuggestions from "./SearchSuggestions";
 
 function readCartCount(): number {
   try {
@@ -31,6 +32,7 @@ export default function Header247({
   const [ddOpen, setDdOpen]     = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const ddRef                   = useRef<HTMLDivElement>(null);
+  const [showSugg, setShowSugg] = useState(false);
 
   useEffect(() => {
     setCount(cartCountProp ?? readCartCount());
@@ -98,16 +100,24 @@ export default function Header247({
         {showSearch ? (
           <div className="header-247 header-247--search">
             <Logo />
-            <div className="header-247__search-wrap">
+            <div className="header-247__search-wrap" style={{ position: "relative" }}>
               <span className="header-247__search-icon">🔍</span>
               <input
                 type="search"
                 className="header-247__search-input"
                 placeholder="Buscar productos, combos, y más..."
                 value={busqueda}
-                onChange={e => onBusquedaChange?.(e.target.value)}
+                onChange={e => { onBusquedaChange?.(e.target.value); setShowSugg(true); }}
+                onFocus={() => setShowSugg(true)}
+                onBlur={() => setTimeout(() => setShowSugg(false), 150)}
               />
-              {busqueda && <button className="header-247__search-clear" onClick={onBusquedaClear}>✕</button>}
+              {busqueda && <button className="header-247__search-clear" onClick={() => { onBusquedaClear?.(); setShowSugg(false); }}>✕</button>}
+              <SearchSuggestions
+                query={busqueda}
+                visible={showSugg}
+                onSelect={v => { onBusquedaChange?.(v); setShowSugg(false); }}
+                onClose={() => setShowSugg(false)}
+              />
             </div>
             <CartBtn />
           </div>

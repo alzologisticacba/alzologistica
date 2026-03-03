@@ -3,6 +3,9 @@ import { useState, useDeferredValue } from "react";
 import Header247 from "./Header247";
 import ProductCard from "./ProductCard";
 import PageFooterSection from "./PageFooterSection";
+import FilterDrawer from "./FilterDrawer";
+import FilterSortBar from "./FilterSortBar";
+import { useFilterSort, applyFilterSort, extractFilterOptions } from "./hooks/useFilterSort";
 import { useArticulos } from "./hooks/useArticulos";
 
 export default function DescuentosPage() {
@@ -10,10 +13,19 @@ export default function DescuentosPage() {
   const deferredQ               = useDeferredValue(busqueda);
 
   const { data, meta, loading } = useArticulos({
-    q:        deferredQ || undefined,
+    q:         deferredQ || undefined,
     descuento: true,
-    limit:    200,
+    limit:     200,
   } as any);
+
+  const {
+    filters, setFilters, drawerOpen, drawerMode,
+    openFilter, openSort, closeDrawer, shuffleSeed,
+    removeFamilia, removeSeccion, clearSort,
+  } = useFilterSort();
+
+  const { familias, secciones } = extractFilterOptions(data);
+  const filtered = applyFilterSort(data, filters, shuffleSeed);
 
   return (
     <>
@@ -29,16 +41,37 @@ export default function DescuentosPage() {
           {busqueda && <button className="cat-page__search-clear" onClick={() => setBusqueda("")}>✕</button>}
         </div>
 
+        <FilterSortBar
+          filters={filters}
+          onOpenFilter={openFilter}
+          onOpenSort={openSort}
+          onRemoveFamilia={removeFamilia}
+          onRemoveSeccion={removeSeccion}
+          onClearSort={clearSort}
+        />
+
         {loading && <div className="product-grid">{[...Array(10)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)}</div>}
-        {!loading && data.length === 0 && <p className="cat-page__msg">Sin descuentos disponibles.</p>}
-        {!loading && data.length > 0 && (
+        {!loading && filtered.length === 0 && <p className="cat-page__msg">Sin descuentos disponibles.</p>}
+        {!loading && filtered.length > 0 && (
           <>
-            <p className="cat-page__count">{meta?.total ?? data.length} productos con descuento</p>
-            <div className="product-grid">{data.map(a => <ProductCard key={a.codigo} articulo={a} />)}</div>
+            <p className="cat-page__count">{filtered.length} producto{filtered.length !== 1 ? "s" : ""} con descuento</p>
+            <div className="product-grid">{filtered.map(a => <ProductCard key={a.codigo} articulo={a} />)}</div>
           </>
         )}
       </div>
     </div>
+
+    <FilterDrawer
+      open={drawerOpen}
+      onClose={closeDrawer}
+      mode={drawerMode}
+      familiasDisponibles={familias}
+      seccionesDisponibles={secciones}
+      filters={filters}
+      onFiltersChange={setFilters}
+      activeCount={filtered.length}
+    />
+
     {!loading && <PageFooterSection />}
   </>
   );

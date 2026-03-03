@@ -1,40 +1,71 @@
 // src/components/247/TodosPage.tsx
-import { useState, useDeferredValue, useEffect } from "react";
+import { useState, useDeferredValue, useEffect, useMemo } from "react";
 import Header247 from "./Header247";
 import ProductCard from "./ProductCard";
 import PageFooterSection from "./PageFooterSection";
-import { useArticulos } from "./hooks/useArticulos";
+import FilterDrawer from "./FilterDrawer";
+import FilterSortBar from "./FilterSortBar";
+import { useFilterSort, applyFilterSort, extractFilterOptions } from "./hooks/useFilterSort";
 import { supabaseClient } from "../../lib/supabaseClient";
 
-export default function TodosPage() {
-  const [busqueda, setBusqueda]       = useState("");
-  const [familiaActiva, setFamilia]   = useState("");
-  const [familias, setFamilias]       = useState<string[]>([]);
-  const [page, setPage]               = useState(1);
-  const deferredQ                     = useDeferredValue(busqueda);
+const PAGE_SIZE = 40;
 
-  // Cargar familias disponibles
+export default function TodosPage() {
+  const [todos, setTodos]       = useState<any[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [busqueda, setBusqueda] = useState("");
+  const [page, setPage]         = useState(1);
+  const deferredQ               = useDeferredValue(busqueda);
+
+  const {
+    filters, setFilters, drawerOpen, drawerMode,
+    openFilter, openSort, closeDrawer, shuffleSeed,
+    removeFamilia, removeSeccion, clearSort,
+  } = useFilterSort();
+
+  // Carga TODOS los productos de una vez — shuffle en cliente
   useEffect(() => {
     supabaseClient
       .from("articulos")
-      .select("familiaNombre")
+      .select("codigo, descripcion, precioFinal, descuento, multiplo, rubro, familiaNombre, seccion, stock")
       .gt("stock", 0)
+      .limit(2000)
       .then(({ data }) => {
-        const unicas = [...new Set((data ?? []).map((r: any) => r.familiaNombre as string))]
-          .filter(Boolean).sort();
-        setFamilias(unicas);
+        setTodos(data ?? []);
+        setLoading(false);
       });
   }, []);
 
-  const { data, meta, loading } = useArticulos({
-    familia: familiaActiva || undefined,
-    q:       deferredQ     || undefined,
-    page,
-    limit: 40,
-  });
+  // Opciones de filtro extraidas del total
+  const { familias: todasFamilias, secciones: todasSecciones } = useMemo(
+    () => extractFilterOptions(todos),
+    [todos]
+  );
+
+  // Filtrar por texto primero (rapido, en cliente)
+  const porBusqueda = useMemo(() => {
+    if (!deferredQ) return todos;
+    const q = deferredQ.toLowerCase();
+    return todos.filter(a =>
+      a.descripcion?.toLowerCase().includes(q) ||
+      a.familiaNombre?.toLowerCase().includes(q) ||
+      a.rubro?.toLowerCase().includes(q)
+    );
+  }, [todos, deferredQ]);
+
+  // Aplicar filtros + sort/shuffle — sobre el total antes de paginar
+  const filteredAll = useMemo(
+    () => applyFilterSort(porBusqueda, filters, shuffleSeed),
+    [porBusqueda, filters, shuffleSeed]
+  );
+
+  // Paginacion en cliente
+  const totalPages = Math.max(1, Math.ceil(filteredAll.length / PAGE_SIZE));
+  const pageSafe   = Math.min(page, totalPages);
+  const pageItems  = filteredAll.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
 
   function handleBusqueda(v: string) { setBusqueda(v); setPage(1); }
-  function handleFamilia(f: string)  { setFamilia(f); setPage(1); }
+  function handleFilters(f: typeof filters) { setFilters(f); setPage(1); }
 
   return (
     <>
@@ -43,58 +74,71 @@ export default function TodosPage() {
       <div className="shell-247">
         <h1 className="cat-page__titulo">Todos los productos</h1>
 
-        {/* Buscador */}
         <div className="cat-page__search-wrap">
           <span className="cat-page__search-icon">🔍</span>
           <input type="search" className="cat-page__search" placeholder="Buscar producto..."
             value={busqueda} onChange={(e) => handleBusqueda(e.target.value)} />
-          {busqueda && <button className="cat-page__search-clear" onClick={() => handleBusqueda("")}>✕</button>}
+          {busqueda && <button className="cat-page__search-clear" onClick={() => handleBusqueda("")}>X</button>}
         </div>
 
-        {/* Filtros de familia */}
-        {familias.length > 0 && (
-          <div className="cat-page__rubros">
-            <button
-              className={`cat-page__rubro-btn${familiaActiva === "" ? " cat-page__rubro-btn--active" : ""}`}
-              onClick={() => handleFamilia("")}
-            >Todos</button>
-            {familias.map(f => (
-              <button
-                key={f}
-                className={`cat-page__rubro-btn${familiaActiva === f ? " cat-page__rubro-btn--active" : ""}`}
-                onClick={() => handleFamilia(familiaActiva === f ? "" : f)}
-              >{f}</button>
-            ))}
-          </div>
-        )}
+        <FilterSortBar
+          filters={filters}
+          onOpenFilter={openFilter}
+          onOpenSort={openSort}
+          onRemoveFamilia={removeFamilia}
+          onRemoveSeccion={removeSeccion}
+          onClearSort={clearSort}
+        />
 
-        {/* Resultados */}
         {loading && (
           <div className="product-grid">
             {[...Array(10)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)}
           </div>
         )}
 
-        {!loading && data.length === 0 && <p className="cat-page__msg">Sin resultados.</p>}
+        {!loading && filteredAll.length === 0 && <p className="cat-page__msg">Sin resultados.</p>}
 
-        {!loading && data.length > 0 && (
+        {!loading && filteredAll.length > 0 && (
           <>
-            <p className="cat-page__count">{meta?.total ?? data.length} productos{familiaActiva ? ` en ${familiaActiva}` : ""}</p>
+            <p className="cat-page__count">
+              {filteredAll.length} producto{filteredAll.length !== 1 ? "s" : ""}
+              {filters.familias.length > 0 ? ` en ${filters.familias.join(", ")}` : ""}
+            </p>
             <div className="product-grid">
-              {data.map(a => <ProductCard key={a.codigo} articulo={a} />)}
+              {pageItems.map(a => <ProductCard key={a.codigo} articulo={a} />)}
             </div>
-            {meta && meta.totalPages > 1 && (
+            {totalPages > 1 && (
               <div className="cat-page__pagination">
-                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="cat-page__page-btn">← Anterior</button>
-                <span>{page} / {meta.totalPages}</span>
-                <button disabled={page >= meta.totalPages} onClick={() => setPage(p => p + 1)} className="cat-page__page-btn">Siguiente →</button>
+                <button
+                  disabled={pageSafe <= 1}
+                  onClick={() => { setPage(p => p - 1); window.scrollTo(0, 0); }}
+                  className="cat-page__page-btn"
+                >Anterior</button>
+                <span>{pageSafe} / {totalPages}</span>
+                <button
+                  disabled={pageSafe >= totalPages}
+                  onClick={() => { setPage(p => p + 1); window.scrollTo(0, 0); }}
+                  className="cat-page__page-btn"
+                >Siguiente</button>
               </div>
             )}
           </>
         )}
       </div>
     </div>
+
+    <FilterDrawer
+      open={drawerOpen}
+      onClose={closeDrawer}
+      mode={drawerMode}
+      familiasDisponibles={todasFamilias}
+      seccionesDisponibles={todasSecciones}
+      filters={filters}
+      onFiltersChange={handleFilters}
+      activeCount={filteredAll.length}
+    />
+
     {!loading && <PageFooterSection />}
-  </>
+    </>
   );
 }
