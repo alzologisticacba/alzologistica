@@ -33,9 +33,22 @@ function shuffleArray<T>(arr: T[]): T[] {
 }
 
 function BtnAgregar({ articulo, cantidad }: { articulo: Articulo; cantidad: number }) {
-  const [agregado, setAgregado] = React.useState(false);
+  const [btnState, setBtnState] = React.useState<"idle" | "ok" | "pending">("idle");
+
+  React.useEffect(() => {
+    function onConfirmed(e: Event) {
+      const { codigo } = (e as CustomEvent<{ codigo: number }>).detail;
+      if (codigo === articulo.codigo) {
+        setBtnState("ok");
+        setTimeout(() => setBtnState("idle"), 1800);
+      }
+    }
+    window.addEventListener("cart-age-confirmed", onConfirmed);
+    return () => window.removeEventListener("cart-age-confirmed", onConfirmed);
+  }, [articulo.codigo]);
+
   function handleAgregar() {
-    addToCart({
+    const result = addToCart({
       codigo:        articulo.codigo,
       descripcion:   articulo.descripcion,
       precioFinal:   articulo.precioFinal,
@@ -45,15 +58,15 @@ function BtnAgregar({ articulo, cantidad }: { articulo: Articulo; cantidad: numb
       rubro:         articulo.rubro ?? "",
       tipo:          "articulo",
     });
-    setAgregado(true);
-    setTimeout(() => setAgregado(false), 1800);
+    setBtnState(result === "added" ? "ok" : "pending");
+    setTimeout(() => setBtnState("idle"), 1800);
   }
   return (
     <button
-      className={`pd__btn-agregar${agregado ? " pd__btn-agregar--ok" : ""}`}
+      className={`pd__btn-agregar${btnState === "ok" ? " pd__btn-agregar--ok" : btnState === "pending" ? " pd__btn-agregar--pending" : ""}`}
       onClick={handleAgregar}
     >
-      {agregado ? "✓ ¡Agregado al carrito!" : "🛒 Agregar al carrito"}
+      {btnState === "ok" ? "✓ ¡Agregado al carrito!" : btnState === "pending" ? "✕ No agregado" : "🛒 Agregar al carrito"}
     </button>
   );
 }

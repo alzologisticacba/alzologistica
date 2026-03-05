@@ -26,7 +26,19 @@ function ProductImg({ codigo }: { codigo: number }) {
 }
 
 export default function ProductCard({ articulo }: { articulo: Articulo }) {
-  const [agregado, setAgregado] = useState(false);
+  const [btnState, setBtnState] = useState<"idle" | "ok" | "pending">("idle");
+
+  React.useEffect(() => {
+    function onConfirmed(e: Event) {
+      const { codigo } = (e as CustomEvent<{ codigo: number }>).detail;
+      if (codigo === articulo.codigo) {
+        setBtnState("ok");
+        setTimeout(() => setBtnState("idle"), 1500);
+      }
+    }
+    window.addEventListener("cart-age-confirmed", onConfirmed);
+    return () => window.removeEventListener("cart-age-confirmed", onConfirmed);
+  }, [articulo.codigo]);
   const tieneDescuento = articulo.descuento > 0;
   const precioOriginal = tieneDescuento
     ? articulo.precioFinal / (1 - articulo.descuento / 100)
@@ -34,7 +46,7 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
 
   function handleAgregar(e: React.MouseEvent) {
     e.stopPropagation();
-    addToCart({
+    const result = addToCart({
       codigo:        articulo.codigo,
       descripcion:   articulo.descripcion,
       precioFinal:   articulo.precioFinal,
@@ -44,8 +56,8 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
       rubro:         articulo.rubro ?? "",
       tipo:          "articulo",
     });
-    setAgregado(true);
-    setTimeout(() => setAgregado(false), 1500);
+    setBtnState(result === "added" ? "ok" : "pending");
+    setTimeout(() => setBtnState("idle"), 1500);
   }
 
   return (
@@ -68,8 +80,12 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
         {articulo.multiplo > 1 && <p className="product-card__multiplo">x{articulo.multiplo} unidades</p>}
       </div>
 
-      <button type="button" className={`product-card__btn${agregado ? " product-card__btn--ok" : ""}`} onClick={handleAgregar}>
-        {agregado ? "✓ Agregado" : "Agregar"}
+      <button
+        type="button"
+        className={`product-card__btn${btnState === "ok" ? " product-card__btn--ok" : btnState === "pending" ? " product-card__btn--pending" : ""}`}
+        onClick={handleAgregar}
+      >
+        {btnState === "ok" ? "✓ Agregado" : btnState === "pending" ? "✕ No agregado" : "Agregar"}
       </button>
     </article>
   );

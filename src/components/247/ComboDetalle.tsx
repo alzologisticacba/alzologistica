@@ -42,15 +42,32 @@ function ItemRow({ item }: { item: DetalleLine }) {
 }
 
 function BtnComboAgregar({ combo, cantidad }: { combo: Combo; cantidad: number }) {
-  const [agregado, setAgregado] = React.useState(false);
+  const [btnState, setBtnState] = React.useState<"idle" | "ok" | "pending">("idle");
+
+  React.useEffect(() => {
+    const cod = Number(combo.cod_combo);
+    function onConfirmed(e: Event) {
+      const { codigo } = (e as CustomEvent<{ codigo: number }>).detail;
+      if (codigo === cod) {
+        setBtnState("ok");
+        setTimeout(() => setBtnState("idle"), 1800);
+      }
+    }
+    window.addEventListener("cart-age-confirmed", onConfirmed);
+    return () => window.removeEventListener("cart-age-confirmed", onConfirmed);
+  }, [combo.cod_combo]);
+
   function handleAgregar() {
-    addToCart({ codigo: Number(combo.cod_combo), descripcion: combo.nombre, precioFinal: combo.precio, multiplo: 1, descuento: 0, tipo: "combo" });
-    setAgregado(true);
-    setTimeout(() => setAgregado(false), 1800);
+    const result = addToCart({ codigo: Number(combo.cod_combo), descripcion: combo.nombre, precioFinal: combo.precio, multiplo: 1, descuento: 0, tipo: "combo" });
+    setBtnState(result === "added" ? "ok" : "pending");
+    setTimeout(() => setBtnState("idle"), 1800);
   }
   return (
-    <button className={`pd__btn-agregar${agregado ? " pd__btn-agregar--ok" : ""}`} onClick={handleAgregar}>
-      {agregado ? "✓ ¡Agregado al carrito!" : "🛒 Agregar al carrito"}
+    <button
+      className={`pd__btn-agregar${btnState === "ok" ? " pd__btn-agregar--ok" : btnState === "pending" ? " pd__btn-agregar--pending" : ""}`}
+      onClick={handleAgregar}
+    >
+      {btnState === "ok" ? "✓ ¡Agregado al carrito!" : btnState === "pending" ? "✕ No agregado" : "🛒 Agregar al carrito"}
     </button>
   );
 }

@@ -190,10 +190,11 @@ function generarNroSeguimiento(): string {
 
 export default function CarritoPage() {
   const [items, setItems]               = useState<CartItem[]>([]);
-  const [modalOpen, setModalOpen]       = useState(false);
-  const [step, setStep]                 = useState<"user" | "seller">("user");
-  const [user, setUser]                 = useState<UserData | null>(null);
-  const [tienePedidos, setTienePedidos] = useState(false);
+  const [modalOpen, setModalOpen]         = useState(false);
+  const [confirmVaciar, setConfirmVaciar] = useState(false);
+  const [step, setStep]                   = useState<"user" | "seller">("user");
+  const [user, setUser]                   = useState<UserData | null>(null);
+  const [tienePedidos, setTienePedidos]   = useState(false);
 
   useEffect(() => {
     setItems([...getCart()]);
@@ -235,7 +236,7 @@ export default function CarritoPage() {
     setItems([...getCart()]);
   }
 
-  function vaciar() { clearCart(); setItems([]); }
+  function vaciar() { clearCart(); setItems([]); setConfirmVaciar(false); }
 
   function openCheckout() {
     if (!items.length) return;
@@ -265,7 +266,7 @@ export default function CarritoPage() {
       const precioUnitario = fmt(i.precioFinal);
       const totalItem      = fmt(i.precioFinal * i.cantidad);
       const descLine       = i.descuento > 0 ? ` | Desc: -${i.descuento}%` : "";
-      return `• ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}`;
+      return `• [${i.codigo}] ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}`;
     }).join("\n");
     const separadorMsg = "─".repeat(30);
     const intro = introOverride ?? `Hola soy *${u.nombre}*!\nHice este pedido por Alzo 24/7`;
@@ -347,7 +348,7 @@ export default function CarritoPage() {
         <a href="/247" className="cart-header__back">← Volver</a>
         <h1 className="cart-header__title">Tu carrito</h1>
         {items.length > 0
-          ? <button className="cart-header__vaciar" onClick={vaciar}>🗑 Vaciar</button>
+          ? <button className="cart-header__vaciar" onClick={() => setConfirmVaciar(true)}>🗑 Vaciar</button>
           : <div />}
       </header>
 
@@ -408,6 +409,29 @@ export default function CarritoPage() {
         </aside>
       </div>
 
+      {confirmVaciar && (
+        <>
+          <div className="alzomodal-backdrop" onClick={() => setConfirmVaciar(false)} />
+          <div className="alzomodal" role="dialog" aria-modal="true">
+            <div className="alzomodal-card">
+              <div className="alzomodal-head">
+                <h3 className="alzomodal-title">¿Vaciar el carrito?</h3>
+                <button className="alzomodal-close" onClick={() => setConfirmVaciar(false)}>✕</button>
+              </div>
+              <div className="alzomodal-body">
+                <p style={{ marginBottom: "1.25rem", color: "var(--text-2, #555)" }}>
+                  Se eliminarán todos los productos. Esta acción no se puede deshacer.
+                </p>
+                <div className="alzomodal-actions">
+                  <button className="alzomodal-btn alzomodal-btn--ghost" onClick={() => setConfirmVaciar(false)}>Cancelar</button>
+                  <button className="alzomodal-btn alzomodal-btn--danger" onClick={vaciar}>Sí, vaciar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {modalOpen && (
         <>
           <div className="alzomodal-backdrop" onClick={() => setModalOpen(false)} />
@@ -428,6 +452,11 @@ export default function CarritoPage() {
               <div className="alzomodal-cart-pill">
                 🛒 {totalSKUs} producto{totalSKUs !== 1 ? "s" : ""} · {totalUnidades} unidades · <strong>{fmt(totalPrecio)}</strong>
               </div>
+              {step === "seller" && (
+                <p className="alzomodal-fiscal-hint">
+                  Los precios pueden variar según corresponda
+                </p>
+              )}
 
               <div className="alzomodal-body">
                 {step === "user"

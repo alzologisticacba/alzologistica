@@ -1420,6 +1420,14 @@
   background: #00a650 !important;;
 }
 
+/* Botón agregar — estado pendiente/bloqueado (age gate) */
+.product-card__btn--pending {
+  background: #e53e3e !important;
+}
+.pd__btn-agregar--pending {
+  background: #e53e3e !important;
+}
+
 /* Paginación */
 
 .cat-page__pagination {
@@ -1490,6 +1498,42 @@
 
 .alzomodal-card--wide {
   max-width: 580px;;
+}
+
+/* Age Gate */
+.age-gate-card {
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+.age-gate__icon {
+  font-size: 3rem;
+  margin-bottom: .75rem;
+}
+.age-gate__title {
+  font-size: 1.25rem;
+  margin-bottom: .75rem;
+}
+.age-gate__desc {
+  color: #555;
+  font-size: .875rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+.age-gate__actions {
+  justify-content: center;
+  gap: .75rem;
+}
+.age-gate__legal {
+  margin-top: 1rem;
+  font-size: .75rem;
+  color: #999;
+}
+.alzomodal-btn--danger {
+  background: #e53e3e;
+  color: #fff;
+}
+.alzomodal-btn--danger:hover {
+  background: #c53030;
 }
 
 @keyframes modalIn {
@@ -1570,6 +1614,17 @@
 
 .alzomodal-cart-pill strong {
   color: #3300ff;;
+}
+
+.alzomodal-fiscal-hint {
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e07800;
+  background: #fff8ee;
+  border-top: 1px solid #fde8c0;
+  border-bottom: 1px solid #fde8c0;
+  font-family: "Montserrat", sans-serif;
 }
 
 /* Body */

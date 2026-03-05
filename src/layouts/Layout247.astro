@@ -1,5 +1,7 @@
 ---
 // src/layouts/Layout247.astro
+import AgeGateModal from "../components/247/AgeGateModal";
+
 const {
   title       = "Alzo 24/7",
   description = "Alzo 24/7: Hace tu pedido simple, sin registros y sin vueltas",
@@ -49,5 +51,6 @@ const {
   </head>
   <body>
     <slot />
+    <AgeGateModal client:load />
   </body>
 </html>
