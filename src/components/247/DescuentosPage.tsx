@@ -32,8 +32,13 @@ export default function DescuentosPage() {
     <div className="app-247">
       <Header247 showBack={true} />
       <div className="shell-247">
-        <h1 className="cat-page__titulo">Descuentos Exclusivos</h1>
-
+        <div className="seccion-banner-wrap">
+          <img
+            src="/img/247/secciones/descuentosExlusivosBanner.png"
+            alt="Descuentos Exclusivos"
+            className="seccion-banner"
+          />
+        </div>
         <div className="cat-page__search-wrap">
           <span className="cat-page__search-icon">🔍</span>
           <input type="search" className="cat-page__search" placeholder="Buscar producto..."

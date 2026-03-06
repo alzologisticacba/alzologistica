@@ -14,6 +14,7 @@ export default function App247() {
   const [cartCount, setCartCount] = useState(() => { try { return JSON.parse(localStorage.getItem("alzo_cart") ?? "[]").reduce((s: number, i: any) => s + i.cantidad, 0); } catch { return 0; } });
   const [familiasUltimoPedido, setFamiliasUltimoPedido] = useState<string[]>([]);
   const [familiasVistos, setFamiliasVistos] = useState<string[]>([]);
+  const [familiasOpuestas, setFamiliasOpuestas] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
   const [marcas, setMarcas]   = useState<{seccion: string; titulo: string}[]>([]);
   const deferredQ = useDeferredValue(busqueda);
@@ -42,7 +43,27 @@ export default function App247() {
     // Leer la familia del último producto visto
     try {
       const ultimoVisto = localStorage.getItem("alzo_ultimo_visto");
-      if (ultimoVisto) setFamiliasVistos([ultimoVisto]);
+      if (ultimoVisto) {
+        setFamiliasVistos([ultimoVisto]);
+        // Buscar una familia distinta para "Te puede interesar"
+        const EXCLUIR = ["Cigarrillos", "Tabaco", "Tabacos", "Cigarros", "Cigarette"];
+        supabaseClient
+          .from("articulos")
+          .select("familiaNombre")
+          .gt("stock", 0)
+          .not("familiaNombre", "is", null)
+          .neq("familiaNombre", "")
+          .neq("familiaNombre", ultimoVisto)
+          .not("familiaNombre", "in", `(${EXCLUIR.join(",")})`)
+          .then(({ data }) => {
+            if (!data) return;
+            const familias = [...new Set(data.map((r: any) => r.familiaNombre).filter(Boolean))] as string[];
+            if (familias.length > 0) {
+              const elegida = familias[Math.floor(Math.random() * familias.length)];
+              setFamiliasOpuestas([elegida]);
+            }
+          });
+      }
     } catch {}
 
     // Cargar marcas con secciones activas
@@ -89,13 +110,15 @@ export default function App247() {
           : <div className="home-sections">
               {mounted && <>
                 {/* 1. Descuentos */}
-                <HomeSection id="descuentos" titulo="Descuentos Exclusivos" filtro={{ descuento: true }} verTodosHref="/247/descuentos" />
+                <HomeSection id="descuentos" titulo="Descuentos Exclusivos" filtro={{ descuento: true }} verTodosHref="/247/descuentos" banner="/img/247/secciones/descuentosExlusivosBanner.png" />
                 {/* 2. Inspirado en lo último que viste */}
                 {familiasVistos.length > 0 && <HomeSection id="vistos" titulo="Inspirado en lo último que viste" filtro={{ familias: familiasVistos }} verTodosHref={`/247/vistos/?familias=${encodeURIComponent(familiasVistos.join(","))}`} />}
                 {/* 3. Sección marca 1 */}
                 {marcasRandom[0] && <BrandSection seccion={marcasRandom[0].seccion} titulo={marcasRandom[0].titulo} />}
-                {/* 4. Combos */}
-                <HomeSection id="combos" titulo="Combos" filtro={{ combos: true }} verTodosHref="/247/combos" />
+                {/* 4. Te puede interesar (categoría opuesta a la última visitada) */}
+                {familiasOpuestas.length > 0 && <HomeSection id="te-puede-interesar" titulo="Te puede interesar" filtro={{ familias: familiasOpuestas }} verTodosHref={`/247/categoria/${familiasOpuestas[0].toLowerCase().replace(/\s+/g, "-")}`} />}
+                {/* 5. Combos */}
+                <HomeSection id="combos" titulo="Combos" filtro={{ combos: true }} verTodosHref="/247/combos" banner="/img/247/secciones/combosBanner.png" />
                 {/* 5. Según tu último pedido */}
                 {familiasUltimoPedido.length > 0 && <HomeSection id="ultimo-pedido" titulo="Según tu último pedido" filtro={{ familias: familiasUltimoPedido, grid2x2: true }} verTodosHref={`/247/ultimo-pedido/?familias=${encodeURIComponent(familiasUltimoPedido.join(","))}`} />}
                 {/* 6. Sección marca 2 */}

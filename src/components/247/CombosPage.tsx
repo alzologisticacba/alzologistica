@@ -61,8 +61,13 @@ export default function CombosPage() {
     <div className="app-247">
       <Header247 showBack={true} />
       <div className="shell-247">
-        <h1 className="cat-page__titulo">Combos</h1>
-
+        <div className="seccion-banner-wrap">
+          <img
+            src="/img/247/secciones/combosBanner.png"
+            alt="Combos"
+            className="seccion-banner"
+          />
+        </div>
         <div className="cat-page__search-wrap">
           <span className="cat-page__search-icon">SEARCH</span>
           <input

@@ -62,7 +62,7 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
 
   return (
     <article
-      className="product-card"
+      className={`product-card${tieneDescuento ? " product-card--descuento" : ""}`}
       onClick={() => window.location.href = `/247/producto/?codigo=${articulo.codigo}`}
       style={{ cursor: "pointer" }}
     >

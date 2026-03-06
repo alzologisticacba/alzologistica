@@ -211,9 +211,12 @@ export default function CarritoPage() {
     };
   }, []);
 
+  const MINIMO_PEDIDO = 30000;
+
   const totalSKUs     = items.length;
   const totalUnidades = useMemo(() => items.reduce((s, i) => s + i.cantidad, 0), [items]);
   const totalPrecio   = useMemo(() => items.reduce((s, i) => s + i.precioFinal * i.cantidad, 0), [items]);
+  const faltaParaMinimo = Math.max(0, MINIMO_PEDIDO - totalPrecio);
 
   const cartMessage = useMemo(() => {
     if (!user) return "";
@@ -240,6 +243,7 @@ export default function CarritoPage() {
 
   function openCheckout() {
     if (!items.length) return;
+    if (faltaParaMinimo > 0) return;
     const saved = loadUser();
     if (saved) {
       setUser(saved);
@@ -403,7 +407,13 @@ export default function CarritoPage() {
             <span>Total</span>
             <strong className="cart-summary__total">{fmt(totalPrecio)}</strong>
           </div>
-          <button className="cart-summary__btn" onClick={openCheckout} disabled={items.length === 0}>
+          {faltaParaMinimo > 0 && items.length > 0 && (
+            <div className="cart-summary__minimo">
+              <span>Mínimo de pedido: {fmt(MINIMO_PEDIDO)}</span>
+              <strong>Te faltan {fmt(faltaParaMinimo)}</strong>
+            </div>
+          )}
+          <button className="cart-summary__btn" onClick={openCheckout} disabled={items.length === 0 || faltaParaMinimo > 0}>
             <WaIcon /> Enviar pedido
           </button>
         </aside>

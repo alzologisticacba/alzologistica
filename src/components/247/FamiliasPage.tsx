@@ -1,5 +1,5 @@
 // src/components/247/FamiliasPage.tsx
-import { useState, useDeferredValue } from "react";
+import { useState, useDeferredValue, useEffect, useMemo } from "react";
 import Header247 from "./Header247";
 import ProductCard from "./ProductCard";
 import PageFooterSection from "./PageFooterSection";
@@ -7,6 +7,7 @@ import FilterDrawer from "./FilterDrawer";
 import FilterSortBar from "./FilterSortBar";
 import { useFilterSort, applyFilterSort, extractFilterOptions } from "./hooks/useFilterSort";
 import { useArticulos } from "./hooks/useArticulos";
+import { supabaseClient } from "../../lib/supabaseClient";
 
 interface Props {
   titulo: string;
@@ -15,17 +16,52 @@ interface Props {
 }
 
 export default function FamiliasPage({ titulo, subtitulo, emoji = "✨" }: Props) {
-  const params   = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-  const familias = params?.get("familias")?.split(",").filter(Boolean) ?? [];
+  const params      = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const familiasRaw = params?.get("familias") ?? "";
+  // Si empieza con __codigos__: lo tratamos como un único token (no split por coma)
+  const familiasParam = familiasRaw.startsWith("__codigos__:")
+    ? [familiasRaw]
+    : familiasRaw.split(",").filter(Boolean);
+
+  // Resolvemos __codigos__: a familiaNombre reales antes de consultar
+  const [resolvedFamilias, setResolvedFamilias] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    const codigosItem = familiasParam.find(f => f.startsWith("__codigos__:"));
+    if (codigosItem) {
+      const codigos = codigosItem.replace("__codigos__:", "").split(",").map(Number);
+      supabaseClient
+        .from("articulos")
+        .select("familiaNombre")
+        .gt("stock", 0)
+        .in("codigo", codigos)
+        .then(({ data }) => {
+          const familias = [...new Set((data ?? []).map((r: any) => r.familiaNombre).filter(Boolean))] as string[];
+          setResolvedFamilias(familias.length > 0 ? familias : []);
+        });
+    } else {
+      setResolvedFamilias(familiasParam.length > 0 ? familiasParam : null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [busqueda, setBusqueda] = useState("");
   const deferredQ = useDeferredValue(busqueda);
 
-  const { data, meta, loading } = useArticulos({
-    q:       deferredQ || undefined,
-    familias: familias.length > 0 ? familias : undefined,
-    limit:   200,
+  const resolvingCodigos = familiasParam.some(f => f.startsWith("__codigos__:"));
+  // Mientras resolvemos los codigos usamos un placeholder imposible para que useArticulos
+  // no devuelva todos los productos antes de tener las familias reales
+  const familiasParaQuery = resolvingCodigos && resolvedFamilias === null
+    ? ["__resolving__"]
+    : (resolvedFamilias ?? (familiasParam.length > 0 ? familiasParam : undefined));
+
+  const { data, meta, loading: loadingArticulos } = useArticulos({
+    q:        deferredQ || undefined,
+    familias: familiasParaQuery as string[] | undefined,
+    limit:    200,
   } as any);
+
+  const loading = (resolvingCodigos && resolvedFamilias === null) || loadingArticulos;
 
   const {
     filters, setFilters, drawerOpen, drawerMode,
@@ -35,6 +71,18 @@ export default function FamiliasPage({ titulo, subtitulo, emoji = "✨" }: Props
 
   const { familias: famOpts, secciones } = extractFilterOptions(data);
   const filtered = applyFilterSort(data, filters, shuffleSeed);
+
+  const PAGE_SIZE  = 40;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const pageSafe   = Math.min(page, Math.max(1, totalPages));
+  const pageItems  = useMemo(
+    () => filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE),
+    [filtered, pageSafe]
+  );
+
+  // Resetear página al cambiar búsqueda o filtros
+  useEffect(() => { setPage(1); }, [deferredQ, filters, shuffleSeed]);
 
   return (
     <>
@@ -87,8 +135,23 @@ export default function FamiliasPage({ titulo, subtitulo, emoji = "✨" }: Props
             <>
               <p className="cat-page__count">{filtered.length} producto{filtered.length !== 1 ? "s" : ""}</p>
               <div className="product-grid">
-                {filtered.map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                {pageItems.map(a => <ProductCard key={a.codigo} articulo={a} />)}
               </div>
+              {totalPages > 1 && (
+                <div className="cat-page__pagination">
+                  <button
+                    className="cat-page__page-btn"
+                    disabled={pageSafe <= 1}
+                    onClick={() => { setPage(p => p - 1); window.scrollTo(0, 0); }}
+                  >Anterior</button>
+                  <span>{pageSafe} / {totalPages}</span>
+                  <button
+                    className="cat-page__page-btn"
+                    disabled={pageSafe >= totalPages}
+                    onClick={() => { setPage(p => p + 1); window.scrollTo(0, 0); }}
+                  >Siguiente</button>
+                </div>
+              )}
             </>
           )}
         </div>

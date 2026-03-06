@@ -169,8 +169,13 @@ export default function ProductoDetalle() {
                   <p className="pd__rubro">{articulo.rubro} · {articulo.familiaNombre}</p>
                   <h1 className="pd__titulo">{articulo.descripcion}</h1>
 
-                  <div className="pd__precio-wrap">
-                    {precioOriginal && <p className="pd__precio-original">{fmt(precioOriginal)}</p>}
+                  <div className={`pd__precio-wrap${tieneDescuento ? " pd__precio-wrap--descuento" : ""}`}>
+                    {precioOriginal && (
+                      <div className="pd__ahorro-row">
+                        <p className="pd__precio-original">{fmt(precioOriginal)}</p>
+                        <span className="pd__ahorro-chip">Ahorrás {fmt(precioOriginal - articulo!.precioFinal)}</span>
+                      </div>
+                    )}
                     <div className="pd__precio-row">
                       {tieneDescuento && <span className="pd__precio-badge">-{articulo.descuento}%</span>}
                       <span className="pd__precio">{fmt(articulo.precioFinal)}</span>

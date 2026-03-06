@@ -1,5 +1,5 @@
 // src/components/247/CategoryPage.tsx
-import { useState, useDeferredValue, useEffect } from "react";
+import { useState, useDeferredValue, useEffect, useMemo } from "react";
 import { useArticulos } from "./hooks/useArticulos";
 import ProductCard from "./ProductCard";
 import Header247 from "./Header247";
@@ -46,6 +46,17 @@ export default function CategoryPage({ familia: familiaProp, titulo: tituloProp 
   const { secciones } = extractFilterOptions(articulos);
   const filtered = applyFilterSort(articulos, filters, shuffleSeed);
 
+  const PAGE_SIZE  = 40;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const pageSafe   = Math.min(page, Math.max(1, totalPages));
+  const pageItems  = useMemo(
+    () => filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE),
+    [filtered, pageSafe]
+  );
+
+  useEffect(() => { setPage(1); }, [deferredBusqueda, filters, shuffleSeed]);
+
   return (
     <>
     <div className="app-247">
@@ -76,7 +87,22 @@ export default function CategoryPage({ familia: familiaProp, titulo: tituloProp 
         {!loading && !error && filtered.length > 0 && (
           <>
             <p className="cat-page__count">{filtered.length} producto{filtered.length !== 1 ? "s" : ""}</p>
-            <div className="product-grid">{filtered.map(a => <ProductCard key={a.codigo} articulo={a} />)}</div>
+            <div className="product-grid">{pageItems.map(a => <ProductCard key={a.codigo} articulo={a} />)}</div>
+            {totalPages > 1 && (
+              <div className="cat-page__pagination">
+                <button
+                  className="cat-page__page-btn"
+                  disabled={pageSafe <= 1}
+                  onClick={() => { setPage(p => p - 1); window.scrollTo(0, 0); }}
+                >Anterior</button>
+                <span>{pageSafe} / {totalPages}</span>
+                <button
+                  className="cat-page__page-btn"
+                  disabled={pageSafe >= totalPages}
+                  onClick={() => { setPage(p => p + 1); window.scrollTo(0, 0); }}
+                >Siguiente</button>
+              </div>
+            )}
           </>
         )}
       </div>
