@@ -44,7 +44,10 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
   const [hasNext, setHasNext]   = useState(false);
   const baseOffsetRef         = useRef(-1);
   const discountPoolRef       = useRef<any[]>([]);
+  const shufflePoolRef        = useRef<any[]>([]);
   const rowRef                = useRef<HTMLDivElement>(null);
+  const [atScrollEnd, setAtScrollEnd]   = useState(false);
+  const [atScrollStart, setAtScrollStart] = useState(true);
 
   // Refrescar al volver atrás con flecha/historial del navegador
   useEffect(() => {
@@ -67,6 +70,7 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
     setPage(0);
     baseOffsetRef.current = -1;
     discountPoolRef.current = [];
+    shufflePoolRef.current = [];
   }, [seed]);
 
   useEffect(() => {
@@ -134,43 +138,35 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
         let nextExists = false;
 
         if (sectionId === "todos") {
-          // Calcular base offset aleatorio una vez por seed
-          if (baseOffsetRef.current < 0) {
-            const { count } = await supabaseClient
+          // Pool shuffleado una vez por seed
+          if (shufflePoolRef.current.length === 0) {
+            const { data: pool } = await supabaseClient
               .from("articulos")
-              .select("*", { count: "exact", head: true })
+              .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
               .gt("stock", 0)
-              .not("familiaNombre", "in", `(${EXCLUIR_FAMILIAS.join(",")})`);
-            const total = count ?? 0;
-            const maxBase = Math.max(0, total - pageSize * 20);
-            baseOffsetRef.current = Math.floor(Math.random() * maxBase);
+              .not("familiaNombre", "in", `(${EXCLUIR_FAMILIAS.join(",")})`)
+              .limit(500);
+            shufflePoolRef.current = shuffleArray(pool ?? []);
           }
-          const from = baseOffsetRef.current + offset;
-          const { data } = await supabaseClient
-            .from("articulos")
-            .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
-            .gt("stock", 0)
-            .not("familiaNombre", "in", `(${EXCLUIR_FAMILIAS.join(",")})`)
-            .order("orden", { ascending: true })
-            .range(from, from + pageSize); // +1 para detectar hasNext
-          const fetched = data ?? [];
-          result = fetched.slice(0, pageSize);
-          nextExists = fetched.length > pageSize;
+          result = shufflePoolRef.current.slice(offset, offset + pageSize);
+          nextExists = shufflePoolRef.current.length > offset + pageSize;
 
         } else if (filtro.familias && filtro.familias.length > 0) {
-          const { data } = await supabaseClient
-            .from("articulos")
-            .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
-            .gt("stock", 0)
-            .in("familiaNombre", filtro.familias)
-            .order("orden", { ascending: true })
-            .range(offset, offset + pageSize); // +1 para detectar hasNext
-          const fetched = data ?? [];
-          result = fetched.slice(0, pageSize);
-          nextExists = fetched.length > pageSize;
+          // Pool shuffleado una vez por seed
+          if (shufflePoolRef.current.length === 0) {
+            const { data: pool } = await supabaseClient
+              .from("articulos")
+              .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+              .gt("stock", 0)
+              .in("familiaNombre", filtro.familias)
+              .limit(300);
+            shufflePoolRef.current = shuffleArray(pool ?? []);
+          }
+          result = shufflePoolRef.current.slice(offset, offset + pageSize);
+          nextExists = shufflePoolRef.current.length > offset + pageSize;
 
         } else if (filtro.descuento) {
-          // Descuentos: fetchear pool completo una vez, shufflear y paginar client-side
+          // Descuentos: pool shuffleado una vez por seed
           if (discountPoolRef.current.length === 0) {
             const { data: pool } = await supabaseClient
               .from("articulos")
@@ -184,16 +180,19 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
           nextExists = discountPoolRef.current.length > offset + pageSize;
 
         } else {
-          let query = supabaseClient
-            .from("articulos")
-            .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
-            .gt("stock", 0)
-            .order("orden", { ascending: true });
-          if (filtro.familia) query = query.ilike("familiaNombre", filtro.familia);
-          const { data } = await query.range(offset, offset + pageSize); // +1 para detectar hasNext
-          const fetched = data ?? [];
-          result = fetched.slice(0, pageSize);
-          nextExists = fetched.length > pageSize;
+          // Single familia (ej: cigarrillos) — pool shuffleado una vez por seed
+          if (shufflePoolRef.current.length === 0) {
+            let query = supabaseClient
+              .from("articulos")
+              .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+              .gt("stock", 0)
+              .limit(300);
+            if (filtro.familia) query = query.ilike("familiaNombre", filtro.familia);
+            const { data: pool } = await query;
+            shufflePoolRef.current = shuffleArray(pool ?? []);
+          }
+          result = shufflePoolRef.current.slice(offset, offset + pageSize);
+          nextExists = shufflePoolRef.current.length > offset + pageSize;
         }
 
         if (!cancelled) {
@@ -213,20 +212,15 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
 
   if (!loading && items.length === 0) return null;
 
-  // Las flechas primero scrollean dentro de la página; al llegar al borde cargan página siguiente/anterior
-  const handleArrow = (dir: "left" | "right") => {
+  const handleRowScroll = () => {
     const row = rowRef.current;
     if (!row) return;
-    const atEnd   = row.scrollLeft + row.clientWidth >= row.scrollWidth - 16;
-    const atStart = row.scrollLeft <= 16;
+    setAtScrollStart(row.scrollLeft <= 16);
+    setAtScrollEnd(row.scrollLeft + row.clientWidth >= row.scrollWidth - 16);
+  };
 
-    if (dir === "right") {
-      if (atEnd && hasNext) setPage(p => p + 1);
-      else row.scrollBy({ left: 320, behavior: "smooth" });
-    } else {
-      if (atStart && page > 0) setPage(p => p - 1);
-      else row.scrollBy({ left: -320, behavior: "smooth" });
-    }
+  const handleArrow = (dir: "left" | "right") => {
+    rowRef.current?.scrollBy({ left: dir === "right" ? 320 : -320, behavior: "smooth" });
   };
 
   return (
@@ -251,8 +245,10 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
       ) : (
         <>
           <div className="home-section__row-wrap">
-            <button className="home-section__arrow home-section__arrow--left" onClick={() => handleArrow("left")} disabled={page === 0} aria-label="Anterior">‹</button>
-            <div className="home-section__row" ref={rowRef}>
+            {!atScrollStart && (
+              <button className="home-section__arrow home-section__arrow--left" onClick={() => handleArrow("left")} aria-label="Anterior">‹</button>
+            )}
+            <div className="home-section__row" ref={rowRef} onScroll={handleRowScroll}>
               {loading
                 ? [...Array(4)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
                 : <>
@@ -267,7 +263,9 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
                   </>
               }
             </div>
-            <button className="home-section__arrow home-section__arrow--right" onClick={() => handleArrow("right")} aria-label="Siguiente">›</button>
+            {!atScrollEnd && (
+              <button className="home-section__arrow home-section__arrow--right" onClick={() => handleArrow("right")} aria-label="Siguiente">›</button>
+            )}
           </div>
         </>
       )}
