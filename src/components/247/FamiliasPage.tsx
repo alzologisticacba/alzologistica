@@ -134,9 +134,20 @@ export default function FamiliasPage({ titulo, subtitulo, emoji = "✨" }: Props
           {!loading && filtered.length > 0 && (
             <>
               <p className="cat-page__count">{filtered.length} producto{filtered.length !== 1 ? "s" : ""}</p>
-              <div className="product-grid">
-                {pageItems.map(a => <ProductCard key={a.codigo} articulo={a} />)}
-              </div>
+              {(() => {
+                const split = typeof window !== "undefined" && window.innerWidth >= 768 ? 10 : 8;
+                return (
+                  <div className="product-grid">
+                    {pageItems.slice(0, split).map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                    {pageItems.length > split && (
+                      <a href="https://whatsapp.com/channel/0029VbC00Vd3QxS30oAEN60G" target="_blank" rel="noopener noreferrer" className="canal-dif-banner-inline">
+                        <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
+                      </a>
+                    )}
+                    {pageItems.slice(split).map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                  </div>
+                );
+              })()}
               {totalPages > 1 && (
                 <div className="cat-page__pagination">
                   <button

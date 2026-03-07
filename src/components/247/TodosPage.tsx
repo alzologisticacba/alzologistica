@@ -105,9 +105,20 @@ export default function TodosPage() {
               {filteredAll.length} producto{filteredAll.length !== 1 ? "s" : ""}
               {filters.familias.length > 0 ? ` en ${filters.familias.join(", ")}` : ""}
             </p>
-            <div className="product-grid">
-              {pageItems.map(a => <ProductCard key={a.codigo} articulo={a} />)}
-            </div>
+            {(() => {
+              const split = typeof window !== "undefined" && window.innerWidth >= 768 ? 10 : 8;
+              return (
+                <div className="product-grid">
+                  {pageItems.slice(0, split).map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                  {pageItems.length > split && (
+                    <a href="https://whatsapp.com/channel/0029VbC00Vd3QxS30oAEN60G" target="_blank" rel="noopener noreferrer" className="canal-dif-banner-inline">
+                      <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
+                    </a>
+                  )}
+                  {pageItems.slice(split).map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                </div>
+              );
+            })()}
             {totalPages > 1 && (
               <div className="cat-page__pagination">
                 <button

@@ -127,7 +127,11 @@ export default function App247() {
                 <HomeSection id="todos" titulo="Todos los productos" filtro={{}} verTodosHref="/247/todos" />
                 {/* 8. Sección marca 3 */}
                 {marcasRandom[2] && <BrandSection seccion={marcasRandom[2].seccion} titulo={marcasRandom[2].titulo} />}
-                {/* 9. Cigarrillos */}
+                {/* 9. Banner canal de difusión */}
+                <a href="https://whatsapp.com/channel/0029VbC00Vd3QxS30oAEN60G" target="_blank" rel="noopener noreferrer" className="home-canal-dif-banner">
+                  <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
+                </a>
+                {/* 10. Cigarrillos */}
                 <HomeSection id="cigarrillos" titulo="Cigarrillos" filtro={{ familia: "Cigarrillos" }} verTodosHref="/247/categoria/cigarrillos" />
               </>}
               <CategoriesSection />

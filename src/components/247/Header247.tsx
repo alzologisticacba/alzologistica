@@ -10,6 +10,15 @@ function readCartCount(): number {
   } catch { return 0; }
 }
 
+function readCartItems(): any[] {
+  try { return JSON.parse(localStorage.getItem("alzo_cart") ?? "[]"); }
+  catch { return []; }
+}
+
+function fmtPrice(n: number) {
+  return n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 interface Props {
   cartCount?: number;
   busqueda?: string;
@@ -27,12 +36,23 @@ export default function Header247({
   showSearch = false,
   showBack = false,
 }: Props) {
-  const [count, setCount]       = useState(0);
+  // Lazy init desde localStorage para evitar falso "0 → N" en la carga
+  const [count, setCount]       = useState(readCartCount);
   const [familias, setFamilias] = useState<string[]>([]);
   const [ddOpen, setDdOpen]     = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const ddRef                   = useRef<HTMLDivElement>(null);
   const [showSugg, setShowSugg] = useState(false);
+  // Floating cart state
+  const [fcVisible, setFcVisible]     = useState(false);
+  const [fcDropping, setFcDropping]   = useState(false);
+  const [fcBumping, setFcBumping]     = useState(false);
+  const [fcModalOpen, setFcModalOpen] = useState(false);
+  const [cartItems, setCartItems]     = useState<any[]>([]);
+  const [headerVisible, setHeaderVisible] = useState(true);
+  const prevCountRef  = useRef(-1); // -1 = no inicializado
+  const hasDroppedRef = useRef(false);
+  const headerRef     = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setCount(cartCountProp ?? readCartCount());
@@ -49,6 +69,67 @@ export default function Header247({
   useEffect(() => {
     if (cartCountProp !== undefined) setCount(cartCountProp);
   }, [cartCountProp]);
+
+  // Lógica del floating cart
+  useEffect(() => {
+    if (prevCountRef.current === -1) {
+      // Primera sincronización: solo mostrar/ocultar sin animar
+      prevCountRef.current = count;
+      setFcVisible(count > 0);
+      return;
+    }
+    const prev = prevCountRef.current;
+    prevCountRef.current = count;
+
+    if (prev === 0 && count > 0) {
+      // Carrito pasó de vacío a tener items
+      setFcVisible(true);
+      if (!hasDroppedRef.current) {
+        hasDroppedRef.current = true;
+        setFcDropping(true);
+        const t = setTimeout(() => setFcDropping(false), 1000);
+        return () => clearTimeout(t);
+      }
+    } else if (count === 0 && prev > 0) {
+      // Carrito vaciado
+      setFcVisible(false);
+      setFcDropping(false);
+      setFcBumping(false);
+      hasDroppedRef.current = false; // reset para próxima vez
+    } else if (count > prev && prev > 0) {
+      // Se agregó otro item al carrito ya visible
+      setFcBumping(true);
+      const t = setTimeout(() => setFcBumping(false), 500);
+      return () => clearTimeout(t);
+    }
+  }, [count]);
+
+  // Observar visibilidad del header
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setHeaderVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Cargar items cuando se abre el modal
+  useEffect(() => {
+    if (!fcModalOpen) return;
+    setCartItems(readCartItems());
+    const sync = () => setCartItems(readCartItems());
+    window.addEventListener("cart-updated", sync);
+    return () => window.removeEventListener("cart-updated", sync);
+  }, [fcModalOpen]);
+
+  // Bloquear scroll cuando modal abierto
+  useEffect(() => {
+    if (fcModalOpen) document.body.style.overflow = "hidden";
+    else if (!menuOpen) document.body.style.overflow = "";
+  }, [fcModalOpen, menuOpen]);
 
   useEffect(() => {
     supabaseClient
@@ -94,7 +175,56 @@ export default function Header247({
   );
 
   return (
-    <header className="header-247-wrap">
+    <>
+    {fcVisible && !headerVisible && (
+      <button
+        className={`floating-cart${fcDropping ? " floating-cart--drop" : ""}${fcBumping ? " floating-cart--bump" : ""}`}
+        onClick={() => setFcModalOpen(true)}
+        aria-label="Ver carrito"
+      >
+        <img src="/img/247/bolsaCompras.png" alt="" className="floating-cart__img" />
+        <span className="floating-cart__badge">{count}</span>
+      </button>
+    )}
+
+    {fcModalOpen && (
+      <div className="fc-modal-overlay" onClick={() => setFcModalOpen(false)}>
+        <div className="fc-modal" onClick={e => e.stopPropagation()}>
+          <div className="fc-modal__head">
+            <h2 className="fc-modal__title">Mi carrito</h2>
+            <button className="fc-modal__close" onClick={() => setFcModalOpen(false)}>✕</button>
+          </div>
+          <div className="fc-modal__body">
+            {cartItems.length === 0 ? (
+              <p className="fc-modal__empty">Tu carrito está vacío</p>
+            ) : (
+              cartItems.map((item, i) => (
+                <div key={i} className="fc-modal__item">
+                  <div className="fc-modal__item-name">{item.descripcion ?? item.nombre}</div>
+                  <span className="fc-modal__item-qty">x{item.cantidad}</span>
+                  <span className="fc-modal__item-price">$ {fmtPrice(item.precioFinal * item.cantidad)}</span>
+                </div>
+              ))
+            )}
+          </div>
+          {cartItems.length > 0 && (
+            <div className="fc-modal__footer">
+              <div className="fc-modal__total">
+                <span className="fc-modal__total-label">Total</span>
+                <span className="fc-modal__total-amount">
+                  $ {fmtPrice(cartItems.reduce((s, i) => s + i.precioFinal * i.cantidad, 0))}
+                </span>
+              </div>
+              <button className="fc-modal__btn" onClick={() => { window.location.href = "/247/carrito"; }}>
+                Finalizar pedido →
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+    <header ref={headerRef} className="header-247-wrap">
       <div className="header-247-inner">
 
         {showSearch ? (
@@ -194,5 +324,6 @@ export default function Header247({
         </div>
       )}
     </header>
+    </>
   );
 }

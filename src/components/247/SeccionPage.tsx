@@ -120,9 +120,20 @@ export default function SeccionPage() {
               <p className="cat-page__count" style={{ color: brand.text, opacity: 0.75 }}>
                 {filtered.length} producto{filtered.length !== 1 ? "s" : ""}
               </p>
-              <div className="product-grid">
-                {filtered.map(a => <ProductCard key={a.codigo} articulo={a} />)}
-              </div>
+              {(() => {
+                const split = typeof window !== "undefined" && window.innerWidth >= 768 ? 10 : 8;
+                return (
+                  <div className="product-grid">
+                    {filtered.slice(0, split).map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                    {filtered.length > split && (
+                      <a href="https://whatsapp.com/channel/0029VbC00Vd3QxS30oAEN60G" target="_blank" rel="noopener noreferrer" className="canal-dif-banner-inline">
+                        <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
+                      </a>
+                    )}
+                    {filtered.slice(split).map(a => <ProductCard key={a.codigo} articulo={a} />)}
+                  </div>
+                );
+              })()}
             </>
           )}
         </div>
