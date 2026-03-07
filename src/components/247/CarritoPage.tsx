@@ -357,6 +357,26 @@ export default function CarritoPage() {
       </header>
 
       <div className="cart-shell">
+        <aside className="cart-summary">
+          <h2 className="cart-summary__title">Resumen</h2>
+          <div className="cart-summary__row"><span>Productos</span><strong>{totalSKUs} SKUs</strong></div>
+          <div className="cart-summary__row"><span>Unidades</span><strong>{totalUnidades}</strong></div>
+          <div className="cart-summary__divider" />
+          <div className="cart-summary__total-row">
+            <span>Total</span>
+            <strong className="cart-summary__total">{fmt(totalPrecio)}</strong>
+          </div>
+          {faltaParaMinimo > 0 && items.length > 0 && (
+            <div className="cart-summary__minimo">
+              <span>Mínimo de pedido: {fmt(MINIMO_PEDIDO)}</span>
+              <strong>Te faltan {fmt(faltaParaMinimo)}</strong>
+            </div>
+          )}
+          <button className="cart-summary__btn" onClick={openCheckout} disabled={items.length === 0 || faltaParaMinimo > 0}>
+            <WaIcon /> Enviar pedido
+          </button>
+        </aside>
+
         <div className="cart-items-col">
           {items.length === 0 ? (
             <div className="cart-empty">
@@ -397,26 +417,6 @@ export default function CarritoPage() {
             </div>
           )}
         </div>
-
-        <aside className="cart-summary">
-          <h2 className="cart-summary__title">Resumen</h2>
-          <div className="cart-summary__row"><span>Productos</span><strong>{totalSKUs} SKUs</strong></div>
-          <div className="cart-summary__row"><span>Unidades</span><strong>{totalUnidades}</strong></div>
-          <div className="cart-summary__divider" />
-          <div className="cart-summary__total-row">
-            <span>Total</span>
-            <strong className="cart-summary__total">{fmt(totalPrecio)}</strong>
-          </div>
-          {faltaParaMinimo > 0 && items.length > 0 && (
-            <div className="cart-summary__minimo">
-              <span>Mínimo de pedido: {fmt(MINIMO_PEDIDO)}</span>
-              <strong>Te faltan {fmt(faltaParaMinimo)}</strong>
-            </div>
-          )}
-          <button className="cart-summary__btn" onClick={openCheckout} disabled={items.length === 0 || faltaParaMinimo > 0}>
-            <WaIcon /> Enviar pedido
-          </button>
-        </aside>
       </div>
 
       {confirmVaciar && (
