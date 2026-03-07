@@ -6,6 +6,13 @@ import Footer247 from "./Footer247";
 export default function PageFooterSection() {
   return (
     <div className="page-footer-section">
+      {/* Banner canal de difusión */}
+      <div className="shell-247">
+        <a href="https://whatsapp.com/channel/0029VbC00Vd3QxS30oAEN60G" target="_blank" rel="noopener noreferrer" className="home-canal-dif-banner" style={{ margin: "16px 0" }}>
+          <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
+        </a>
+      </div>
+
       {/* Botón volver al inicio — centrado dentro del shell */}
       <div className="page-footer-section__back-wrap">
         <a href="/247" className="page-footer-section__back-btn">
