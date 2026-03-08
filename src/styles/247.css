@@ -103,6 +103,18 @@
   background: rgba(255,255,255,0.25);;
 }
 
+@keyframes headerCartBump {
+  0%   { transform: scale(1) rotate(0); }
+  25%  { transform: scale(1.22) rotate(-8deg); }
+  50%  { transform: scale(0.9) rotate(5deg); }
+  75%  { transform: scale(1.1) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.header-247__cart-btn--bump {
+  animation: headerCartBump 0.45s cubic-bezier(.34,1.4,.64,1) both;
+}
+
 .header-247__cart-icon {
   width: 26px;
   height: 26px;
@@ -4387,6 +4399,8 @@
   background: rgba(0,0,0,0.45);
   z-index: 1000;
   display: flex;
+  overscroll-behavior: none;
+  touch-action: none;
   align-items: flex-end;
   justify-content: center;
   animation: fcOverlayIn 0.2s ease both;
@@ -4397,6 +4411,7 @@
   max-width: 480px;
   background: #fff;
   border-radius: 24px 24px 0 0;
+  touch-action: auto;
   max-height: 80vh;
   display: flex;
   flex-direction: column;

@@ -36,26 +36,33 @@ export default function Header247({
   showSearch = false,
   showBack = false,
 }: Props) {
-  // Lazy init desde localStorage para evitar falso "0 → N" en la carga
-  const [count, setCount]       = useState(readCartCount);
+  // useState(0) para evitar hydration mismatch SSR/client
+  const [count, setCount]       = useState(0);
   const [familias, setFamilias] = useState<string[]>([]);
   const [ddOpen, setDdOpen]     = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const ddRef                   = useRef<HTMLDivElement>(null);
   const [showSugg, setShowSugg] = useState(false);
   // Floating cart state
-  const [fcVisible, setFcVisible]     = useState(false);
-  const [fcDropping, setFcDropping]   = useState(false);
-  const [fcBumping, setFcBumping]     = useState(false);
-  const [fcModalOpen, setFcModalOpen] = useState(false);
-  const [cartItems, setCartItems]     = useState<any[]>([]);
+  const [fcVisible, setFcVisible]         = useState(false);
+  const [fcDropping, setFcDropping]       = useState(false);
+  const [fcBumping, setFcBumping]         = useState(false);
+  const [fcModalOpen, setFcModalOpen]     = useState(false);
+  const [cartItems, setCartItems]         = useState<any[]>([]);
   const [headerVisible, setHeaderVisible] = useState(true);
-  const prevCountRef  = useRef(-1); // -1 = no inicializado
-  const hasDroppedRef = useRef(false);
-  const headerRef     = useRef<HTMLElement>(null);
+  const [headerBump, setHeaderBump]       = useState(false);
+  const prevCountRef    = useRef(-1);    // -1 = no inicializado
+  const mountSyncedRef  = useRef(false); // true después del primer sync con localStorage
+  const hasDroppedRef   = useRef(false);
+  const headerRef       = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    setCount(cartCountProp ?? readCartCount());
+    const initial = cartCountProp ?? readCartCount();
+    // Si el carrito arranca vacío, setCount(0) es no-op y el efecto de count
+    // no vuelve a dispararse → pre-marcamos mountSyncedRef para no perder la
+    // animación de caída cuando el usuario agrega el primer item.
+    if (initial === 0) mountSyncedRef.current = true;
+    setCount(initial);
     if (cartCountProp !== undefined) return;
     const sync = () => setCount(readCartCount());
     window.addEventListener("cart-updated", sync);
@@ -72,36 +79,51 @@ export default function Header247({
 
   // Lógica del floating cart
   useEffect(() => {
+    // Fire 1: count = 0 (render inicial SSR, sin datos)
     if (prevCountRef.current === -1) {
-      // Primera sincronización: solo mostrar/ocultar sin animar
-      prevCountRef.current = count;
-      setFcVisible(count > 0);
+      prevCountRef.current = count; // = 0
       return;
     }
+
     const prev = prevCountRef.current;
     prevCountRef.current = count;
 
+    // Fire 2: sincronización inicial con localStorage (0 → N)
+    // Solo mostrar/ocultar sin animaciones
+    if (!mountSyncedRef.current) {
+      mountSyncedRef.current = true;
+      setFcVisible(count > 0);
+      return;
+    }
+
+    // A partir de aquí: interacciones reales del usuario
+    // Acumular cleanups para poder retornar uno solo
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
     if (prev === 0 && count > 0) {
-      // Carrito pasó de vacío a tener items
       setFcVisible(true);
       if (!hasDroppedRef.current) {
         hasDroppedRef.current = true;
         setFcDropping(true);
-        const t = setTimeout(() => setFcDropping(false), 1000);
-        return () => clearTimeout(t);
+        timers.push(setTimeout(() => setFcDropping(false), 1000));
       }
     } else if (count === 0 && prev > 0) {
-      // Carrito vaciado
       setFcVisible(false);
       setFcDropping(false);
       setFcBumping(false);
-      hasDroppedRef.current = false; // reset para próxima vez
+      hasDroppedRef.current = false;
     } else if (count > prev && prev > 0) {
-      // Se agregó otro item al carrito ya visible
       setFcBumping(true);
-      const t = setTimeout(() => setFcBumping(false), 500);
-      return () => clearTimeout(t);
+      timers.push(setTimeout(() => setFcBumping(false), 500));
     }
+
+    // Bump en el header (siempre que count suba)
+    if (count > prev) {
+      setHeaderBump(true);
+      timers.push(setTimeout(() => setHeaderBump(false), 500));
+    }
+
+    if (timers.length > 0) return () => timers.forEach(clearTimeout);
   }, [count]);
 
   // Observar visibilidad del header
@@ -127,8 +149,13 @@ export default function Header247({
 
   // Bloquear scroll cuando modal abierto
   useEffect(() => {
-    if (fcModalOpen) document.body.style.overflow = "hidden";
-    else if (!menuOpen) document.body.style.overflow = "";
+    if (fcModalOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else if (!menuOpen) {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
   }, [fcModalOpen, menuOpen]);
 
   useEffect(() => {
@@ -167,12 +194,7 @@ export default function Header247({
     </a>
   );
 
-  const CartBtn = () => (
-    <button className="header-247__cart-btn" onClick={() => { window.location.href = "/247/carrito"; }} aria-label="Carrito">
-      <img src="/img/247/bolsaCompras.png" alt="" className="header-247__cart-icon" />
-      {count > 0 && <span className="header-247__cart-badge">{count}</span>}
-    </button>
-  );
+  const cartBtnClass = `header-247__cart-btn${headerBump ? " header-247__cart-btn--bump" : ""}`;
 
   return (
     <>
@@ -249,7 +271,10 @@ export default function Header247({
                 onClose={() => setShowSugg(false)}
               />
             </div>
-            <CartBtn />
+            <button className={cartBtnClass} onClick={() => { window.location.href = "/247/carrito"; }} aria-label="Carrito">
+              <img src="/img/247/bolsaCompras.png" alt="" className="header-247__cart-icon" />
+              {count > 0 && <span className="header-247__cart-badge">{count}</span>}
+            </button>
           </div>
         ) : (
           <div className="header-247 header-247--simple">
@@ -257,7 +282,12 @@ export default function Header247({
               {showBack && <button className="header-247__back-btn" onClick={() => window.history.back()}>←</button>}
             </div>
             <Logo />
-            <div className="header-247__right"><CartBtn /></div>
+            <div className="header-247__right">
+              <button className={cartBtnClass} onClick={() => { window.location.href = "/247/carrito"; }} aria-label="Carrito">
+                <img src="/img/247/bolsaCompras.png" alt="" className="header-247__cart-icon" />
+                {count > 0 && <span className="header-247__cart-badge">{count}</span>}
+              </button>
+            </div>
           </div>
         )}
 
