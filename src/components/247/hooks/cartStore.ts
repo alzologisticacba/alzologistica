@@ -3,6 +3,7 @@
 
 export interface CartItem {
   codigo: number;
+  cod_combo?: string;
   descripcion: string;
   precioFinal: number;
   cantidad: number;

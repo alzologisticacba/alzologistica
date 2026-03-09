@@ -22,6 +22,21 @@ interface Combo {
   detalles: DetalleLine[];
 }
 
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
+
+function ComboImgDetalle({ cod_combo, nombre }: { cod_combo: string; nombre: string }) {
+  const [error, setError] = React.useState(false);
+  if (error) return <div className="pd__img-placeholder">🎁</div>;
+  return (
+    <img
+      src={`${IMG_BASE}/${cod_combo}.png`}
+      alt={nombre}
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 function fmt(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 });
 }
@@ -58,7 +73,7 @@ function BtnComboAgregar({ combo, cantidad }: { combo: Combo; cantidad: number }
   }, [combo.cod_combo]);
 
   function handleAgregar() {
-    const result = addToCart({ codigo: Number(combo.cod_combo), descripcion: combo.nombre, precioFinal: combo.precio, multiplo: 1, descuento: 0, tipo: "combo" });
+    const result = addToCart({ codigo: -parseInt(combo.cod_combo.replace(/\D/g, ""), 10), cod_combo: combo.cod_combo, descripcion: combo.nombre, precioFinal: combo.precio, multiplo: 1, descuento: 0, tipo: "combo" });
     setBtnState(result === "added" ? "ok" : "pending");
     setTimeout(() => setBtnState("idle"), 1800);
   }
@@ -126,7 +141,7 @@ export default function ComboDetalle() {
             <div className="pd__body">
               <div className="pd__img-col">
                 <div className="pd__img-wrap">
-                  {combo.imagen ? <img src={combo.imagen} alt={combo.nombre} style={{ width:"100%", height:"100%", objectFit:"cover" }} /> : <div className="pd__img-placeholder">🎁</div>}
+                  <ComboImgDetalle cod_combo={combo.cod_combo} nombre={combo.nombre} />
                 </div>
               </div>
               <div className="pd__info-col">

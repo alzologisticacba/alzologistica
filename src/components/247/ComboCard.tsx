@@ -1,4 +1,7 @@
 // src/components/247/ComboCard.tsx
+import React, { useState } from "react";
+import { addToCart } from "./hooks/cartStore";
+
 interface Combo {
   cod_combo: string;
   nombre: string;
@@ -7,11 +10,44 @@ interface Combo {
   imagen?: string;
 }
 
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
+
+function ComboImg({ cod_combo }: { cod_combo: string }) {
+  const [error, setError] = React.useState(false);
+  if (error) return <div className="product-card__img-placeholder">🎁</div>;
+  return (
+    <img
+      src={`${IMG_BASE}/${cod_combo}.png`}
+      alt=""
+      className="combo-card__img"
+      onError={() => setError(true)}
+      loading="lazy"
+    />
+  );
+}
+
 function formatPrecio(precio: number) {
   return precio.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 });
 }
 
 export default function ComboCard({ combo }: { combo: Combo }) {
+  const [btnState, setBtnState] = useState<"idle" | "ok">("idle");
+
+  function handleAgregar(e: React.MouseEvent) {
+    e.stopPropagation();
+    addToCart({
+      codigo: -parseInt(combo.cod_combo.replace(/\D/g, ""), 10),
+      cod_combo: combo.cod_combo,
+      descripcion: combo.nombre,
+      precioFinal: combo.precio,
+      multiplo: 1,
+      descuento: 0,
+      tipo: "combo",
+    });
+    setBtnState("ok");
+    setTimeout(() => setBtnState("idle"), 1500);
+  }
+
   return (
     <article
       className="product-card combo-card"
@@ -19,10 +55,7 @@ export default function ComboCard({ combo }: { combo: Combo }) {
       style={{ cursor: "pointer" }}
     >
       <div className="product-card__img-wrap">
-        {combo.imagen
-          ? <img src={combo.imagen} alt={combo.nombre} className="combo-card__img" />
-          : <div className="product-card__img-placeholder">🎁</div>
-        }
+        <ComboImg cod_combo={combo.cod_combo} />
       </div>
       <div className="product-card__info">
         <p className="product-card__desc">{combo.nombre}</p>
@@ -31,9 +64,9 @@ export default function ComboCard({ combo }: { combo: Combo }) {
       </div>
       <button
         type="button"
-        className="product-card__btn"
-        onClick={(e) => { e.stopPropagation(); }}
-      >Agregar</button>
+        className={`product-card__btn${btnState === "ok" ? " product-card__btn--ok" : ""}`}
+        onClick={handleAgregar}
+      >{btnState === "ok" ? "✓ Agregado" : "Agregar"}</button>
     </article>
   );
 }

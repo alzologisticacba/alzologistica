@@ -6,14 +6,15 @@ import { supabaseClient as supabase } from "../../lib/supabaseClient";
 
 export interface CartItem {
   codigo: number;
+  cod_combo?: string;
   descripcion: string;
   precioFinal: number;
   cantidad: number;
   multiplo: number;
   descuento: number;
   tipo: "articulo" | "combo";
-  rubro?: string;           // ← agregar
-  familiaNombre?: string;   // ← agregar
+  rubro?: string;
+  familiaNombre?: string;
 }
 
 type UserData = { nombre: string; telefono: string };
@@ -169,12 +170,13 @@ function StepSeller({ user, totalPrecio, cartMessage, onSend }: StepSellerProps)
 
 const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
 
-function CartItemImg({ codigo }: { codigo: number }) {
+function CartItemImg({ item }: { item: CartItem }) {
   const [error, setError] = React.useState(false);
-  if (error) return <div className="cart-item__img">📦</div>;
+  const imgKey = item.tipo === "combo" ? item.cod_combo : item.codigo;
+  if (error || !imgKey) return <div className="cart-item__img">{item.tipo === "combo" ? "🎁" : "📦"}</div>;
   return (
     <img
-      src={`${IMG_BASE}/${codigo}.png`}
+      src={`${IMG_BASE}/${imgKey}.png`}
       alt=""
       className="cart-item__img cart-item__img--photo"
       onError={() => setError(true)}
@@ -397,7 +399,7 @@ export default function CarritoPage() {
             <div className="cart-items">
               {items.map(item => (
                 <div key={item.codigo} className="cart-item">
-                  <CartItemImg codigo={item.codigo} />
+                  <CartItemImg item={item} />
                   <div className="cart-item__info">
                     <p className="cart-item__desc">{item.descripcion}</p>
                     <div className="cart-item__meta">
