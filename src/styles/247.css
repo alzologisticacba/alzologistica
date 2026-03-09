@@ -1818,10 +1818,13 @@
 .alzomodal-form-desc {
   margin: 0;
   font-size: 13px;
-  color: #7a84a8;
-  font-weight: 600;
+  color: #111;
+  font-weight: 800;
   line-height: 1.4;
   font-family: "Montserrat", sans-serif;;
+}
+.alzomodal-form-desc--highlight {
+  color: #4a6cf7;
 }
 
 .alzomodal-error {
@@ -1913,6 +1916,18 @@
   font-weight: 600;
   text-align: center;
   font-family: "Montserrat", sans-serif;;
+}
+.alzomodal-trust {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  background: #f0f4ff;
+  border-left: 3px solid #4a6cf7;
+  border-radius: 8px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #111;
+  text-transform: uppercase;
 }
 
 /* ── Step 2: Vendedores ── */

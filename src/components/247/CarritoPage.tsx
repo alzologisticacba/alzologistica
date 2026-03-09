@@ -78,8 +78,10 @@ function StepUser({ onDone, onCancel }: StepUserProps) {
   return (
     <div className="alzomodal-form">
       <div className="alzomodal-form-header">
-        <div className="alzomodal-form-icon">👤</div>
-        <p className="alzomodal-form-desc">Necesitamos tus datos una sola vez para identificar tu pedido.</p>
+        <div className="alzomodal-form-icon">📋</div>
+        <p className="alzomodal-form-desc">
+          Tu número se usa únicamente para el seguimiento de tu pedido y te lo pediremos <span className="alzomodal-form-desc--highlight">SOLO UNA VEZ</span>
+        </p>
       </div>
       {err && <div className="alzomodal-error">{err}</div>}
       <label className="alzomodal-label">
@@ -100,7 +102,7 @@ function StepUser({ onDone, onCancel }: StepUserProps) {
           {saving ? "Guardando..." : "Continuar →"}
         </button>
       </div>
-      <p className="alzomodal-hint">🔒 Solo lo usamos para identificar tu pedido. No lo compartimos.</p>
+      <p className="alzomodal-trust">🔒 Tu número no se comparte con nadie 🔒</p>
     </div>
   );
 }
