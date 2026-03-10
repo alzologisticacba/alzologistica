@@ -622,6 +622,32 @@
   font-size: 14px;;
 }
 
+.cat-page__ver-mas {
+  display: block;
+  width: 100%;
+  margin: 16px 0 24px;
+  padding: 14px;
+  background: #f5f3ff;
+  border: 2px solid #d4ccff;
+  border-radius: 14px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #3300ff;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .12s;
+}
+
+.cat-page__ver-mas:hover {
+  background: #ede9ff;
+  border-color: #3300ff;
+  transform: translateY(-1px);
+}
+
+.cat-page__ver-mas:active {
+  transform: translateY(0);
+}
+
 /* ---- Search Results ---- */
 
 .search-results {

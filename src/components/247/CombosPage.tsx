@@ -69,7 +69,7 @@ export default function CombosPage() {
           />
         </div>
         <div className="cat-page__search-wrap">
-          <span className="cat-page__search-icon">SEARCH</span>
+          <span className="cat-page__search-icon">🔍</span>
           <input
             type="search"
             className="cat-page__search"
