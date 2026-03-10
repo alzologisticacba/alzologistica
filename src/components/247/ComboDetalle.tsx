@@ -3,15 +3,7 @@ import React, { useState, useEffect } from "react";
 import Header247 from "./Header247";
 import { addToCart } from "./hooks/cartStore";
 import { supabaseClient } from "../../lib/supabaseClient";
-
-interface DetalleLine {
-  id: number;
-  productos: string;
-  nombre: string | null;
-  cantidad: number;
-  descuentos: number;
-  grupo: number;
-}
+import { SeleccionModal, grupoRequiereEleccion, buildContenido, type DetalleLine } from "./ComboSeleccionModal";
 
 interface Combo {
   cod_combo: string;
@@ -56,14 +48,21 @@ function ItemRow({ item }: { item: DetalleLine }) {
   );
 }
 
-function BtnComboAgregar({ combo, cantidad }: { combo: Combo; cantidad: number }) {
+// ── Botón agregar ─────────────────────────────────────────────────────────────
+interface BtnProps {
+  combo: Combo;
+  grupos: number[];
+  gruposEleccion: number[];
+}
+
+function BtnComboAgregar({ combo, grupos, gruposEleccion }: BtnProps) {
   const [btnState, setBtnState] = React.useState<"idle" | "ok" | "pending">("idle");
+  const [modalOpen, setModalOpen] = React.useState(false);
 
   React.useEffect(() => {
-    const cod = Number(combo.cod_combo);
     function onConfirmed(e: Event) {
       const { codigo } = (e as CustomEvent<{ codigo: number }>).detail;
-      if (codigo === cod) {
+      if (codigo === -parseInt(combo.cod_combo.replace(/\D/g, ""), 10)) {
         setBtnState("ok");
         setTimeout(() => setBtnState("idle"), 1800);
       }
@@ -72,21 +71,44 @@ function BtnComboAgregar({ combo, cantidad }: { combo: Combo; cantidad: number }
     return () => window.removeEventListener("cart-age-confirmed", onConfirmed);
   }, [combo.cod_combo]);
 
-  function handleAgregar() {
-    const result = addToCart({ codigo: -parseInt(combo.cod_combo.replace(/\D/g, ""), 10), cod_combo: combo.cod_combo, descripcion: combo.nombre, precioFinal: combo.precio, multiplo: 1, descuento: 0, tipo: "combo" });
+  function doAddToCart(cantidadesPorGrupo: Record<number, Record<string, number>> = {}) {
+    const contenido = buildContenido(combo.detalles, gruposEleccion, cantidadesPorGrupo);
+    const result = addToCart({
+      codigo:      -parseInt(combo.cod_combo.replace(/\D/g, ""), 10),
+      cod_combo:   combo.cod_combo,
+      descripcion: combo.nombre,
+      precioFinal: combo.precio,
+      multiplo:    1,
+      descuento:   0,
+      tipo:        "combo",
+      contenido,
+    });
     setBtnState(result === "added" ? "ok" : "pending");
     setTimeout(() => setBtnState("idle"), 1800);
   }
+
   return (
-    <button
-      className={`pd__btn-agregar${btnState === "ok" ? " pd__btn-agregar--ok" : btnState === "pending" ? " pd__btn-agregar--pending" : ""}`}
-      onClick={handleAgregar}
-    >
-      {btnState === "ok" ? "✓ ¡Agregado al carrito!" : btnState === "pending" ? "✕ No agregado" : "🛒 Agregar al carrito"}
-    </button>
+    <>
+      <button
+        className={`pd__btn-agregar${btnState === "ok" ? " pd__btn-agregar--ok" : btnState === "pending" ? " pd__btn-agregar--pending" : ""}`}
+        onClick={() => gruposEleccion.length > 0 ? setModalOpen(true) : doAddToCart()}
+      >
+        {btnState === "ok" ? "✓ ¡Agregado al carrito!" : btnState === "pending" ? "✕ No agregado" : "🛒 Agregar al carrito"}
+      </button>
+
+      {modalOpen && (
+        <SeleccionModal
+          combo={{ ...combo, descripcion: combo.descripcion ?? "" }}
+          gruposEleccion={gruposEleccion}
+          onConfirm={cantidades => { setModalOpen(false); doAddToCart(cantidades); }}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
+// ── Página principal ──────────────────────────────────────────────────────────
 export default function ComboDetalle() {
   const [combo, setCombo]       = useState<Combo | null>(null);
   const [loading, setLoading]   = useState(true);
@@ -122,8 +144,11 @@ export default function ComboDetalle() {
       .finally(() => setLoading(false));
   }, []);
 
-  const grupos     = combo ? [...new Set(combo.detalles.map(d => d.grupo))].sort() : [];
-  const multiGrupo = grupos.length > 1;
+  const grupos         = combo ? [...new Set(combo.detalles.map(d => d.grupo))].sort() : [];
+  const multiGrupo     = grupos.length > 1;
+  const gruposEleccion = combo
+    ? grupos.filter(g => grupoRequiereEleccion(combo.detalles.filter(d => d.grupo === g)))
+    : [];
 
   return (
     <div className="app-247">
@@ -152,20 +177,26 @@ export default function ComboDetalle() {
                   <div className="pd__precio-row"><span className="pd__precio">{fmt(combo.precio)}</span></div>
                   <p className="pd__precio-unit">precio del combo</p>
                 </div>
+
                 {combo.detalles.length > 0 && (
                   <div className="combo-detalles">
                     <h2 className="combo-detalles__titulo">Contenido del combo</h2>
                     {multiGrupo
-                      ? grupos.map(g => (
-                          <div key={g} className="combo-grupo">
-                            <p className="combo-grupo__label">Grupo {g}</p>
-                            {combo.detalles.filter(d => d.grupo === g).map(item => <ItemRow key={item.id} item={item} />)}
-                          </div>
-                        ))
+                      ? grupos.map(g => {
+                          const items      = combo.detalles.filter(d => d.grupo === g);
+                          const esEleccion = gruposEleccion.includes(g);
+                          return (
+                            <div key={g} className={`combo-grupo${esEleccion ? " combo-grupo--eleccion" : ""}`}>
+                              {esEleccion && <p className="combo-grupo__elegir">Elegí {items[0]?.cantidad ?? 1}</p>}
+                              {items.map(item => <ItemRow key={item.id} item={item} />)}
+                            </div>
+                          );
+                        })
                       : combo.detalles.map(item => <ItemRow key={item.id} item={item} />)
                     }
                   </div>
                 )}
+
                 <div className="pd__cantidad-wrap">
                   <span className="pd__cantidad-label">Cantidad:</span>
                   <div className="pd__cantidad-ctrl">
@@ -175,7 +206,8 @@ export default function ComboDetalle() {
                   </div>
                 </div>
                 {cantidad > 1 && <p className="pd__total">Total: <strong>{fmt(combo.precio * cantidad)}</strong></p>}
-                <BtnComboAgregar combo={combo} cantidad={cantidad} />
+
+                <BtnComboAgregar combo={combo} grupos={grupos} gruposEleccion={gruposEleccion} />
               </div>
             </div>
           </div>

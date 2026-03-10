@@ -12,6 +12,8 @@ export interface CartItem {
   familiaNombre?: string;
   rubro?: string;
   tipo: "articulo" | "combo";
+  // Para combos: lista completa de ítems. elegido=true → el usuario lo eligió en el modal
+  contenido?: Array<{ producto: string; nombre: string | null; cantidad: number; elegido?: boolean }>;
 }
 
 const KEY     = "alzo_cart";
@@ -53,6 +55,7 @@ export function addToCart(item: Omit<CartItem, "cantidad">): "added" | "pending"
   const existing = cart.find(i => i.codigo === item.codigo);
   if (existing) {
     existing.cantidad += item.multiplo || 1;
+    if (item.contenido) existing.contenido = item.contenido;
   } else {
     cart.push({ ...item, cantidad: item.multiplo || 1 });
   }

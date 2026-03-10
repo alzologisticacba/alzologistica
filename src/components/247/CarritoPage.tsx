@@ -15,6 +15,7 @@ export interface CartItem {
   tipo: "articulo" | "combo";
   rubro?: string;
   familiaNombre?: string;
+  contenido?: Array<{ producto: string; nombre: string | null; cantidad: number; elegido?: boolean }>;
 }
 
 type UserData = { nombre: string; telefono: string };
@@ -268,13 +269,20 @@ export default function CarritoPage() {
     const u = user ?? loadUser();
     if (!u) { setStep("user"); return; }
 
-    const vendedorNombre = SELLERS.find(s => s.phone === phone)?.nombre ?? phone;
+    const vendedor       = SELLERS.find(s => s.phone === phone);
+    const vendedorNombre = vendedor?.nombre ?? phone;
+    const vendedorId     = vendedor?.id ?? phone;
     const nroSeguimiento = generarNroSeguimiento();
     const lineasMsg = items.map(i => {
       const precioUnitario = fmt(i.precioFinal);
       const totalItem      = fmt(i.precioFinal * i.cantidad);
-      const descLine       = i.descuento > 0 ? ` | Desc: -${i.descuento}%` : "";
-      return `• [${i.codigo}] ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}`;
+      const descLine      = i.descuento > 0 ? ` | Desc: -${i.descuento}%` : "";
+      const contenidoLines = i.contenido?.map(c => {
+        const prefix = c.cantidad > 1 ? `${c.cantidad}× ` : "";
+        const suffix = c.elegido ? " ✓" : "";
+        return `  · ${prefix}${c.nombre ?? c.producto}${suffix}`;
+      }).join("\n") ?? "";
+      return `• [${i.codigo}] ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}${contenidoLines ? "\n" + contenidoLines : ""}`;
     }).join("\n");
     const separadorMsg = "─".repeat(30);
     const intro = introOverride ?? `Hola soy *${u.nombre}*!\nHice este pedido por Alzo 24/7`;
@@ -310,7 +318,7 @@ export default function CarritoPage() {
       const sheetPayload = {
         nro_seguimiento: nroSeguimiento,
         fecha:           new Date().toISOString(),
-        cod_vendedor:    phone,
+        cod_vendedor:    vendedorId,
         vendedor_nombre: vendedorNombre,
         skus:            items.length,
         unidades:        items.reduce((s, i) => s + i.cantidad, 0),
@@ -402,6 +410,15 @@ export default function CarritoPage() {
                   <CartItemImg item={item} />
                   <div className="cart-item__info">
                     <p className="cart-item__desc">{item.descripcion}</p>
+                    {item.tipo === "combo" && item.contenido && item.contenido.length > 0 && (
+                      <ul className="cart-item__combo-contenido">
+                        {item.contenido.map((c, i) => (
+                          <li key={i} className={c.elegido ? "cart-item__combo-elegido" : ""}>
+                            {c.cantidad > 1 ? `${c.cantidad}× ` : ""}{c.nombre ?? c.producto}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     <div className="cart-item__meta">
                       {item.descuento > 0 && <span className="cart-item__badge">-{item.descuento}%</span>}
                       <span className="cart-item__unit">{fmt(item.precioFinal)} / u</span>

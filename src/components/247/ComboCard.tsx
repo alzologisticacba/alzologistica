@@ -1,6 +1,6 @@
 // src/components/247/ComboCard.tsx
 import React, { useState } from "react";
-import { addToCart } from "./hooks/cartStore";
+import { useComboAgregar } from "./ComboSeleccionModal";
 
 interface Combo {
   cod_combo: string;
@@ -33,40 +33,44 @@ function formatPrecio(precio: number) {
 export default function ComboCard({ combo }: { combo: Combo }) {
   const [btnState, setBtnState] = useState<"idle" | "ok">("idle");
 
+  const { agregar, loading, modal } = useComboAgregar({
+    onAdded: () => {
+      setBtnState("ok");
+      setTimeout(() => setBtnState("idle"), 1500);
+    },
+  });
+
   function handleAgregar(e: React.MouseEvent) {
     e.stopPropagation();
-    addToCart({
-      codigo: -parseInt(combo.cod_combo.replace(/\D/g, ""), 10),
-      cod_combo: combo.cod_combo,
-      descripcion: combo.nombre,
-      precioFinal: combo.precio,
-      multiplo: 1,
-      descuento: 0,
-      tipo: "combo",
-    });
-    setBtnState("ok");
-    setTimeout(() => setBtnState("idle"), 1500);
+    agregar(combo);
   }
 
   return (
-    <article
-      className="product-card combo-card"
-      onClick={() => window.location.href = `/247/combo/?cod_combo=${combo.cod_combo}`}
-      style={{ cursor: "pointer" }}
-    >
-      <div className="product-card__img-wrap">
-        <ComboImg cod_combo={combo.cod_combo} />
-      </div>
-      <div className="product-card__info">
-        <p className="product-card__desc">{combo.nombre}</p>
-        {combo.descripcion && <p className="product-card__rubro">{combo.descripcion}</p>}
-        <p className="product-card__precio">{formatPrecio(combo.precio)}</p>
-      </div>
-      <button
-        type="button"
-        className={`product-card__btn${btnState === "ok" ? " product-card__btn--ok" : ""}`}
-        onClick={handleAgregar}
-      >{btnState === "ok" ? "✓ Agregado" : "Agregar"}</button>
-    </article>
+    <>
+      <article
+        className="product-card combo-card"
+        onClick={() => window.location.href = `/247/combo/?cod_combo=${combo.cod_combo}`}
+        style={{ cursor: "pointer" }}
+      >
+        <div className="product-card__img-wrap">
+          <ComboImg cod_combo={combo.cod_combo} />
+        </div>
+        <div className="product-card__info">
+          <p className="product-card__desc">{combo.nombre}</p>
+          {combo.descripcion && <p className="product-card__rubro">{combo.descripcion}</p>}
+          <p className="product-card__precio">{formatPrecio(combo.precio)}</p>
+        </div>
+        <button
+          type="button"
+          className={`product-card__btn${btnState === "ok" ? " product-card__btn--ok" : ""}`}
+          onClick={handleAgregar}
+          disabled={loading}
+        >
+          {loading ? "..." : btnState === "ok" ? "✓ Agregado" : "Agregar"}
+        </button>
+      </article>
+
+      {modal}
+    </>
   );
 }
