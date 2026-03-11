@@ -1,6 +1,8 @@
 // src/components/247/ComboDetalle.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header247 from "./Header247";
+import PageFooterSection from "./PageFooterSection";
+import ComboCard from "./ComboCard";
 import { addToCart } from "./hooks/cartStore";
 import { supabaseClient } from "../../lib/supabaseClient";
 import { SeleccionModal, grupoRequiereEleccion, buildContenido, type DetalleLine } from "./ComboSeleccionModal";
@@ -110,10 +112,15 @@ function BtnComboAgregar({ combo, grupos, gruposEleccion }: BtnProps) {
 
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function ComboDetalle() {
-  const [combo, setCombo]       = useState<Combo | null>(null);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(false);
-  const [cantidad, setCantidad] = useState(1);
+  const [combo, setCombo]         = useState<Combo | null>(null);
+  const [masCombos, setMasCombos] = useState<any[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(false);
+  const relRowRef                  = useRef<HTMLDivElement>(null);
+
+  function scrollRel(dir: "left" | "right") {
+    relRowRef.current?.scrollBy({ left: dir === "left" ? -280 : 280, behavior: "smooth" });
+  }
 
   useEffect(() => {
     const cod = new URLSearchParams(window.location.search).get("cod_combo");
@@ -140,6 +147,20 @@ export default function ComboDetalle() {
         ...comboRes.data,
         detalles: detalles.map((d: any) => ({ ...d, nombre: artMap[String(d.productos)] ?? null })),
       });
+
+      // Traer otros combos (excluir el actual)
+      supabaseClient
+        .from("combos")
+        .select("cod_combo, nombre, precio, descripcion, imagen")
+        .neq("cod_combo", cod)
+        .limit(12)
+        .then(({ data }) => {
+          if (data) {
+            const shuffled = [...data].sort(() => Math.random() - 0.5);
+            setMasCombos(shuffled);
+          }
+        });
+
     }).catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
@@ -197,22 +218,33 @@ export default function ComboDetalle() {
                   </div>
                 )}
 
-                <div className="pd__cantidad-wrap">
-                  <span className="pd__cantidad-label">Cantidad:</span>
-                  <div className="pd__cantidad-ctrl">
-                    <button className="pd__cantidad-btn" onClick={() => setCantidad(c => Math.max(1, c-1))} disabled={cantidad<=1}>−</button>
-                    <span className="pd__cantidad-val">{cantidad}</span>
-                    <button className="pd__cantidad-btn" onClick={() => setCantidad(c => c+1)}>+</button>
-                  </div>
-                </div>
-                {cantidad > 1 && <p className="pd__total">Total: <strong>{fmt(combo.precio * cantidad)}</strong></p>}
+
 
                 <BtnComboAgregar combo={combo} grupos={grupos} gruposEleccion={gruposEleccion} />
               </div>
             </div>
           </div>
         )}
+
+        {!loading && !error && masCombos.length > 0 && (
+          <div className="pd__relacionados">
+            <div className="pd__relacionados-head">
+              <h2 className="pd__relacionados-titulo">
+                Más de <span>Combos</span>
+              </h2>
+            </div>
+            <div className="home-section__row-wrap">
+              <button className="home-section__arrow home-section__arrow--left" onClick={() => scrollRel("left")} aria-label="Anterior">‹</button>
+              <div className="pd__relacionados-row" ref={relRowRef}>
+                {masCombos.map(c => <ComboCard key={c.cod_combo} combo={c} />)}
+              </div>
+              <button className="home-section__arrow home-section__arrow--right" onClick={() => scrollRel("right")} aria-label="Siguiente">›</button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {!loading && !error && <PageFooterSection />}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { getCart, clearCart, removeFromCart, updateQuantity } from "./hooks/cart
 import { supabaseClient as supabase } from "../../lib/supabaseClient";
 
 export interface CartItem {
+  cartKey: string;
   codigo: number;
   cod_combo?: string;
   descripcion: string;
@@ -231,16 +232,16 @@ export default function CarritoPage() {
     return `Hola! Soy *${user.nombre}* (${user.telefono}). Quiero hacer el siguiente pedido:\n\n${lineas}\n\n*Total: ${fmt(totalPrecio)}*`;
   }, [user, items, totalPrecio]);
 
-  function cambiarCantidad(codigo: number, dir: 1 | -1) {
-    const item = getCart().find(i => i.codigo === codigo);
+  function cambiarCantidad(cartKey: string, dir: 1 | -1) {
+    const item = getCart().find(i => i.cartKey === cartKey);
     if (!item) return;
     const step = item.multiplo || 1;
-    updateQuantity(codigo, Math.max(step, item.cantidad + dir * step));
+    updateQuantity(cartKey, Math.max(step, item.cantidad + dir * step));
     setItems([...getCart()]);
   }
 
-  function eliminar(codigo: number) {
-    removeFromCart(codigo);
+  function eliminar(cartKey: string) {
+    removeFromCart(cartKey);
     setItems([...getCart()]);
   }
 
@@ -406,7 +407,7 @@ export default function CarritoPage() {
           ) : (
             <div className="cart-items">
               {items.map(item => (
-                <div key={item.codigo} className="cart-item">
+                <div key={item.cartKey} className="cart-item">
                   <CartItemImg item={item} />
                   <div className="cart-item__info">
                     <p className="cart-item__desc">{item.descripcion}</p>
@@ -426,12 +427,12 @@ export default function CarritoPage() {
                   </div>
                   <div className="cart-item__right">
                     <div className="cart-item__ctrl">
-                      <button onClick={() => cambiarCantidad(item.codigo, -1)}>−</button>
+                      <button onClick={() => cambiarCantidad(item.cartKey, -1)}>−</button>
                       <span>{item.cantidad}</span>
-                      <button onClick={() => cambiarCantidad(item.codigo, +1)}>+</button>
+                      <button onClick={() => cambiarCantidad(item.cartKey, +1)}>+</button>
                     </div>
                     <p className="cart-item__subtotal">{fmt(item.precioFinal * item.cantidad)}</p>
-                    <button className="cart-item__del" onClick={() => eliminar(item.codigo)} title="Eliminar">✕</button>
+                    <button className="cart-item__del" onClick={() => eliminar(item.cartKey)} title="Eliminar">✕</button>
                   </div>
                 </div>
               ))}
@@ -485,7 +486,7 @@ export default function CarritoPage() {
               </div>
               {step === "seller" && (
                 <p className="alzomodal-fiscal-hint">
-                  Los precios pueden variar según corresponda
+                  Recordá pedir el cierre del pedido a tu vendedor
                 </p>
               )}
 
