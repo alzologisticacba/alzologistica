@@ -352,16 +352,34 @@ html, body {
 
 .venc-table-wrap {
   background: rgba(255,255,255,0.85);
-  border-radius: 18px;
+  border-radius: 18px 18px 0 0;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(30,58,138,0.12);
   border: 1px solid rgba(255,255,255,0.9);
+  border-bottom: none;
+  /* Altura mínima = 30 filas × ~49px por fila + thead */
+  min-height: 540px;
+  display: flex;
+  flex-direction: column;
 }
 
 .venc-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* columnas con ancho fijo, sin saltos */
 }
+
+/* Anchos de columna fijos */
+.venc-table th:nth-child(1),
+.venc-table td:nth-child(1) { width: 100px; }   /* Código */
+.venc-table th:nth-child(2),
+.venc-table td:nth-child(2) { width: auto; }     /* Descripción — ocupa el resto */
+.venc-table th:nth-child(3),
+.venc-table td:nth-child(3) { width: 120px; }    /* Vencimiento */
+.venc-table th:nth-child(4),
+.venc-table td:nth-child(4) { width: 90px; }     /* Días */
+.venc-table th:nth-child(5),
+.venc-table td:nth-child(5) { width: 70px; }     /* Cant. */
 
 .venc-table thead {
   background: rgba(248,250,252,0.9);
@@ -377,6 +395,8 @@ html, body {
   text-align: left;
   border-bottom: 2px solid var(--borde);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .venc-table td {
@@ -384,7 +404,13 @@ html, body {
   font-size: 14px;
   border-bottom: 1px solid rgba(226,232,240,0.6);
   vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+/* La descripción sí puede wrappear */
+.venc-td-desc { white-space: normal; }
 
 .venc-table tbody tr:last-child td { border-bottom: none; }
 
@@ -537,8 +563,9 @@ html, body {
   padding: 14px 20px;
   background: rgba(255,255,255,0.85);
   border-radius: 0 0 18px 18px;
+  border: 1px solid rgba(255,255,255,0.9);
   border-top: 1px solid var(--borde);
-  margin-top: -1px;
+  box-shadow: 0 4px 24px rgba(30,58,138,0.12);
 }
 
 .venc-footer-info {
@@ -615,8 +642,17 @@ html, body {
 
   .venc-table-outer { padding: 0 14px 40px; }
 
+  .venc-table-wrap { min-height: 400px; }
   .venc-table { font-size: 12px; }
   .venc-table th, .venc-table td { padding: 9px 8px; font-size: 12px; }
+  .venc-table th:nth-child(1),
+  .venc-table td:nth-child(1) { width: 72px; }
+  .venc-table th:nth-child(3),
+  .venc-table td:nth-child(3) { width: 88px; }
+  .venc-table th:nth-child(4),
+  .venc-table td:nth-child(4) { width: 62px; }
+  .venc-table th:nth-child(5),
+  .venc-table td:nth-child(5) { width: 50px; }
   .venc-td-codigo { font-size: 11px; }
   .venc-td-desc { font-size: 12px; }
   .venc-dias-badge { font-size: 11px; padding: 3px 8px; }
