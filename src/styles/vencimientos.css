@@ -1,0 +1,630 @@
+/* =============================================
+   ALZO VENCIMIENTOS
+   ============================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --azul:     #2556ff;
+  --azul-dk:  #1a3ecf;
+  --rojo:     #ef4444;
+  --amarillo: #f59e0b;
+  --verde:    #22c55e;
+  --borde:    #e2e8f0;
+  --fondo:    #dbeafe;   /* azul claro como en la foto */
+}
+
+html, body {
+  min-height: 100vh;
+  background: var(--fondo);
+  font-family: "Montserrat", system-ui, sans-serif;
+  color: #1a1a2e;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ── Header ── */
+.venc-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  padding: 0 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+
+.venc-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+}
+.venc-header__logo img {
+  height: 34px;
+  width: auto;
+  mix-blend-mode: screen;
+}
+
+.venc-header__badge {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.venc-header__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.venc-header__vendedor {
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.venc-header__logout {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.venc-header__logout:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Página entera ── */
+.venc-page {
+  min-height: 100vh;
+  background: var(--fondo);
+}
+
+/* ── LOGIN ── */
+.venc-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2556ff 100%);
+  padding: 24px;
+}
+
+.venc-login-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+}
+
+.venc-login-card__logo {
+  height: 54px;
+  width: auto;
+  margin-bottom: 22px;
+}
+
+.venc-login-card h1 {
+  font-size: 21px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.venc-login-card p {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 28px;
+}
+
+.venc-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.venc-input-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-align: left;
+  margin-bottom: 6px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.venc-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--borde);
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: "Montserrat", monospace;
+  color: #0f172a;
+  letter-spacing: 0.35em;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.venc-input:focus {
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(37,86,255,0.15);
+}
+.venc-input--error {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+  animation: shake 0.35s ease;
+}
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+
+.venc-login-error {
+  color: var(--rojo);
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 16px;
+}
+
+.venc-btn-login {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #2556ff 0%, #00c6ff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: filter 0.15s, transform 0.15s;
+}
+.venc-btn-login:hover  { filter: brightness(1.1); transform: translateY(-1px); }
+.venc-btn-login:active { transform: translateY(0); }
+
+/* ── Hero / buscador ── */
+.venc-hero {
+  background: var(--fondo);
+  padding: 40px 24px 28px;
+  text-align: center;
+}
+
+.venc-hero__title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+
+.venc-hero__search-wrap {
+  position: relative;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.venc-hero__search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--rojo);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.venc-hero__search {
+  width: 100%;
+  padding: 16px 18px 16px 48px;
+  border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.85);
+  font-size: 16px;
+  font-family: inherit;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  backdrop-filter: blur(4px);
+}
+.venc-hero__search::placeholder { color: var(--rojo); font-weight: 500; }
+.venc-hero__search:focus {
+  border-color: rgba(255,255,255,1);
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(37,86,255,0.15);
+}
+
+/* ── Controls ── */
+.venc-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 24px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Chip único "Menos de 30 días" */
+.venc-chip-30 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.75);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.venc-chip-30:hover {
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+.venc-chip-30.active {
+  background: #fff;
+  border-color: var(--amarillo);
+  box-shadow: 0 2px 12px rgba(245,158,11,0.2);
+}
+.venc-chip-30__num {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--amarillo);
+  line-height: 1;
+}
+.venc-chip-30__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Select de área */
+.venc-select {
+  padding: 9px 14px;
+  border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.8);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.venc-select:focus { border-color: var(--azul); background: #fff; }
+
+/* Botón actualizar */
+.venc-refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.8);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-left: auto;
+}
+.venc-refresh-btn:hover { background: #fff; border-color: var(--azul); color: var(--azul); }
+
+/* ── Tabla ── */
+.venc-table-outer {
+  padding: 0 24px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.venc-table-wrap {
+  background: rgba(255,255,255,0.85);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(30,58,138,0.12);
+  border: 1px solid rgba(255,255,255,0.9);
+}
+
+.venc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.venc-table thead {
+  background: rgba(248,250,252,0.9);
+}
+
+.venc-table th {
+  padding: 14px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  text-align: left;
+  border-bottom: 2px solid var(--borde);
+  white-space: nowrap;
+}
+
+.venc-table td {
+  padding: 13px 18px;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(226,232,240,0.6);
+  vertical-align: middle;
+}
+
+.venc-table tbody tr:last-child td { border-bottom: none; }
+
+/* Colores por estado */
+.venc-table tbody tr[data-estado="rojo"]    { background: rgba(254,242,242,0.6); }
+.venc-table tbody tr[data-estado="naranja"] { background: rgba(255,237,213,0.6); }
+.venc-table tbody tr[data-estado="verde"]   { background: transparent; }
+
+.venc-table tbody tr[data-estado="rojo"]:hover    { background: rgba(254,226,226,0.75); }
+.venc-table tbody tr[data-estado="naranja"]:hover { background: rgba(255,220,185,0.75); }
+.venc-table tbody tr[data-estado="verde"]:hover   { background: rgba(240,249,255,0.6); }
+
+/* Celdas específicas */
+.venc-td-codigo {
+  font-family: "Montserrat", monospace;
+  font-weight: 700;
+  color: #1e3a8a;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.venc-td-desc {
+  font-weight: 600;
+  color: #0f172a;
+  max-width: 300px;
+}
+
+.venc-td-area { white-space: nowrap; }
+
+.venc-area-tag {
+  display: inline-block;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.venc-ubicacion {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.venc-td-fecha {
+  font-weight: 600;
+  white-space: nowrap;
+  color: #334155;
+}
+
+.venc-dias-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.venc-dias-badge--rojo    { background: #fee2e2; color: #dc2626; }
+.venc-dias-badge--naranja { background: #ffedd5; color: #c2410c; }
+.venc-dias-badge--verde   { background: #dcfce7; color: #15803d; }
+
+.venc-td-cant {
+  font-weight: 700;
+  color: #334155;
+  text-align: center;
+}
+
+/* Footer de tabla */
+.venc-table-footer {
+  padding: 12px 18px;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  text-align: right;
+  background: rgba(255,255,255,0.85);
+  border-radius: 0 0 18px 18px;
+  border-top: 1px solid var(--borde);
+  margin-top: -1px;
+}
+
+/* Loading */
+.venc-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 60px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.venc-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(37,86,255,0.15);
+  border-top-color: var(--azul);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Error */
+.venc-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 500;
+}
+.venc-error button {
+  margin-left: auto;
+  padding: 8px 14px;
+  background: var(--rojo);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.venc-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ── Footer bar (info + paginador) ── */
+.venc-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 0 0 18px 18px;
+  border-top: 1px solid var(--borde);
+  margin-top: -1px;
+}
+
+.venc-footer-info {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Paginador ── */
+.venc-paginador {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.venc-pag-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 10px;
+  border: 2px solid var(--borde);
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.venc-pag-btn:hover:not(:disabled) {
+  border-color: var(--azul);
+  color: var(--azul);
+}
+.venc-pag-btn.active {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: #fff;
+}
+.venc-pag-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.venc-pag-dots {
+  color: #94a3b8;
+  font-size: 13px;
+  padding: 0 4px;
+}
+
+/* ── Ocultar columnas opcionales en mobile ── */
+.venc-th-fecha, .venc-th-cant {
+  /* visibles siempre en desktop */
+}
+
+/* ── Móvil ── */
+@media (max-width: 600px) {
+  .venc-header { padding: 0 14px; height: 52px; }
+  .venc-header__logout { font-size: 12px; padding: 5px 10px; }
+
+  .venc-hero { padding: 20px 14px 14px; }
+  .venc-hero__title { font-size: 22px; margin-bottom: 12px; }
+  .venc-hero__search { font-size: 14px; padding: 12px 12px 12px 40px; border-radius: 14px; }
+
+  .venc-controls { padding: 0 14px 12px; gap: 8px; flex-wrap: nowrap; }
+  .venc-chip-30 { padding: 7px 12px; flex-shrink: 0; }
+  .venc-chip-30__num { font-size: 15px; }
+  .venc-chip-30__label { font-size: 10px; }
+  .venc-select { font-size: 12px; padding: 7px 8px; flex: 1; min-width: 0; }
+  .venc-refresh-btn { padding: 7px 10px; font-size: 12px; flex-shrink: 0; }
+
+  .venc-table-outer { padding: 0 14px 40px; }
+
+  .venc-table { font-size: 12px; }
+  .venc-table th, .venc-table td { padding: 9px 8px; font-size: 12px; }
+  .venc-td-codigo { font-size: 11px; }
+  .venc-td-desc { font-size: 12px; }
+  .venc-dias-badge { font-size: 11px; padding: 3px 8px; }
+
+  .venc-footer-bar { padding: 12px 14px; flex-direction: column; align-items: stretch; }
+  .venc-footer-info { text-align: center; }
+  .venc-paginador { justify-content: center; }
+  .venc-pag-btn { min-width: 34px; height: 34px; font-size: 12px; }
+
+  .venc-login-card { padding: 32px 18px; }
+}
