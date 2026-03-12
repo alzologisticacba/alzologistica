@@ -165,6 +165,7 @@ export default function VencimientosApp() {
   const [filtro, setFiltro]           = useState<Filtro>("todos");
   const [areaFiltro, setAreaFiltro]   = useState("todas");
   const [pagina, setPagina]           = useState(1);
+  const [expandido, setExpandido]     = useState<string | null>(null);
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) === "1") setAutenticado(true);
@@ -339,23 +340,45 @@ export default function VencimientosApp() {
                   </thead>
                   <tbody>
                     {paginaActual.map((p, i) => {
-                      const estado = estadoProducto(p["Dias para vencer"]);
+                      const estado  = estadoProducto(p["Dias para vencer"]);
+                      const rowKey  = `${p.CodigoArticulo}-${i}`;
+                      const abierto = expandido === rowKey;
                       return (
-                        <tr key={`${p.CodigoArticulo}-${i}`} data-estado={estado}>
-                          <td className="venc-td-codigo">{p.CodigoArticulo}</td>
-                          <td className="venc-td-desc">{p.Descripcion}</td>
-                          <td className="venc-td-fecha venc-th-fecha">{formatFecha(p.FechaVencimiento)}</td>
-                          <td className="venc-td-dias">
-                            <span className={`venc-dias-badge venc-dias-badge--${estado}`}>
-                              {p["Dias para vencer"] < 0
-                                ? `Hace ${Math.abs(p["Dias para vencer"])}d`
-                                : p["Dias para vencer"] === 0
-                                ? "Hoy"
-                                : `${p["Dias para vencer"]}d`}
-                            </span>
-                          </td>
-                          <td className="venc-td-cant venc-th-cant">{p.Cantidad}</td>
-                        </tr>
+                        <>
+                          <tr
+                            key={rowKey}
+                            data-estado={estado}
+                            className={`venc-tr-clickable${abierto ? " venc-tr-open" : ""}`}
+                            onClick={() => setExpandido(abierto ? null : rowKey)}
+                          >
+                            <td className="venc-td-codigo">{p.CodigoArticulo}</td>
+                            <td className="venc-td-desc">{p.Descripcion}</td>
+                            <td className="venc-td-fecha venc-th-fecha">{formatFecha(p.FechaVencimiento)}</td>
+                            <td className="venc-td-dias">
+                              <span className={`venc-dias-badge venc-dias-badge--${estado}`}>
+                                {p["Dias para vencer"] < 0
+                                  ? `Hace ${Math.abs(p["Dias para vencer"])}d`
+                                  : p["Dias para vencer"] === 0
+                                  ? "Hoy"
+                                  : `${p["Dias para vencer"]}d`}
+                              </span>
+                            </td>
+                            <td className="venc-td-cant venc-th-cant">{p.Cantidad}</td>
+                          </tr>
+                          {abierto && (
+                            <tr key={`${rowKey}-detail`} data-estado={estado} className="venc-tr-detail">
+                              <td colSpan={5} className="venc-td-detail">
+                                <div className="venc-detail-grid">
+                                  <div><span>Descripción</span><strong>{p.Descripcion}</strong></div>
+                                  <div><span>Código</span><strong>{p.CodigoArticulo}</strong></div>
+                                  <div><span>Vencimiento</span><strong>{formatFecha(p.FechaVencimiento)}</strong></div>
+                                  <div><span>Días restantes</span><strong>{p["Dias para vencer"]}d</strong></div>
+                                  <div><span>Cantidad</span><strong>{p.Cantidad}</strong></div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </>
                       );
                     })}
                   </tbody>
