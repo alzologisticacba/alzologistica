@@ -7,6 +7,8 @@ import { addToCart } from "./hooks/cartStore";
 
 interface PedidoItem {
   codigo: number;
+  cod_combo?: string;
+  tipo?: string;
   descripcion: string;
   cantidad: number;
   precioFinal: number;
@@ -30,23 +32,48 @@ function fmtFecha(iso: string) {
   return d.toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-function PedidoCard({ pedido }: { pedido: Pedido }) {
-  const [open, setOpen] = useState(false);
-  const [repetido, setRepetido] = useState(false);
+const esCombo = (item: PedidoItem) =>
+  item.tipo === "combo" || (item.tipo == null && item.codigo < 0);
 
-  function repetirPedido(e: React.MouseEvent) {
+function PedidoCard({ pedido }: { pedido: Pedido }) {
+  const [open,     setOpen]     = useState(false);
+  const [repetido, setRepetido] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  async function repetirPedido(e: React.MouseEvent) {
     e.stopPropagation();
-    pedido.items.forEach(item => {
-      addToCart({
-        codigo:      item.codigo,
-        descripcion: item.descripcion,
-        precioFinal: item.precioFinal,
-        multiplo:    item.cantidad,
-        descuento:   item.descuento,
-        tipo:        "articulo",
-      });
-    });
+    setChecking(true);
+
+    const combos    = pedido.items.filter(esCombo);
+    const articulos = pedido.items.filter(i => !esCombo(i));
+
+    // Verificar stock solo de artículos
+    let articulosConStock: PedidoItem[] = [];
+    if (articulos.length > 0) {
+      const { data } = await supabaseClient
+        .from("articulos")
+        .select("codigo, stock")
+        .in("codigo", articulos.map(i => i.codigo))
+        .gt("stock", 0);
+
+      const codigosConStock = new Set((data ?? []).map((r: any) => r.codigo));
+      articulosConStock = articulos.filter(i => codigosConStock.has(i.codigo));
+    }
+
+    // Agregar combos (siempre) + artículos con stock
+    const aAgregar = [...combos, ...articulosConStock];
+    aAgregar.forEach(item => addToCart({
+      codigo:      item.codigo,
+      cod_combo:   item.cod_combo,
+      descripcion: item.descripcion,
+      precioFinal: item.precioFinal,
+      multiplo:    item.cantidad,
+      descuento:   item.descuento,
+      tipo:        esCombo(item) ? "combo" : "articulo",
+    }));
+
     setRepetido(true);
+    setChecking(false);
     setTimeout(() => { window.location.href = "/247/carrito"; }, 800);
   }
 
@@ -84,8 +111,9 @@ function PedidoCard({ pedido }: { pedido: Pedido }) {
               <button
                 className={`pedido-card__repetir${repetido ? " pedido-card__repetir--ok" : ""}`}
                 onClick={repetirPedido}
+                disabled={checking || repetido}
               >
-                {repetido ? "✓ Agregado" : "🔁 Repetir pedido"}
+                {repetido ? "✓ Agregado" : checking ? "Verificando..." : "🔁 Repetir pedido"}
               </button>
             </div>
           </div>
@@ -96,23 +124,21 @@ function PedidoCard({ pedido }: { pedido: Pedido }) {
 }
 
 export default function PedidosPage() {
-  const [pedidos, setPedidos]   = useState<Pedido[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [nombre, setNombre]     = useState<string>("");
+  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [nombre,  setNombre]  = useState<string>("");
 
   useEffect(() => {
     try {
       const u = JSON.parse(localStorage.getItem("alzo_user_v1") ?? "null");
       if (u?.nombre) setNombre(u.nombre);
 
-      // Mostrar localStorage INMEDIATAMENTE (fuente de verdad principal)
       const local = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
       if (local.length > 0) {
         setPedidos(local);
         setLoading(false);
       }
 
-      // Intentar enriquecer con Supabase en background (sin bloquear)
       if (u?.telefono) {
         supabaseClient
           .from("pedidos")
@@ -122,8 +148,7 @@ export default function PedidosPage() {
           .limit(50)
           .then(({ data }) => {
             if (data && data.length > 0) {
-              // Merge: Supabase + localStorage, sin duplicados por created_at
-              const supaIds = new Set(data.map((p: any) => p.created_at));
+              const supaIds  = new Set(data.map((p: any) => p.created_at));
               const soloLocal = local.filter((p: any) => !supaIds.has(p.created_at));
               const merged = [...data, ...soloLocal]
                 .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

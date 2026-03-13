@@ -23,10 +23,24 @@ type UserData = { nombre: string; telefono: string };
 const LS_USER = "alzo_user_v1";
 
 const SELLERS = [
-  { id: "v18", nombre: "Vendedor 1", phone: "5493512260685", photo: "" },
+  { id: "858", nombre: "Yohana Novarino", phone: "5493513276516", photo: "/img/vendedores/Yohana Novarino.webp" },
+  { id: "10", nombre: "Fernando Castro", phone: "5493516316967", photo: "/img/vendedores/Fernando Castro.webp" },
+  { id: "30", nombre: "Franco Cofre", phone: "5493513276820", photo: "/img/vendedores/Franco Cofre.png" },
+  { id: "40", nombre: "Nicolas Escobar", phone: "5493515303045", photo: "/img/vendedores/Nicolas Escobar.webp" },
+  { id: "50", nombre: "Eliana Machado", phone: "5493518560195", photo: "/img/vendedores/Eliana Machado.webp" },
+  { id: "70", nombre: "Nicolas Ossman", phone: "5493517024074", photo: "/img/vendedores/Nicolas Ossman.webp" },
+  { id: "80", nombre: "Andres Mazzia", phone: "5493518560488", photo: "/img/vendedores/Andres Mazzia.png" },
+  { id: "90", nombre: "Lucas Gomez", phone: "5493518560586", photo: "/img/vendedores/Lucas Gomez.webp" },
+  { id: "125", nombre: "Emiliano Moreno", phone: "5493516316968", photo: "/img/vendedores/Emiliano Moreno.webp" },
+  { id: "306", nombre: "Federico Torres", phone: "5493518561081", photo: "/img/vendedores/Federico Torres.webp" },
+  { id: "1000", nombre: "Nicolas Tabera", phone: "5493515138800", photo: "/img/vendedores/Nicolas Tavera.webp" },
+  { id: "2000", nombre: "Pedro Galindo", phone: "5493515303045", photo: "/img/vendedores/Pedro Galindo.png" },
+  { id: "3000", nombre: "Claudio Teves", phone: "5493517680109", photo: "/img/vendedores/Claudio Tevez.webp" },
+  { id: "4000", nombre: "Gustavo Martinez", phone: "5493518561704", photo: "/img/vendedores/Gustavo Martinez.webp" },
+  { id: "6000", nombre: "Joel Sanrame", phone: "5493516316971", photo: "/img/vendedores/Joel Sanrame.webp" },
 ];
 
-const PHONE_GENERIC = "5493512260685";
+const PHONE_GENERIC = "5493513276516";
 
 function fmt(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 });
@@ -279,11 +293,11 @@ export default function CarritoPage() {
       const totalItem      = fmt(i.precioFinal * i.cantidad);
       const descLine      = i.descuento > 0 ? ` | Desc: -${i.descuento}%` : "";
       const contenidoLines = i.contenido?.map(c => {
-        const prefix = c.cantidad > 1 ? `${c.cantidad}× ` : "";
-        const suffix = c.elegido ? " ✓" : "";
-        return `  · ${prefix}${c.nombre ?? c.producto}${suffix}`;
+        const prefix   = c.cantidad > 1 ? `${c.cantidad}× ` : "";
+        const sinCargo = c.descuentos === 100 ? " (SIN CARGO)" : "";
+        return `  · ${prefix}${c.nombre ?? c.producto}${sinCargo}`;
       }).join("\n") ?? "";
-      return `• [${i.codigo}] ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}${contenidoLines ? "\n" + contenidoLines : ""}`;
+      return `• [${Math.abs(i.codigo)}] ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}${contenidoLines ? "\n" + contenidoLines : ""}`;
     }).join("\n");
     const separadorMsg = "─".repeat(30);
     const intro = introOverride ?? `Hola soy *${u.nombre}*!\nHice este pedido por Alzo 24/7`;
@@ -296,6 +310,8 @@ export default function CarritoPage() {
       nro_seguimiento: nroSeguimiento,
       items:           items.map(i => ({
         codigo:        i.codigo,
+        cod_combo:     i.cod_combo,
+        tipo:          i.tipo,
         descripcion:   i.descripcion,
         rubro:         i.rubro ?? "",
         familiaNombre: i.familiaNombre ?? "",

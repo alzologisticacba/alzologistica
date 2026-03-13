@@ -46,17 +46,19 @@ export function buildContenido(
       return items
         .filter(d => (cantidadesPorGrupo[g]?.[d.productos] ?? 0) > 0)
         .map(d => ({
-          producto: d.productos,
-          nombre:   d.nombre,
-          cantidad: cantidadesPorGrupo[g][d.productos],
-          elegido:  true as const,
+          producto:   d.productos,
+          nombre:     d.nombre,
+          cantidad:   cantidadesPorGrupo[g][d.productos],
+          elegido:    true as const,
+          descuentos: d.descuentos,
         }));
     }
     return items.map(d => ({
-      producto: d.productos,
-      nombre:   d.nombre,
-      cantidad: d.cantidad,
-      elegido:  false as const,
+      producto:   d.productos,
+      nombre:     d.nombre,
+      cantidad:   d.cantidad,
+      elegido:    false as const,
+      descuentos: d.descuentos,
     }));
   });
 }

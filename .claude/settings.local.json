@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -la /c/workspace/alzologistica/*.md)"
+      "Bash(ls -la /c/workspace/alzologistica/*.md)",
+      "Bash(xargs ls:*)",
+      "Bash(sort -k5 -rn)",
+      "Bash(node -e \":*)"
     ]
   }
 }

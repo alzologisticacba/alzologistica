@@ -8,18 +8,17 @@ const canonical = "https://alzologistica.com/";
 ---
 
 <BaseLayout {title} {description} {canonical}>
+  <link slot="head" rel="preload" as="image" href="/logos/alzo_logo.png" fetchpriority="high" />
+  <link slot="head" rel="preload" as="image" href="/img/fondo-alzo.png" />
 
   <header class="top-nav">
     <h1 class="site-title">Alzo</h1>
     <div class="top-nav-inner">
       <nav class="top-nav-links">
         <a href="#inicio">Alzo</a>
+        <a href="#247" class="nav-link-247">24/7</a>
         <a href="#clientes">Clientes</a>
-        <a href="#conecta">Conecta</a>
         <a href="#contacto">Contacto</a>
-        <!-- ↓ Nuevo link a Alzo 24/7 
-        <a href="/247" class="nav-link-247">24/7</a> -->
-        
       </nav>
     </div>
   </header>
@@ -44,30 +43,119 @@ const canonical = "https://alzologistica.com/";
     .nav-link-247::after {
       display: none !important; /* sin la línea animada del nav base */
     }
+
+    /* ── Botón "Hacé tu pedido" ── */
+    .btn-pedido {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 40px;
+      background: linear-gradient(135deg, #2556ff 0%, #00c6ff 100%);
+      color: #fff;
+      font-family: "Poppins", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 999px;
+      box-shadow:
+        0 0 0 0 rgba(37,86,255,0.5),
+        0 12px 40px rgba(37,86,255,0.45);
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      animation: pulseBorder 2.4s ease-in-out infinite;
+    }
+
+    .btn-pedido__arrow {
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-pedido:hover {
+      transform: translateY(-3px) scale(1.04);
+      filter: brightness(1.1);
+      box-shadow:
+        0 0 0 0 rgba(37,86,255,0),
+        0 20px 55px rgba(37,86,255,0.6);
+      animation: none;
+    }
+
+    .btn-pedido:hover .btn-pedido__arrow {
+      transform: translateX(4px);
+    }
+
+    .btn-pedido:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    @keyframes pulseBorder {
+      0%   { box-shadow: 0 0 0 0 rgba(37,86,255,0.55), 0 12px 40px rgba(37,86,255,0.4); }
+      60%  { box-shadow: 0 0 0 14px rgba(37,86,255,0),  0 12px 40px rgba(37,86,255,0.4); }
+      100% { box-shadow: 0 0 0 0 rgba(37,86,255,0),     0 12px 40px rgba(37,86,255,0.4); }
+    }
+
+    @media (max-width: 480px) {
+      .btn-pedido {
+        font-size: 16px;
+        padding: 16px 32px;
+      }
+    }
+
+    /* Variante sin pulso para usar dentro de secciones */
+    .btn-pedido--section {
+      animation: none;
+      margin-top: 8px;
+    }
+
+    /* Fondo propio para la sección 24/7 (sobreescribe el verde de conecta) */
+    [id="247"].conecta-section {
+      background: #020617 url("/img/fondo247.png") center center / cover no-repeat fixed !important;
+    }
+
+    /* Logo Alzo 24/7 en la sección */
+    .alzo247-logo-img {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      filter: drop-shadow(0 0 40px rgba(37,86,255,0.35));
+    }
+
+    @media (max-width: 767px) {
+      .alzo247-logo-img {
+        max-width: 220px;
+      }
+    }
   </style>
 
   <section  id="inicio" class="hero hero-content" data-scroll-center>
     <div class="hero-header">
       <div class="hero-logo">
-        <img src="logos/alzo_logo.png" alt="Alzo" class="hero-logo-img" />
+        <img src="logos/alzo_logo.png" alt="Alzo" class="hero-logo-img" width="793" height="334" fetchpriority="high" loading="eager" />
       </div>
       <div class="hero-subtitle">DISTRIBUIDOR OFICIAL</div>
+      <a href="/247" class="btn-pedido">
+        <span class="btn-pedido__text">Hacé tu pedido</span>
+        <svg class="btn-pedido__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
     </div>
 
     {/* Carrusel de marcas */}
 <div class="brand-carousel">
   <div class="brand-track" aria-label="Marcas">
     <div class="brand-set">
-      <img src="logos/lucky_logo.png" alt="Lucky Strike" />
-      <img src="logos/camel_logo.png" alt="Camel" />
-      <img src="logos/nosotras_logo.png" alt="Nosotras" />
-      <img src="logos/rinde2_logo.png" alt="Rinde 2" />
-      <img src="logos/alka_logo.png" alt="Alka" />
-      <img src="logos/bic_logo.png" alt="Bic" />
-      <img src="logos/calipso_logo.png" alt="Calipso" />
-      <img src="logos/lia_logo.png" alt="Lía" />
-      <img src="logos/misky_logo.png" alt="Misky" />
-      <img src="logos/noel_logo.png" alt="Noel" />
+      <img src="logos/lucky_logo.png" alt="Lucky Strike" width="800" height="800" />
+      <img src="logos/camel_logo.png" alt="Camel" width="800" height="800" />
+      <img src="logos/nosotras_logo.png" alt="Nosotras" width="800" height="800" />
+      <img src="logos/rinde2_logo.png" alt="Rinde 2" width="800" height="800" />
+      <img src="logos/alka_logo.png" alt="Alka" width="800" height="800" />
+      <img src="logos/bic_logo.png" alt="Bic" width="800" height="800" />
+      <img src="logos/calipso_logo.png" alt="Calipso" width="800" height="800" />
+      <img src="logos/lia_logo.png" alt="Lía" width="800" height="800" />
+      <img src="logos/misky_logo.png" alt="Misky" width="800" height="800" />
+      <img src="logos/noel_logo.png" alt="Noel" width="800" height="800" />
     </div>
   </div>
 </div>
@@ -79,6 +167,27 @@ const canonical = "https://alzologistica.com/";
     </div>
 
   </section>
+
+  {/* Bloque Alzo 24/7 */}
+<section id="247" class="conecta-section conecta-block">
+  <div class="conecta-inner">
+    <div class="conecta-layout">
+      <div class="conecta-logo-box">
+        <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" class="alzo247-logo-img" width="463" height="464" loading="lazy" />
+      </div>
+      <article class="conecta-card">
+        <h2>Nuestros productos, disponibles 24/7</h2>
+        <p>Hace tu pedido facil y sin vueltas, directo a nuestros vendedores</p>
+        <a href="/247" class="btn-pedido btn-pedido--section">
+          <span class="btn-pedido__text">Ir a Alzo 24/7</span>
+          <svg class="btn-pedido__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
 
 {/* Sección clientes con métricas */}
   <section id="clientes" class="clients-section">
@@ -92,6 +201,9 @@ const canonical = "https://alzologistica.com/";
           src="img/soycliente.png"
           alt="Soy cliente Alzo"
           class="client-card-img"
+          width="800"
+          height="800"
+          loading="lazy"
         />
         <a href="./soy-cliente" class="btn btn-primary">
           Información para clientes
@@ -110,8 +222,11 @@ const canonical = "https://alzologistica.com/";
         <p>Sumá tu kiosco, autoservicio o comercio.</p>
         <img
           src="img/quierosercliente.png"
-          alt="Soy cliente Alzo"
+          alt="Quiero ser cliente Alzo"
           class="client-card-img"
+          width="800"
+          height="800"
+          loading="lazy"
         />
         <a href="#contacto" class="btn btn-primary">
           Contactanos
@@ -126,31 +241,13 @@ const canonical = "https://alzologistica.com/";
     </div>
   </section>
 
-  {/* Bloque conectaMarket */}
-<section id="conecta" class="conecta-section conecta-block">
-  <div class="conecta-inner">
-    <div class="conecta-layout">
-      <div class="conecta-logo-box">
-        <img src="img/conecta.png" alt="Conecta Market" class="conecta-logo-img" />
-      </div>
-      <article class="conecta-card">
-        <h2>Hacé tu pedido fácil y rápido</h2>
-        <p>Plataforma online exclusiva para nuestros clientes.</p>
-        <a href="https://conectamarket.com.ar" target="_blank" rel="noreferrer" class="btn btn-primary conecta-btn">
-          Ir a Conecta
-        </a>
-      </article>
-    </div>
-  </div>
-</section>
-
   {/* Contacto / WhatsApp */}
   <section id="contacto" class="contact-section contact-section-anim">
     <h2 data-scroll-target="contacto">Contactanos</h2>
     <div class="contact-cards">
       <article class="contact-card contact-card-anim">
         <div class="whatsapp-icon">
-          <img src="img/whatsapp.png" alt="WhatsApp" />
+          <img src="img/whatsapp.png" alt="WhatsApp" width="800" height="800" loading="lazy" />
         </div>
         <span>ADMINISTRACIÓN</span>
         <small>Facturación y cobranzas</small>
@@ -160,7 +257,7 @@ const canonical = "https://alzologistica.com/";
       </article>
       <article class="contact-card contact-card-anim">
         <div class="whatsapp-icon">
-          <img src="img/whatsapp.png" alt="WhatsApp" />
+          <img src="img/whatsapp.png" alt="WhatsApp" width="800" height="800" loading="lazy" />
         </div>
         <span>AREA COMERCIAL</span>
         <small>Altas, pedidos y consultas</small>
@@ -170,7 +267,7 @@ const canonical = "https://alzologistica.com/";
       </article>
       <article class="contact-card contact-card-anim">
         <div class="whatsapp-icon">
-          <img src="img/whatsapp.png" alt="WhatsApp" />
+          <img src="img/whatsapp.png" alt="WhatsApp" width="800" height="800" loading="lazy" />
         </div>
         <span>CANAL MAYORISTA</span>
         <small>Grandes cuentas y empresas</small>
@@ -188,9 +285,9 @@ const canonical = "https://alzologistica.com/";
   }
 
   const OFFSETS = {
-    desktop: { "#inicio": 0, "#clientes": 110, "#conecta": 40, "#contacto": 20 },
-    tablet:  { "#inicio": 0, "#clientes": 150, "#conecta": 40, "#contacto": 20 },
-    mobile:  { "#inicio": 0, "#clientes": 150, "#conecta": 40, "#contacto": 20 },
+    desktop: { "#inicio": 0, "#clientes": 110, "#247": 40, "#contacto": 20 },
+    tablet:  { "#inicio": 0, "#clientes": 150, "#247": 40, "#contacto": 20 },
+    mobile:  { "#inicio": 0, "#clientes": 150, "#247": 40, "#contacto": 20 },
   };
 
   function currentOffsets() {
@@ -201,11 +298,11 @@ const canonical = "https://alzologistica.com/";
   }
 
   function scrollToNice(hash) {
-    const section = document.querySelector(hash);
+    const id      = hash.replace("#", "");
+    const section = document.getElementById(id) || document.querySelector(hash);
     if (!section) return;
-    const key    = hash.replace("#", "");
-    const target = section.querySelector(`[data-scroll-target="${key}"]`) || section;
-    const rect   = target.getBoundingClientRect();
+    const target  = section.querySelector(`[data-scroll-target="${id}"]`) || section;
+    const rect    = target.getBoundingClientRect();
     const baseTop = rect.top + window.scrollY;
     const extra   = (currentOffsets()[hash] ?? 0);
     window.scrollTo({ top: baseTop - navHeight() - extra, behavior: "smooth" });
@@ -216,7 +313,8 @@ const canonical = "https://alzologistica.com/";
     if (!a) return;
     const hash = a.getAttribute("href");
     if (!hash || hash === "#") return;
-    if (!document.querySelector(hash)) return;
+    const id = hash.replace("#", "");
+    if (!document.getElementById(id)) return;
     e.preventDefault();
     history.pushState(null, "", hash);
     scrollToNice(hash);
@@ -245,6 +343,8 @@ const canonical = "https://alzologistica.com/";
   window.addEventListener("load", () => {
     gsap.from(".hero-content", { opacity: 0, y: -80, scale: 0.95, duration: 1.4, ease: "power4.out" });
 
+    gsap.from(".btn-pedido", { opacity: 0, y: 30, scale: 0.9, duration: 0.8, delay: 0.5, ease: "back.out(1.7)" });
+
     gsap.from(".brand-track img", { opacity: 0, y: 60, duration: 1, stagger: 0.08, delay: 0.4, ease: "power3.out" });
 
     gsap.fromTo(".client-card",
@@ -264,13 +364,12 @@ const canonical = "https://alzologistica.com/";
     gsap.utils.toArray(".clients-stat-number").forEach((el) => {
       const target = Number(el.dataset.target) || 0;
       ScrollTrigger.create({
-        trigger: el, start: "top 80%",
+        trigger: el, start: "top 90%", once: true,
         onEnter() {
           const obj = { value: 0 };
-          gsap.to(obj, { value: target, duration: 1.6, ease: "power3.out",
+          gsap.to(obj, { value: target, duration: 1.8, ease: "power3.out",
             onUpdate() { el.textContent = `+ ${formatNumber(Math.floor(obj.value))}`; } });
         },
-        onLeaveBack() { el.textContent = "+ 0"; },
       });
     });
 
@@ -278,6 +377,12 @@ const canonical = "https://alzologistica.com/";
       { autoAlpha: 0, y: 80, scale: 0.9 },
       { autoAlpha: 1, y: 0, scale: 1, duration: 1, ease: "power3.out",
         scrollTrigger: { trigger: ".conecta-block", start: "top 80%", end: "bottom 40%", toggleActions: "play reverse play reverse" } }
+    );
+
+    gsap.fromTo(".alzo247-logo-img",
+      { autoAlpha: 0, scale: 0.85, y: 20 },
+      { autoAlpha: 1, scale: 1, y: 0, duration: 0.9, ease: "power3.out",
+        scrollTrigger: { trigger: ".conecta-block", start: "top 75%" } }
     );
 
     gsap.fromTo(".contact-card-anim",

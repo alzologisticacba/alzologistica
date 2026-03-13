@@ -376,9 +376,9 @@ body {
 /* Layout desktop: como el boceto */
 @media (min-width: 768px) {
   .clients-grid {
-    max-width: 1000px;  /* un poco más angosto que el contenedor general */
+    max-width: 1000px;
     margin-inline: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));   /* 2 columnas */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: auto auto;
     grid-template-areas:
       "statClientes cardTop"
@@ -389,37 +389,26 @@ body {
   }
 
   .clients-stat--clientes {
-    justify-self: center;          /* más hacia el centro */
+    justify-self: center;
     align-items: flex-start;
   }
 
-  .client-card--top {
-    justify-self: center;          /* card centrada */
-  }
-
-  .client-card--bottom {
-    justify-self: center;          /* card centrada */
-  }
+  .client-card--top    { justify-self: center; }
+  .client-card--bottom { justify-self: center; }
 
   .clients-stat--pedidos {
-    justify-self: center;          /* más hacia el centro */
+    justify-self: center;
     text-align: right;
     align-items: flex-end;
   }
 
-  /* cards más angostas en desktop */
   .client-card {
     max-width: 460px;
     width: 100%;
   }
 
-  .clients-stat-number {
-    font-size: 62px;
-  }
-
-  .clients-stat-label {
-    font-size: 20px;
-  }
+  .clients-stat-number { font-size: 62px; }
+  .clients-stat-label  { font-size: 20px; }
 }
 
 
@@ -686,6 +675,16 @@ body {
   transform: translateY(1px) scale(0.96);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
   filter: brightness(0.98);
+}
+
+/* En mobile, background-attachment:fixed causa repaint en cada scroll */
+@media (max-width: 767px) {
+  body {
+    background-attachment: scroll;
+  }
+  .conecta-section {
+    background-attachment: scroll;
+  }
 }
 
 @media (max-width: 480px) {

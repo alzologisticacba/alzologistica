@@ -14,7 +14,7 @@ export interface CartItem {
   rubro?: string;
   tipo: "articulo" | "combo";
   // Para combos: lista completa de ítems. elegido=true → el usuario lo eligió en el modal
-  contenido?: Array<{ producto: string; nombre: string | null; cantidad: number; elegido?: boolean }>;
+  contenido?: Array<{ producto: string; nombre: string | null; cantidad: number; elegido?: boolean; descuentos?: number }>;
 }
 
 const KEY     = "alzo_cart";
