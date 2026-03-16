@@ -26,7 +26,7 @@ const SELLERS = [
   { id: "858", nombre: "Yohana Novarino", phone: "5493513276516", photo: "/img/vendedores/Yohana Novarino.webp" },
   { id: "10", nombre: "Fernando Castro", phone: "5493516316967", photo: "/img/vendedores/Fernando Castro.webp" },
   { id: "30", nombre: "Franco Cofre", phone: "5493513276820", photo: "/img/vendedores/Franco Cofre.png" },
-  { id: "40", nombre: "Nicolas Escobar", phone: "5493515303045", photo: "/img/vendedores/Nicolas Escobar.webp" },
+  { id: "40", nombre: "Nicolas Escobar", phone: "5493518559685", photo: "/img/vendedores/Nicolas Escobar.webp" },
   { id: "50", nombre: "Eliana Machado", phone: "5493518560195", photo: "/img/vendedores/Eliana Machado.webp" },
   { id: "70", nombre: "Nicolas Ossman", phone: "5493517024074", photo: "/img/vendedores/Nicolas Ossman.webp" },
   { id: "80", nombre: "Andres Mazzia", phone: "5493518560488", photo: "/img/vendedores/Andres Mazzia.png" },
