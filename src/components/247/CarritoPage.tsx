@@ -210,14 +210,18 @@ function generarNroSeguimiento(): string {
 
 export default function CarritoPage() {
   const [items, setItems]               = useState<CartItem[]>([]);
+  const [inputVals, setInputVals]       = useState<Record<string, string>>({});
   const [modalOpen, setModalOpen]         = useState(false);
   const [confirmVaciar, setConfirmVaciar] = useState(false);
+  const [confirmEliminar, setConfirmEliminar] = useState<string | null>(null);
   const [step, setStep]                   = useState<"user" | "seller">("user");
   const [user, setUser]                   = useState<UserData | null>(null);
   const [tienePedidos, setTienePedidos]   = useState(false);
 
   useEffect(() => {
-    setItems([...getCart()]);
+    const cart = getCart();
+    setItems([...cart]);
+    setInputVals(Object.fromEntries(cart.map(i => [i.cartKey, String(i.cantidad)])));
     try {
       const p = JSON.parse(localStorage.getItem("alzo_pedidos") ?? "[]");
       setTienePedidos(Array.isArray(p) && p.length > 0);
@@ -249,9 +253,11 @@ export default function CarritoPage() {
   function cambiarCantidad(cartKey: string, dir: 1 | -1) {
     const item = getCart().find(i => i.cartKey === cartKey);
     if (!item) return;
-    const step = item.multiplo || 1;
-    updateQuantity(cartKey, Math.max(step, item.cantidad + dir * step));
-    setItems([...getCart()]);
+    const next = Math.max(1, item.cantidad + dir);
+    updateQuantity(cartKey, next);
+    const updated = getCart();
+    setItems([...updated]);
+    setInputVals(v => ({ ...v, [cartKey]: String(next) }));
   }
 
   function eliminar(cartKey: string) {
@@ -443,12 +449,25 @@ export default function CarritoPage() {
                   </div>
                   <div className="cart-item__right">
                     <div className="cart-item__ctrl">
-                      <button onClick={() => cambiarCantidad(item.cartKey, -1)}>−</button>
-                      <span>{item.cantidad}</span>
+                      <button onClick={() => item.cantidad <= 1 ? setConfirmEliminar(item.cartKey) : cambiarCantidad(item.cartKey, -1)}>−</button>
+                      <input
+                        className="cart-item__cantidad-val"
+                        type="number"
+                        min={1}
+                        value={inputVals[item.cartKey] ?? item.cantidad}
+                        onChange={e => setInputVals(v => ({ ...v, [item.cartKey]: e.target.value }))}
+                        onBlur={() => {
+                          const v = parseInt(inputVals[item.cartKey], 10);
+                          const final = isNaN(v) || v < 1 ? 1 : v;
+                          updateQuantity(item.cartKey, final);
+                          setItems([...getCart()]);
+                          setInputVals(iv => ({ ...iv, [item.cartKey]: String(final) }));
+                        }}
+                      />
                       <button onClick={() => cambiarCantidad(item.cartKey, +1)}>+</button>
                     </div>
-                    <p className="cart-item__subtotal">{fmt(item.precioFinal * item.cantidad)}</p>
-                    <button className="cart-item__del" onClick={() => eliminar(item.cartKey)} title="Eliminar">✕</button>
+                    <p className="cart-item__subtotal">{fmt(item.precioFinal * (parseInt(inputVals[item.cartKey], 10) || item.cantidad))}</p>
+                    <button className="cart-item__del" onClick={() => setConfirmEliminar(item.cartKey)} title="Eliminar">✕</button>
                   </div>
                 </div>
               ))}
@@ -456,6 +475,29 @@ export default function CarritoPage() {
           )}
         </div>
       </div>
+
+      {confirmEliminar && (
+        <>
+          <div className="alzomodal-backdrop" onClick={() => setConfirmEliminar(null)} />
+          <div className="alzomodal" role="dialog" aria-modal="true">
+            <div className="alzomodal-card">
+              <div className="alzomodal-head">
+                <h3 className="alzomodal-title">¿Eliminar producto?</h3>
+                <button className="alzomodal-close" onClick={() => setConfirmEliminar(null)}>✕</button>
+              </div>
+              <div className="alzomodal-body">
+                <p style={{ marginBottom: "1.25rem", color: "var(--text-2, #555)" }}>
+                  ¿Desea eliminar este producto del carrito?
+                </p>
+                <div className="alzomodal-actions">
+                  <button className="alzomodal-btn alzomodal-btn--ghost" onClick={() => setConfirmEliminar(null)}>Cancelar</button>
+                  <button className="alzomodal-btn alzomodal-btn--danger" onClick={() => { eliminar(confirmEliminar); setConfirmEliminar(null); }}>Sí, eliminar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {confirmVaciar && (
         <>

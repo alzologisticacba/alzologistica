@@ -78,6 +78,7 @@ export default function ProductoDetalle() {
   const [loading, setLoading]         = useState(true);
   const [error, setError]             = useState(false);
   const [cantidad, setCantidad]       = useState(1);
+  const [inputVal, setInputVal]       = useState("1");
 
   useEffect(() => {
     const codigo = new URLSearchParams(window.location.search).get("codigo");
@@ -93,6 +94,7 @@ export default function ProductoDetalle() {
         if (err || !data) { setError(true); return; }
         setArticulo(data);
         setCantidad(data.multiplo || 1);
+        setInputVal(String(data.multiplo || 1));
         try { if (data.familiaNombre) localStorage.setItem("alzo_ultimo_visto", data.familiaNombre); } catch {}
 
         // Traer 40 de la misma familia, shufflear, tomar 10 (excluir el actual)
@@ -206,17 +208,30 @@ export default function ProductoDetalle() {
                     <span className="pd__cantidad-label">Cantidad:</span>
                     <div className="pd__cantidad-ctrl">
                       <button className="pd__cantidad-btn"
-                        onClick={() => setCantidad(c => Math.max(articulo.multiplo || 1, c - (articulo.multiplo || 1)))}
+                        onClick={() => { const next = Math.max(articulo.multiplo || 1, cantidad - 1); setCantidad(next); setInputVal(String(next)); }}
                         disabled={cantidad <= (articulo.multiplo || 1)}>−</button>
-                      <span className="pd__cantidad-val">{cantidad}</span>
+                      <input
+                        className={`pd__cantidad-val${articulo.multiplo > 1 ? " pd__cantidad-val--readonly" : ""}`}
+                        type="number"
+                        min={articulo.multiplo || 1}
+                        step={articulo.multiplo || 1}
+                        value={inputVal}
+                        readOnly={articulo.multiplo > 1}
+                        onChange={articulo.multiplo > 1 ? undefined : e => setInputVal(e.target.value)}
+                        onBlur={articulo.multiplo > 1 ? undefined : () => {
+                          const multiplo = articulo.multiplo || 1;
+                          const v = parseInt(inputVal, 10);
+                          const final = isNaN(v) || v < multiplo ? multiplo : Math.round(v / multiplo) * multiplo;
+                          setCantidad(final);
+                          setInputVal(String(final));
+                        }}
+                      />
                       <button className="pd__cantidad-btn"
-                        onClick={() => setCantidad(c => c + (articulo.multiplo || 1))}>+</button>
+                        onClick={() => { const next = cantidad + 1; setCantidad(next); setInputVal(String(next)); }}>+</button>
                     </div>
                   </div>
 
-                  {cantidad > (articulo.multiplo || 1) && (
-                    <p className="pd__total">Total: <strong>{fmt(articulo.precioFinal * cantidad)}</strong></p>
-                  )}
+                  <p className="pd__total">Subtotal: <strong>{fmt(articulo.precioFinal * (parseInt(inputVal, 10) || cantidad))}</strong></p>
 
                   <BtnAgregar articulo={articulo} cantidad={cantidad} />
                 </div>
