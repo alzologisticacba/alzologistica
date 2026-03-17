@@ -208,7 +208,7 @@ export default function ProductoDetalle() {
                     <span className="pd__cantidad-label">Cantidad:</span>
                     <div className="pd__cantidad-ctrl">
                       <button className="pd__cantidad-btn"
-                        onClick={() => { const next = Math.max(articulo.multiplo || 1, cantidad - 1); setCantidad(next); setInputVal(String(next)); }}
+                        onClick={() => { const paso = articulo.multiplo || 1; const next = Math.max(paso, cantidad - paso); setCantidad(next); setInputVal(String(next)); }}
                         disabled={cantidad <= (articulo.multiplo || 1)}>−</button>
                       <input
                         className={`pd__cantidad-val${articulo.multiplo > 1 ? " pd__cantidad-val--readonly" : ""}`}
@@ -227,7 +227,7 @@ export default function ProductoDetalle() {
                         }}
                       />
                       <button className="pd__cantidad-btn"
-                        onClick={() => { const next = cantidad + 1; setCantidad(next); setInputVal(String(next)); }}>+</button>
+                        onClick={() => { const paso = articulo.multiplo || 1; const next = cantidad + paso; setCantidad(next); setInputVal(String(next)); }}>+</button>
                     </div>
                   </div>
 

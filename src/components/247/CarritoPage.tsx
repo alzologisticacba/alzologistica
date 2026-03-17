@@ -253,7 +253,8 @@ export default function CarritoPage() {
   function cambiarCantidad(cartKey: string, dir: 1 | -1) {
     const item = getCart().find(i => i.cartKey === cartKey);
     if (!item) return;
-    const next = Math.max(1, item.cantidad + dir);
+    const paso = item.multiplo || 1;
+    const next = Math.max(paso, item.cantidad + dir * paso);
     updateQuantity(cartKey, next);
     const updated = getCart();
     setItems([...updated]);
@@ -449,7 +450,7 @@ export default function CarritoPage() {
                   </div>
                   <div className="cart-item__right">
                     <div className="cart-item__ctrl">
-                      <button onClick={() => item.cantidad <= 1 ? setConfirmEliminar(item.cartKey) : cambiarCantidad(item.cartKey, -1)}>−</button>
+                      <button onClick={() => item.cantidad <= (item.multiplo || 1) ? setConfirmEliminar(item.cartKey) : cambiarCantidad(item.cartKey, -1)}>−</button>
                       <input
                         className="cart-item__cantidad-val"
                         type="number"
@@ -457,11 +458,12 @@ export default function CarritoPage() {
                         value={inputVals[item.cartKey] ?? item.cantidad}
                         onChange={e => setInputVals(v => ({ ...v, [item.cartKey]: e.target.value }))}
                         onBlur={() => {
+                          const paso = item.multiplo || 1;
                           const v = parseInt(inputVals[item.cartKey], 10);
-                          const final = isNaN(v) || v < 1 ? 1 : v;
-                          updateQuantity(item.cartKey, final);
+                          const rounded = isNaN(v) || v < paso ? paso : Math.round(v / paso) * paso;
+                          updateQuantity(item.cartKey, rounded);
                           setItems([...getCart()]);
-                          setInputVals(iv => ({ ...iv, [item.cartKey]: String(final) }));
+                          setInputVals(iv => ({ ...iv, [item.cartKey]: String(rounded) }));
                         }}
                       />
                       <button onClick={() => cambiarCantidad(item.cartKey, +1)}>+</button>
