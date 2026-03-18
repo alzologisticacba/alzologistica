@@ -40,8 +40,8 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
     return () => window.removeEventListener("cart-age-confirmed", onConfirmed);
   }, [articulo.codigo]);
   const tieneDescuento = articulo.descuento > 0;
-  const precioOriginal = tieneDescuento
-    ? articulo.precioFinal / (1 - articulo.descuento / 100)
+  const precioConDescuento = tieneDescuento
+    ? articulo.precioFinal * (1 - articulo.descuento / 100)
     : null;
 
   function handleAgregar(e: React.MouseEvent) {
@@ -49,7 +49,7 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
     const result = addToCart({
       codigo:        articulo.codigo,
       descripcion:   articulo.descripcion,
-      precioFinal:   articulo.precioFinal,
+      precioFinal:   precioConDescuento ?? articulo.precioFinal,
       multiplo:      articulo.multiplo || 1,
       descuento:     articulo.descuento,
       familiaNombre: articulo.familiaNombre ?? "",
@@ -75,8 +75,8 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
       <div className="product-card__info">
         <p className="product-card__desc">{articulo.descripcion}</p>
         <p className="product-card__rubro">{articulo.rubro}</p>
-        {precioOriginal && <p className="product-card__precio-original">{fmt(precioOriginal)}</p>}
-        <p className="product-card__precio">{fmt(articulo.precioFinal)}</p>
+        {precioConDescuento && <p className="product-card__precio-original">{fmt(articulo.precioFinal)}</p>}
+        <p className="product-card__precio">{fmt(precioConDescuento ?? articulo.precioFinal)}</p>
         {articulo.multiplo > 1 && <p className="product-card__multiplo">x{articulo.multiplo} unidades</p>}
       </div>
 

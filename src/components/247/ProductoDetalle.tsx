@@ -51,7 +51,7 @@ function BtnAgregar({ articulo, cantidad }: { articulo: Articulo; cantidad: numb
     const result = addToCart({
       codigo:        articulo.codigo,
       descripcion:   articulo.descripcion,
-      precioFinal:   articulo.precioFinal,
+      precioFinal:   precioConDescuento ?? articulo.precioFinal,
       multiplo:      cantidad,
       descuento:     articulo.descuento,
       familiaNombre: articulo.familiaNombre ?? "",
@@ -118,7 +118,7 @@ export default function ProductoDetalle() {
   };
 
   const tieneDescuento = articulo && articulo.descuento > 0;
-  const precioOriginal = tieneDescuento ? articulo!.precioFinal / (1 - articulo!.descuento / 100) : null;
+  const precioConDescuento = tieneDescuento ? articulo!.precioFinal * (1 - articulo!.descuento / 100) : null;
 
   return (
     <div className="app-247">
@@ -172,15 +172,15 @@ export default function ProductoDetalle() {
                   <h1 className="pd__titulo">{articulo.descripcion}</h1>
 
                   <div className={`pd__precio-wrap${tieneDescuento ? " pd__precio-wrap--descuento" : ""}`}>
-                    {precioOriginal && (
+                    {precioConDescuento && (
                       <div className="pd__ahorro-row">
-                        <p className="pd__precio-original">{fmt(precioOriginal)}</p>
-                        <span className="pd__ahorro-chip">Ahorrás {fmt(precioOriginal - articulo!.precioFinal)}</span>
+                        <p className="pd__precio-original">{fmt(articulo!.precioFinal)}</p>
+                        <span className="pd__ahorro-chip">Ahorrás {fmt(articulo!.precioFinal - precioConDescuento)}</span>
                       </div>
                     )}
                     <div className="pd__precio-row">
                       {tieneDescuento && <span className="pd__precio-badge">-{articulo.descuento}%</span>}
-                      <span className="pd__precio">{fmt(articulo.precioFinal)}</span>
+                      <span className="pd__precio">{fmt(precioConDescuento ?? articulo.precioFinal)}</span>
                     </div>
                     <p className="pd__precio-unit">precio por unidad</p>
                   </div>
@@ -231,7 +231,7 @@ export default function ProductoDetalle() {
                     </div>
                   </div>
 
-                  <p className="pd__total">Subtotal: <strong>{fmt(articulo.precioFinal * (parseInt(inputVal, 10) || cantidad))}</strong></p>
+                  <p className="pd__total">Subtotal: <strong>{fmt((precioConDescuento ?? articulo.precioFinal) * (parseInt(inputVal, 10) || cantidad))}</strong></p>
 
                   <BtnAgregar articulo={articulo} cantidad={cantidad} />
                 </div>
