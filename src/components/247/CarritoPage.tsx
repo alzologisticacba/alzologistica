@@ -201,7 +201,7 @@ function CartItemImg({ item }: { item: CartItem }) {
   );
 }
 
-const SHEETS_WEBHOOK = "https://script.google.com/macros/s/AKfycbwO9AAj5nj8vQKpEnYm30MgycWGXhdF-G4e6cn5xejlEzl8qQO1_eAgVJKhJOcJjsD7mQ/exec";
+const SHEETS_WEBHOOK = "https://script.google.com/macros/s/AKfycbypmxcR5efUTmb21APQrdIkmhvZNcfXwc2iuQxFa4DGgK-t66O7z4Qi_ktrfWInq2Ij9A/exec";
 
 function generarNroSeguimiento(): string {
   const n = Math.floor(Math.random() * 99999).toString().padStart(5, "0");
@@ -340,13 +340,14 @@ export default function CarritoPage() {
     // 2. Enviar a Google Sheets con sendBeacon
     try {
       const sheetPayload = {
-        nro_seguimiento: nroSeguimiento,
-        fecha:           new Date().toISOString(),
-        cod_vendedor:    vendedorId,
-        vendedor_nombre: vendedorNombre,
-        skus:            items.length,
-        unidades:        items.reduce((s, i) => s + i.cantidad, 0),
-        total:           totalPrecio,
+        nro_seguimiento:  nroSeguimiento,
+        fecha:            new Date().toISOString(),
+        cod_vendedor:     vendedorId,
+        vendedor_nombre:  vendedorNombre,
+        telefono_cliente: u.telefono,
+        skus:             items.length,
+        unidades:         items.reduce((s, i) => s + i.cantidad, 0),
+        total:            totalPrecio,
         items: JSON.stringify(items.map(i => ({
           sku:      i.codigo,
           name:     i.descripcion,
