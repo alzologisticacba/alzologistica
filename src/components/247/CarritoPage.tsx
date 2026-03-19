@@ -306,7 +306,7 @@ export default function CarritoPage() {
       }).join("\n") ?? "";
       return `• [${Math.abs(i.codigo)}] ${i.descripcion}\n  Cant: ${i.cantidad} | Precio: ${precioUnitario}${descLine} | Subtotal: ${totalItem}${contenidoLines ? "\n" + contenidoLines : ""}`;
     }).join("\n");
-    const separadorMsg = "─".repeat(30);
+    const separadorMsg = "─".repeat(15);
     const intro = introOverride ?? `Hola soy *${u.nombre}*!\nHice este pedido por Alzo 24/7`;
     const msg = `${intro}\n\n${lineasMsg}\n\n${separadorMsg}\n*Total: ${fmt(totalPrecio)}*\nNumero de seguimiento: ${nroSeguimiento}`;
 
