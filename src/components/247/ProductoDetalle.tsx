@@ -32,7 +32,7 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 
-function BtnAgregar({ articulo, cantidad }: { articulo: Articulo; cantidad: number }) {
+function BtnAgregar({ articulo, cantidad, precioConDescuento }: { articulo: Articulo; cantidad: number; precioConDescuento: number | null }) {
   const [btnState, setBtnState] = React.useState<"idle" | "ok" | "pending">("idle");
 
   React.useEffect(() => {
@@ -233,7 +233,7 @@ export default function ProductoDetalle() {
 
                   <p className="pd__total">Subtotal: <strong>{fmt((precioConDescuento ?? articulo.precioFinal) * (parseInt(inputVal, 10) || cantidad))}</strong></p>
 
-                  <BtnAgregar articulo={articulo} cantidad={cantidad} />
+                  <BtnAgregar articulo={articulo} cantidad={cantidad} precioConDescuento={precioConDescuento} />
                 </div>
               </div>
             </div>
