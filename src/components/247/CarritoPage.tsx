@@ -235,7 +235,7 @@ export default function CarritoPage() {
     };
   }, []);
 
-  const MINIMO_PEDIDO = 30000;
+  const MINIMO_PEDIDO = 75000;
 
   const totalSKUs     = items.length;
   const totalUnidades = useMemo(() => items.reduce((s, i) => s + i.cantidad, 0), [items]);
