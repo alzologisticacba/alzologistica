@@ -9,14 +9,14 @@ function fmt(n: number) {
 }
 
 
-const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/render/image/public/Productos/articulos";
 
 function ProductImg({ codigo }: { codigo: number }) {
   const [error, setError] = React.useState(false);
   if (error) return <div className="product-card__img-placeholder">📦</div>;
   return (
     <img
-      src={`${IMG_BASE}/${codigo}.png`}
+      src={`${IMG_BASE}/${codigo}.png?width=300&quality=75&resize=contain`}
       alt=""
       className="product-card__img"
       onError={() => setError(true)}

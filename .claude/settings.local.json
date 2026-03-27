@@ -4,7 +4,9 @@
       "Bash(ls -la /c/workspace/alzologistica/*.md)",
       "Bash(xargs ls:*)",
       "Bash(sort -k5 -rn)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(xargs grep:*)",
+      "Bash(wc -l c:/workspace/alzologistica/src/components/247/*.tsx)"
     ]
   }
 }

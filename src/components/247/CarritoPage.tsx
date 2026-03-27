@@ -184,7 +184,7 @@ function StepSeller({ user, totalPrecio, cartMessage, onSend }: StepSellerProps)
   );
 }
 
-const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/render/image/public/Productos/articulos";
 
 function CartItemImg({ item }: { item: CartItem }) {
   const [error, setError] = React.useState(false);
@@ -192,7 +192,7 @@ function CartItemImg({ item }: { item: CartItem }) {
   if (error || !imgKey) return <div className="cart-item__img">{item.tipo === "combo" ? "🎁" : "📦"}</div>;
   return (
     <img
-      src={`${IMG_BASE}/${imgKey}.png`}
+      src={`${IMG_BASE}/${imgKey}.png?width=80&quality=70&resize=contain`}
       alt=""
       className="cart-item__img cart-item__img--photo"
       onError={() => setError(true)}
