@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Header247 from "./Header247";
 import PageFooterSection from "./PageFooterSection";
 import { supabaseClient } from "../../lib/supabaseClient";
-import { addToCart } from "./hooks/cartStore";
+import { addToCart, updateQuantity } from "./hooks/cartStore";
 
 interface PedidoItem {
   codigo: number;
@@ -49,28 +49,34 @@ function PedidoCard({ pedido }: { pedido: Pedido }) {
 
     // Verificar stock solo de artículos
     let articulosConStock: PedidoItem[] = [];
+    const articuloMultiplos = new Map<number, number>();
     if (articulos.length > 0) {
       const { data } = await supabaseClient
         .from("articulos")
-        .select("codigo, stock")
+        .select("codigo, stock, multiplo")
         .in("codigo", articulos.map(i => i.codigo))
         .gt("stock", 0);
 
+      (data ?? []).forEach((r: any) => articuloMultiplos.set(r.codigo, r.multiplo || 1));
       const codigosConStock = new Set((data ?? []).map((r: any) => r.codigo));
       articulosConStock = articulos.filter(i => codigosConStock.has(i.codigo));
     }
 
     // Agregar combos (siempre) + artículos con stock
     const aAgregar = [...combos, ...articulosConStock];
-    aAgregar.forEach(item => addToCart({
-      codigo:      item.codigo,
-      cod_combo:   item.cod_combo,
-      descripcion: item.descripcion,
-      precioFinal: item.precioFinal,
-      multiplo:    item.cantidad,
-      descuento:   item.descuento,
-      tipo:        esCombo(item) ? "combo" : "articulo",
-    }));
+    aAgregar.forEach(item => {
+      addToCart({
+        codigo:      item.codigo,
+        cod_combo:   item.cod_combo,
+        descripcion: item.descripcion,
+        precioFinal: item.precioFinal,
+        multiplo:    esCombo(item) ? 1 : (articuloMultiplos.get(item.codigo) ?? 1),
+        descuento:   item.descuento,
+        tipo:        esCombo(item) ? "combo" : "articulo",
+      });
+      const cartKey = esCombo(item) ? `combo:${item.cod_combo}` : String(item.codigo);
+      updateQuantity(cartKey, item.cantidad);
+    });
 
     setRepetido(true);
     setChecking(false);
