@@ -2,6 +2,16 @@
    ALZO PORTAL MAYORISTA
    ============================================= */
 
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: "Montserrat", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
 /* ── Login (copiado de reparto.css para evitar dependencia externa) ── */
 .rep-login-wrap {
   min-height: 100vh;
