@@ -2,6 +2,61 @@
    ALZO PORTAL MAYORISTA
    ============================================= */
 
+/* ── Login (copiado de reparto.css para evitar dependencia externa) ── */
+.rep-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2556ff 100%);
+  padding: 24px;
+}
+
+.rep-login-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.rep-login-card__logo {
+  height: 80px;
+  width: auto;
+  margin-bottom: 24px;
+}
+
+.rep-login-card__title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 28px;
+}
+
+.rep-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .rep-login-card { padding: 36px 22px; border-radius: 20px; }
+}
+
 /* ── Header ── */
 .may-header {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
