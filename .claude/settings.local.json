@@ -6,7 +6,10 @@
       "Bash(sort -k5 -rn)",
       "Bash(node -e \":*)",
       "Bash(xargs grep:*)",
-      "Bash(wc -l c:/workspace/alzologistica/src/components/247/*.tsx)"
+      "Bash(wc -l c:/workspace/alzologistica/src/components/247/*.tsx)",
+      "Bash(find c:workspacealzologistica -name layout* -o -name Layout*)",
+      "Bash(find /c/workspace/alzologistica/src -name Layout247* -o -name cartStore* -o -name *cart*store*)",
+      "Bash(npm install:*)"
     ]
   }
 }
