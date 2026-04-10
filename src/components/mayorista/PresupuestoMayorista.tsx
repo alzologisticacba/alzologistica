@@ -240,6 +240,8 @@ export default function PresupuestoMayorista() {
   const [lineas, setLineas]       = useState<LineaPresupuesto[]>([]);
   const [buscadorKey, setBuscadorKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
+  const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
+  const [pactada, setPactada] = useState(false);
   const nextId = useRef(1);
 
   const cant    = parseFloat(cantidad)  || 0;
@@ -253,20 +255,22 @@ export default function PresupuestoMayorista() {
   const subtotal      = precioConDesc * cant;
 
   // Totales acumulados del presupuesto
-  const totalPedido = lineas.reduce((s, l) => s + l.subtotal, 0);
-  const totalCosto  = lineas.reduce((s, l) => s + l.costoFinal * l.cantidad, 0);
+  const totalPedidoBase = lineas.reduce((s, l) => s + l.subtotal, 0);
+  const totalCosto      = lineas.reduce((s, l) => s + l.costoFinal * l.cantidad, 0);
+  const totalPedido     = pactada ? totalPedidoBase / 1.105 : totalPedidoBase;
 
-  // Rentabilidad proyectada = total acumulado + ítem actual
-  const projTotalPedido = totalPedido + precioConDesc * cant;
-  const projTotalCosto  = totalCosto  + costoFinal * cant;
+  // Rentabilidad proyectada = total acumulado + ítem actual (con pactada)
+  const projBaseTotal   = totalPedidoBase + precioConDesc * cant;
+  const projTotalPedido = pactada ? projBaseTotal / 1.105 : projBaseTotal;
+  const projTotalCosto  = totalCosto + costoFinal * cant;
   const rentabilidad = projTotalPedido > 0
     ? ((projTotalPedido - projTotalCosto) / projTotalPedido) * 100
     : 0;
 
   // Color de rentabilidad
   function rentColor(r: number) {
-    if (r >= 30) return "#22c55e";
-    if (r >= 15) return "#f59e0b";
+    if (r >= 18) return "#22c55e";
+    if (r >= 13) return "#f59e0b";
     return "#ef4444";
   }
 
@@ -311,6 +315,7 @@ export default function PresupuestoMayorista() {
   }
 
   const rentTotal = totalPedido > 0 ? ((totalPedido - totalCosto) / totalPedido) * 100 : 0;
+
 
   const canCargar = !!articulo && cant > 0 && prec > 0 && !descExcedeTope;
 
@@ -381,7 +386,7 @@ export default function PresupuestoMayorista() {
             />
           </div>
           <div className="may-field">
-            <label className="may-label">Margen</label>
+            <label className="may-label">Profit</label>
             <div className="may-margen-display">
               <span style={{ color: cant > 0 && prec > 0 ? rentColor(rentabilidad) : "#aab0c6" }}>
                 {cant > 0 && prec > 0 ? `${rentabilidad.toFixed(1)}%` : "—"}
@@ -406,11 +411,20 @@ export default function PresupuestoMayorista() {
           <div className="may-presup__header">
             <h2 className="may-card__title">Presupuesto</h2>
             <div className="may-totales">
+              <label className="may-pactada">
+                <input
+                  type="checkbox"
+                  checked={pactada}
+                  onChange={e => setPactada(e.target.checked)}
+                  className="may-pactada__check"
+                />
+                <span className="may-pactada__label">Pactada</span>
+              </label>
               <span className="may-totales__item">
                 Total: <strong>$ {fmt(totalPedido)}</strong>
               </span>
               <span className="may-totales__rent" style={{ color: rentColor(rentTotal) }}>
-                Margen: <strong>{rentTotal.toFixed(1)}%</strong>
+                Profit: <strong>{rentTotal.toFixed(1)}%</strong>
               </span>
             </div>
           </div>
@@ -420,7 +434,7 @@ export default function PresupuestoMayorista() {
               <div key={l.id} className="may-item">
                 <div className="may-item__top">
                   <span className="may-item__cod">#{l.codArt}</span>
-                  <button className="may-btn-remove" onClick={() => handleRemove(l.id)}>✕</button>
+                  <button className="may-btn-remove" onClick={() => setConfirmRemoveId(l.id)}>✕</button>
                 </div>
                 <div className="may-item__desc">{l.descripcion}</div>
                 <div className="may-item__bottom">
@@ -442,7 +456,7 @@ export default function PresupuestoMayorista() {
           <div className="may-enviar-wrap">
             {rentTotal < 13 && rentTotal > 0 && (
               <p className="may-enviar-warning">
-                Margen mínimo para enviar: 13% (actual: {rentTotal.toFixed(1)}%)
+                Profit mínimo para enviar: 13% (actual: {rentTotal.toFixed(1)}%)
               </p>
             )}
             <button
@@ -456,11 +470,41 @@ export default function PresupuestoMayorista() {
         </div>
       )}
 
+      {/* ── Confirmar eliminar ítem ── */}
+      {confirmRemoveId !== null && (
+        <div className="may-export-overlay" onClick={() => setConfirmRemoveId(null)}>
+          <div className="may-export-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="may-export-title">¿Borrar este ítem?</h3>
+            <p className="may-export-sub">
+              {lineas.find(l => l.id === confirmRemoveId)?.descripcion}
+            </p>
+            <div className="may-export-confirm-btns">
+              <button
+                className="may-export-confirm-btn may-export-confirm-btn--borrar"
+                onClick={() => { handleRemove(confirmRemoveId); setConfirmRemoveId(null); }}
+              >
+                Sí, borrar
+              </button>
+              <button
+                className="may-export-confirm-btn may-export-confirm-btn--seguir"
+                onClick={() => setConfirmRemoveId(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {exportOpen && (
         <ExportarPresupuesto
           lineas={lineas}
           totalPedido={totalPedido}
           onClose={() => setExportOpen(false)}
+          onClearAndClose={() => {
+            setLineas([]);
+            setExportOpen(false);
+          }}
         />
       )}
     </div>

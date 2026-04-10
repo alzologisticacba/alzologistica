@@ -1,0 +1,471 @@
+/* =============================================
+   ALZO REPARTO
+   ============================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --azul:     #2556ff;
+  --azul-dk:  #1a3ecf;
+  --rojo:     #ef4444;
+  --verde:    #22c55e;
+  --borde:    #e2e8f0;
+  --fondo:    #dbeafe;
+}
+
+html, body {
+  min-height: 100vh;
+  background: var(--fondo);
+  font-family: "Montserrat", system-ui, sans-serif;
+  color: #1a1a2e;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ── Pantalla de ingreso ── */
+.rep-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2556ff 100%);
+  padding: 24px;
+}
+
+.rep-login-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.rep-login-card__logo {
+  height: 80px;
+  width: auto;
+  margin-bottom: 24px;
+}
+
+.rep-login-card__title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 28px;
+}
+
+/* ── Preview de patente ── */
+.rep-plate {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+  transition: all 0.3s ease;
+  margin-bottom: 4px;
+}
+
+/* Mercosur 2015 */
+.rep-plate--mercosur {
+  border: 3px solid #1a1a1a;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+.rep-plate--mercosur .rep-plate__header {
+  background: #003087;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+.rep-plate__stars {
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #f0c030;
+}
+.rep-plate__flag {
+  height: 14px;
+  width: auto;
+}
+.rep-plate__escudo {
+  height: 18px;
+  width: auto;
+}
+.rep-plate--mercosur .rep-plate__text {
+  padding: 10px 16px 6px;
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #111;
+  font-family: "Montserrat", monospace;
+  line-height: 1;
+}
+.rep-plate--mercosur .rep-plate__footer {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #555;
+  padding: 3px 10px 6px;
+  text-transform: uppercase;
+}
+
+/* Vieja 1994 */
+.rep-plate--vieja {
+  border: 8px solid #ffffff;
+  outline: 2px solid #aaa;
+  background: #111;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+}
+.rep-plate--vieja .rep-plate__header {
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 5px 12px 4px;
+}
+.rep-plate--vieja .rep-plate__pais {
+  color: #00cfff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Neutral (sin tipo detectado) */
+.rep-plate--neutral {
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  padding: 14px;
+}
+.rep-plate__text--placeholder {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #cbd5e1;
+}
+
+/* Estado error */
+.rep-plate--error.rep-plate--mercosur,
+.rep-plate--error.rep-plate--vieja {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15), 0 4px 16px rgba(0,0,0,0.2);
+  animation: shake 0.35s ease;
+}
+
+/* ── Campos del formulario ── */
+.rep-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.rep-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Input dentro de la patente */
+.rep-plate__input {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 38px;
+  font-weight: 900;
+  font-family: "Montserrat", monospace;
+  letter-spacing: 0.15em;
+  text-align: center;
+  text-transform: uppercase;
+  color: #111;
+  padding: 10px 16px;
+  line-height: 1;
+  cursor: text;
+}
+.rep-plate--neutral .rep-plate__input {
+  font-size: 32px;
+  color: #334155;
+  padding: 18px 16px;
+  letter-spacing: 0.25em;
+}
+.rep-plate--neutral .rep-plate__input::placeholder {
+  color: #cbd5e1;
+  font-weight: 700;
+}
+.rep-plate--mercosur .rep-plate__input {
+  padding: 10px 16px 6px;
+}
+.rep-plate--vieja .rep-plate__input {
+  padding: 10px 16px 14px;
+  color: #fff;
+}
+
+/* Select repartidor */
+.rep-select-wrap {
+  position: relative;
+}
+
+.rep-select {
+  width: 100%;
+  padding: 14px 44px 14px 16px;
+  border: 2px solid var(--borde);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.rep-select:focus {
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(37, 86, 255, 0.12);
+  background: #fff;
+}
+.rep-select--error {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+.rep-select option[value=""] {
+  color: #94a3b8;
+}
+
+.rep-select-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #94a3b8;
+  width: 18px;
+  height: 18px;
+}
+
+/* Mensaje de error */
+.rep-error-msg {
+  color: var(--rojo);
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 16px;
+  text-align: left;
+}
+
+/* Botón ingresar */
+.rep-btn-ingresar {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #2556ff 0%, #00c6ff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: filter 0.15s, transform 0.15s;
+  margin-top: 6px;
+}
+.rep-btn-ingresar:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.rep-btn-ingresar:active:not(:disabled) {
+  transform: translateY(0);
+}
+.rep-btn-ingresar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Header (post-login) ── */
+.rep-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  padding: 0 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.rep-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+}
+.rep-header__logo img {
+  height: 34px;
+  width: auto;
+  mix-blend-mode: screen;
+}
+
+.rep-header__badge {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rep-header__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rep-header__info {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  line-height: 1.3;
+}
+
+.rep-header__info small {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.rep-header__logout {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.rep-header__logout:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Página principal (post-login) ── */
+.rep-page {
+  min-height: 100vh;
+  background: var(--fondo);
+}
+
+.rep-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.rep-welcome {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.rep-welcome__title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 8px;
+}
+
+.rep-welcome__sub {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* ── Placeholder próximas secciones ── */
+.rep-placeholder {
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px dashed #bfdbfe;
+  border-radius: 18px;
+  padding: 60px 24px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.rep-placeholder p {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ── Animaciones ── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-8px); }
+  40%       { transform: translateX(8px); }
+  60%       { transform: translateX(-6px); }
+  80%       { transform: translateX(6px); }
+}
+
+/* ── Loading spinner ── */
+.rep-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Móvil ── */
+@media (max-width: 480px) {
+  .rep-login-card {
+    padding: 36px 22px;
+    border-radius: 20px;
+  }
+  .rep-input-patente {
+    font-size: 22px;
+    padding: 14px;
+  }
+  .rep-header { padding: 0 14px; height: 52px; }
+  .rep-header__logout { font-size: 12px; padding: 5px 10px; }
+  .rep-main { padding: 24px 14px; }
+}

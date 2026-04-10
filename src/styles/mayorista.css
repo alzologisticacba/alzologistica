@@ -811,6 +811,32 @@ body {
   .may-table-header { flex-direction: column; align-items: flex-start; }
 }
 
+/* ── Pactada ── */
+.may-pactada {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.may-pactada__check {
+  width: 18px;
+  height: 18px;
+  accent-color: #3300ff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.may-pactada__label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: #3300ff;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
 /* ── Botón enviar pedido ── */
 .may-enviar-wrap {
   padding: 16px 20px 20px;
@@ -956,6 +982,37 @@ body {
 .may-export-btn__label {
   font-size: 13px;
   font-weight: 700;
+  color: #1a1a2e;
+}
+
+.may-export-confirm-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.may-export-confirm-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+
+.may-export-confirm-btn:hover { opacity: 0.85; }
+
+.may-export-confirm-btn--borrar {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.may-export-confirm-btn--seguir {
+  background: #f0f2f5;
   color: #1a1a2e;
 }
 

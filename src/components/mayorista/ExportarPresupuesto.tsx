@@ -19,16 +19,22 @@ interface Props {
   lineas: LineaPresupuesto[];
   totalPedido: number;
   onClose: () => void;
+  onClearAndClose: () => void;
 }
 
 function fmt(n: number) {
   return n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function ExportarPresupuesto({ lineas, totalPedido, onClose }: Props) {
+export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onClearAndClose }: Props) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [loadingImg, setLoadingImg] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
   const fecha = new Date().toLocaleDateString("es-AR");
+
+  function handleClose() {
+    setConfirmando(true);
+  }
 
   // ── Excel ──────────────────────────────────────────────
   function exportExcel() {
@@ -117,31 +123,50 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose }: Pr
   }
 
   return (
-    <div className="may-export-overlay" onClick={onClose}>
+    <div className="may-export-overlay" onClick={handleClose}>
       <div className="may-export-modal" onClick={e => e.stopPropagation()}>
-        <button className="may-export-close" onClick={onClose}>✕</button>
-        <h3 className="may-export-title">Exportar presupuesto</h3>
-        <p className="may-export-sub">
-          {lineas.length} ítem{lineas.length !== 1 ? "s" : ""} · Total $ {fmt(totalPedido)}
-        </p>
 
-        <div className="may-export-options">
-          <button className="may-export-btn" onClick={exportImage} disabled={loadingImg}>
-            <span className="may-export-btn__icon">🖼️</span>
-            <span className="may-export-btn__label">{loadingImg ? "Generando…" : "Imagen"}</span>
-            <span className="may-export-btn__sub">PNG</span>
-          </button>
-          <button className="may-export-btn" onClick={exportPDF}>
-            <span className="may-export-btn__icon">📄</span>
-            <span className="may-export-btn__label">PDF</span>
-            <span className="may-export-btn__sub">A4</span>
-          </button>
-          <button className="may-export-btn" onClick={exportExcel}>
-            <span className="may-export-btn__icon">📊</span>
-            <span className="may-export-btn__label">Excel</span>
-            <span className="may-export-btn__sub">XLSX</span>
-          </button>
-        </div>
+        {/* ── Pantalla de confirmación ── */}
+        {confirmando ? (
+          <>
+            <h3 className="may-export-title">¿Qué querés hacer?</h3>
+            <p className="may-export-sub">El presupuesto tiene {lineas.length} ítem{lineas.length !== 1 ? "s" : ""}</p>
+            <div className="may-export-confirm-btns">
+              <button className="may-export-confirm-btn may-export-confirm-btn--borrar" onClick={onClearAndClose}>
+                Borrar presupuesto
+              </button>
+              <button className="may-export-confirm-btn may-export-confirm-btn--seguir" onClick={onClose}>
+                Seguir editando
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <button className="may-export-close" onClick={handleClose}>✕</button>
+            <h3 className="may-export-title">Exportar presupuesto</h3>
+            <p className="may-export-sub">
+              {lineas.length} ítem{lineas.length !== 1 ? "s" : ""} · Total $ {fmt(totalPedido)}
+            </p>
+
+            <div className="may-export-options">
+              <button className="may-export-btn" onClick={exportImage} disabled={loadingImg}>
+                <span className="may-export-btn__icon">🖼️</span>
+                <span className="may-export-btn__label">{loadingImg ? "Generando…" : "Imagen"}</span>
+                <span className="may-export-btn__sub">PNG</span>
+              </button>
+              <button className="may-export-btn" onClick={exportPDF}>
+                <span className="may-export-btn__icon">📄</span>
+                <span className="may-export-btn__label">PDF</span>
+                <span className="may-export-btn__sub">A4</span>
+              </button>
+              <button className="may-export-btn" onClick={exportExcel}>
+                <span className="may-export-btn__icon">📊</span>
+                <span className="may-export-btn__label">Excel</span>
+                <span className="may-export-btn__sub">XLSX</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Div oculto para captura de imagen */}
