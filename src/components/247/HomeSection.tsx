@@ -224,16 +224,18 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
   };
 
   return (
-    <section className={`home-section${banner ? " home-section--banner" : ""}`}>
+    <section className="home-section home-section--banner">
       {banner ? (
         <a href={verTodosHref} className="home-section__banner-link">
           <img src={banner} alt={titulo} className="home-section__banner" />
         </a>
       ) : (
-        <div className="home-section__header">
-          <h2 className="home-section__titulo">{titulo}</h2>
-          {!hideVerTodos && <a href={verTodosHref} className="home-section__ver-todos">ver todos →</a>}
-        </div>
+        <a href={verTodosHref} className="home-section__banner-link home-section__banner-link--css">
+          <div className="home-section__css-banner">
+            <h2 className="home-section__css-banner__titulo">{titulo}</h2>
+            <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" className="home-section__css-banner__logo" />
+          </div>
+        </a>
       )}
       {isGrid2x2 ? (
         <div className="home-section__grid2x2">
