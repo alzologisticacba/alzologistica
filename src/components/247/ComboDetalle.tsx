@@ -39,13 +39,15 @@ function ItemRow({ item }: { item: DetalleLine }) {
   return (
     <div className="combo-item">
       <div className="combo-item__left">
-        <span className="combo-item__qty">{item.cantidad}×</span>
+        <div className="combo-item__bullet" />
         <div className="combo-item__info">
           {item.nombre && <span className="combo-item__name">{item.nombre}</span>}
           <span className="combo-item__code">#{item.productos}</span>
         </div>
       </div>
-      {item.descuentos > 0 && <span className="combo-item__desc">-{item.descuentos}%</span>}
+      <div className="combo-item__right">
+        {item.descuentos > 0 && <span className="combo-item__desc">-{item.descuentos}%</span>}
+      </div>
     </div>
   );
 }
@@ -202,19 +204,25 @@ export default function ComboDetalle() {
                 {combo.detalles.length > 0 && (
                   <div className="combo-detalles">
                     <h2 className="combo-detalles__titulo">Contenido del combo</h2>
-                    {multiGrupo
-                      ? grupos.map(g => {
-                          const items      = combo.detalles.filter(d => d.grupo === g);
-                          const esEleccion = gruposEleccion.includes(g);
-                          return (
-                            <div key={g} className={`combo-grupo${esEleccion ? " combo-grupo--eleccion" : ""}`}>
-                              {esEleccion && <p className="combo-grupo__elegir">Elegí {items[0]?.cantidad ?? 1}</p>}
-                              {items.map(item => <ItemRow key={item.id} item={item} />)}
-                            </div>
-                          );
-                        })
-                      : combo.detalles.map(item => <ItemRow key={item.id} item={item} />)
-                    }
+                    <div className="combo-detalles__grupos">
+                      {multiGrupo
+                        ? grupos.map((g, idx) => {
+                            const items      = combo.detalles.filter(d => d.grupo === g);
+                            const esEleccion = gruposEleccion.includes(g);
+                            return (
+                              <div key={g} className={`combo-grupo${esEleccion ? " combo-grupo--eleccion" : ""}`}>
+                                {esEleccion && (
+                                  <div className="combo-grupo__header">
+                                    <span className="combo-grupo__badge combo-grupo__badge--eleccion">Elegí {items[0]?.cantidad ?? 1}</span>
+                                  </div>
+                                )}
+                                {items.map(item => <ItemRow key={item.id} item={item} />)}
+                              </div>
+                            );
+                          })
+                        : combo.detalles.map(item => <ItemRow key={item.id} item={item} />)
+                      }
+                    </div>
                   </div>
                 )}
 

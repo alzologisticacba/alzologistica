@@ -37,13 +37,6 @@ function fmt(n: number) {
   return n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function calcRentabilidad(precio: number, costoFinal: number, cantidad: number): number {
-  const totalPedido = precio * cantidad;
-  const costoFinalPedido = costoFinal * cantidad;
-  if (totalPedido === 0) return 0;
-  return ((totalPedido - costoFinalPedido) / totalPedido) * 100;
-}
-
 // ─── Buscador de producto ─────────────────────────────────
 function BuscadorProducto({
   onSelect,
@@ -82,13 +75,10 @@ function BuscadorProducto({
 
   useEffect(() => {
     if (query.length < 2) { setResultados([]); setOpen(false); return; }
-    if (!stockLoaded) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setLoading(true);
     debounceRef.current = setTimeout(async () => {
       const q = query.trim();
-      const isNum = /^\d+$/.test(q);
-
       function dedup(items: any[]): ArticuloMayorista[] {
         const seen = new Set<number | string>();
         return items.filter(item => {
@@ -99,50 +89,54 @@ function BuscadorProducto({
         });
       }
 
-      const codes = stockCodes.current;
+      const isNum = /^\d+$/.test(q);
 
-      // Si stocks no cargó datos (RLS u otro error), mostrar todos sin filtro
-      const filterByStock = codes.length > 0;
-
-      // Búsqueda por texto — sin filtro de stock server-side (lo hacemos client-side)
-      const textPromise = supabaseClient
-        .from("articulos_mayorista")
-        .select("*")
-        .or(`Descripcion.ilike.%${q}%,Proveedor.ilike.%${q}%`)
-        .limit(20);
-
-      // Búsqueda por código numérico via stocks (columna limpia)
-      const codePromise: Promise<any> = isNum
-        ? supabaseClient.from("stocks").select("codigo").eq("codigo", parseInt(q)).gt("stock", 0).limit(1)
-        : Promise.resolve({ data: [], error: null });
-
-      const [textRes, codeRes] = await Promise.all([textPromise, codePromise]);
-
-      let textData = textRes.data ?? [];
-
-      // Si PascalCase falla, reintentamos con minúsculas
-      if (textRes.error || textData.length === 0) {
-        const { data: fallback } = await supabaseClient
+      // Paso 1: texto + lookup de códigos en articulos (todo en paralelo)
+      const [textRes, articulosCodeRes] = await Promise.all([
+        supabaseClient
           .from("articulos_mayorista")
           .select("*")
-          .or(`descripcion.ilike.%${q}%,proveedor.ilike.%${q}%`)
-          .limit(20);
-        textData = fallback ?? [];
+          .or(`Descripcion.ilike.%${q}%,Proveedor.ilike.%${q}%`)
+          .limit(20),
+        isNum
+          ? supabaseClient
+              .from("articulos")
+              .select("codigo")
+              .filter("codigo_str", "ilike", `%${q}%`)
+              .limit(10)
+          : Promise.resolve({ data: [] as any[], error: null }),
+      ]);
+
+      // Paso 2: con los códigos encontrados, buscar en articulos_mayorista
+      const matchingCodes: number[] = (articulosCodeRes.data ?? []).map((a: any) => a.codigo);
+      let codeData: any[] = [];
+      if (matchingCodes.length > 0) {
+        const orFilter = matchingCodes.map(c => `"Cod. Art".eq.${c}`).join(",");
+        const { data } = await supabaseClient
+          .from("articulos_mayorista")
+          .select("*")
+          .or(orFilter)
+          .limit(10);
+        codeData = data ?? [];
       }
 
-      // Filtro de stock client-side — solo si stocks cargó correctamente
-      if (filterByStock) {
+      // Código primero, luego texto
+      let merged = [...codeData, ...(textRes.data ?? [])];
+
+      // Filtro de stock client-side — solo si ya cargaron
+      const codes = stockCodes.current;
+      if (codes.length > 0) {
         const codesSet = new Set(codes);
-        textData = textData.filter((item: any) => {
+        merged = merged.filter((item: any) => {
           const cod = item["Cod. Art"] ?? item["cod. art"];
           return codesSet.has(cod);
         });
       }
 
-      setResultados(dedup(textData).slice(0, 10));
+      setResultados(dedup(merged).slice(0, 10));
       setOpen(true);
       setLoading(false);
-    }, 200);
+    }, 150);
   }, [query]);
 
   useEffect(() => {
@@ -237,6 +231,8 @@ export default function PresupuestoMayorista() {
   const [descuento, setDescuento] = useState<string>("");
   const [precio, setPrecio]       = useState<string>("");
   const [precioBase, setPrecioBase] = useState<number>(0);
+  const [multiplo, setMultiplo]   = useState<number>(0);
+  const [uxbValue, setUxbValue]   = useState<number | null>(null);
   const [lineas, setLineas]       = useState<LineaPresupuesto[]>([]);
   const [buscadorKey, setBuscadorKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
@@ -283,7 +279,8 @@ export default function PresupuestoMayorista() {
     }
   }
 
-  const descExcedeTope = articulo && desc > topeDto && desc > 0;
+  const descExcedeTope  = articulo && desc > topeDto && desc > 0;
+  const cantInvalida    = multiplo > 1 && cant > 0 && cant % multiplo !== 0;
 
   function handleCargar() {
     if (!articulo || cant <= 0 || prec <= 0) return;
@@ -317,7 +314,7 @@ export default function PresupuestoMayorista() {
   const rentTotal = totalPedido > 0 ? ((totalPedido - totalCosto) / totalPedido) * 100 : 0;
 
 
-  const canCargar = !!articulo && cant > 0 && prec > 0 && !descExcedeTope;
+  const canCargar = !!articulo && cant > 0 && prec > 0 && !descExcedeTope && !cantInvalida;
 
   return (
     <div className="may-page">
@@ -331,20 +328,36 @@ export default function PresupuestoMayorista() {
           <label className="may-label">Producto</label>
           <BuscadorProducto
             key={buscadorKey}
-            onSelect={a => {
+            onSelect={async a => {
               setArticulo(a);
               const base = a["Precio Vta Final"] ?? 0;
               setPrecioBase(base);
               setPrecio(base > 0 ? base.toFixed(2) : "");
               setDescuento("");
+              // Fetch multiplo y uxb desde tabla articulos
+              const { data } = await supabaseClient
+                .from("articulos")
+                .select("multiplo, uxb")
+                .eq("codigo", a["Cod. Art"])
+                .single();
+              setMultiplo(data?.multiplo ?? 0);
+              setUxbValue(data?.uxb ?? null);
             }}
             onClear={() => {
               setArticulo(null);
               setPrecioBase(0);
               setDescuento("");
               setPrecio("");
+              setMultiplo(0);
+              setUxbValue(null);
             }}
           />
+          {uxbValue !== null && (
+            <div className="may-uxb-inline">
+              <span className="may-uxb-inline__label">UxB:</span>
+              <span className="may-uxb-inline__val">{uxbValue}</span>
+            </div>
+          )}
         </div>
 
         {/* Cantidad / Descuento / Precio / Margen — grilla 2×2 */}
@@ -353,12 +366,19 @@ export default function PresupuestoMayorista() {
             <label className="may-label">Cantidad</label>
             <input
               type="number"
-              className="may-input"
+              className={`may-input${cantInvalida ? " may-input--error" : ""}`}
               placeholder="0"
-              min="1"
+              min={multiplo > 1 ? multiplo : 1}
+              step={multiplo > 1 ? multiplo : 1}
               value={cantidad}
               onChange={e => setCantidad(e.target.value)}
             />
+            {multiplo > 1 && !cantInvalida && (
+              <span className="may-input-hint">Múltiplo: {multiplo}</span>
+            )}
+            {cantInvalida && (
+              <span className="may-input-error-msg">Múltiplo de {multiplo}</span>
+            )}
           </div>
           <div className="may-field">
             <label className="may-label">Descuento %</label>
@@ -378,11 +398,10 @@ export default function PresupuestoMayorista() {
             <label className="may-label">Precio Vta</label>
             <input
               type="number"
-              className="may-input"
+              className="may-input may-input--readonly"
               placeholder="0.00"
-              min="0"
               value={precio}
-              onChange={e => setPrecio(e.target.value)}
+              readOnly
             />
           </div>
           <div className="may-field">
