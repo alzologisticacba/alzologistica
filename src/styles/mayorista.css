@@ -1277,3 +1277,288 @@ body {
   color: #94a3b8;
   font-family: "Montserrat", sans-serif;
 }
+
+/* ══════════════════════════════════════════════
+   MAPA DE VENTAS
+══════════════════════════════════════════════ */
+
+.may-mapa-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+}
+
+/* ── Toolbar ── */
+.may-mapa-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.may-mapa-btn-gps {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #3300ff;
+  background: #fff;
+  color: #3300ff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.may-mapa-btn-gps:hover:not(:disabled) {
+  background: #3300ff;
+  color: #fff;
+}
+.may-mapa-btn-gps:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.may-mapa-hint {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* ── Mapa ── */
+.may-mapa-container {
+  width: 100%;
+  height: 420px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  z-index: 0;
+}
+
+@media (max-width: 600px) {
+  .may-mapa-container { height: 300px; }
+}
+
+/* ── Leyenda ── */
+.may-mapa-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.may-mapa-leyenda__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.may-mapa-leyenda__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+
+.may-mapa-leyenda__label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* ── Panel confirmar punto ── */
+.may-mapa-confirm {
+  margin-top: 12px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.may-mapa-confirm__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.may-mapa-confirm__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.may-mapa-confirm__title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.may-mapa-confirm__coords {
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.may-mapa-confirm__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a2e;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.may-mapa-confirm__input:focus {
+  border-color: #3300ff;
+}
+.may-mapa-confirm__input::placeholder {
+  color: #b0bec5;
+}
+
+.may-mapa-confirm__error {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 600;
+  margin: 0;
+}
+
+.may-mapa-confirm__btns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.may-mapa-btn-cancel {
+  padding: 9px 16px;
+  border-radius: 9px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.may-mapa-btn-cancel:hover:not(:disabled) { background: #e2e8f0; }
+.may-mapa-btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.may-mapa-btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: none;
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.may-mapa-btn-save:hover:not(:disabled) { opacity: 0.88; }
+.may-mapa-btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Spinner ── */
+.may-mapa-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: may-spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+@keyframes may-spin { to { transform: rotate(360deg); } }
+
+/* ── Popup Leaflet personalizado ── */
+.may-mapa-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: "Montserrat", sans-serif;
+  min-width: 130px;
+}
+.may-mapa-popup__user {
+  font-size: 12px;
+  font-weight: 700;
+}
+.may-mapa-popup__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+.may-mapa-popup__date {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.may-mapa-popup__actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.may-mapa-popup__share {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1.5px solid #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.may-mapa-popup__share:hover { background: #dbeafe; }
+
+.may-mapa-popup__del {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1.5px solid #fca5a5;
+  background: #fff0f0;
+  color: #ef4444;
+  font-family: "Montserrat", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.may-mapa-popup__del:hover { background: #fee2e2; }

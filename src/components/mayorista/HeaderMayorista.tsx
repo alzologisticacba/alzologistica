@@ -60,6 +60,13 @@ export default function HeaderMayorista({ usuario, onLogout, seccion, onSeccion 
               <span className="may-menu__item-icon">🖼️</span>
               Ver Imágenes de prod
             </button>
+            <button
+              className={`may-menu__item${seccion === "mapa" ? " may-menu__item--active" : ""}`}
+              onClick={() => ir("mapa")}
+            >
+              <span className="may-menu__item-icon">📍</span>
+              Mapa de visitas
+            </button>
 
             <div className="may-menu__divider" />
 

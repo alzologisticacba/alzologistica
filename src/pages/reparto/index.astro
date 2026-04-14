@@ -1,13 +1,13 @@
 ---
-import AppMayorista from "../../components/mayorista/AppMayorista";
-import "../../styles/mayorista.css";
+import RepartoApp from "../../components/reparto/RepartoApp";
+import "../../styles/reparto.css";
 ---
 
 <html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Alzo 24/7 — Portal Mayorista</title>
+    <title>Alzo — Reparto</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/png" href="/img/alzo_logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,14 +16,8 @@ import "../../styles/mayorista.css";
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
   </head>
   <body>
-    <AppMayorista client:load />
+    <RepartoApp client:load />
   </body>
 </html>
