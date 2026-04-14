@@ -17,10 +17,12 @@
 ══════════════════════════════════════════════ */
 
 .cat-hero {
-  min-height: 100dvh;
+  height: 100dvh;
+  height: 100svh; /* fallback para mobile: small viewport height (excluye chrome del browser) */
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .cat-hero__inner {

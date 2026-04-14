@@ -132,14 +132,17 @@ export default function CatalogoPage() {
     return () => { cancelled = true; };
   }, [selected?.marca]); // usar .marca como dep evita re-fires por nueva referencia de objeto
 
-  // Scroll al ítem activo
+  // Centrar marca activa — solo scroll horizontal dentro del nav, nunca vertical
   useEffect(() => {
     if (!selected || !scrollRef.current) return;
-    const el = scrollRef.current.querySelector(
+    const container = scrollRef.current;
+    const el = container.querySelector(
       `[data-marca="${selected.marca}"]`
     ) as HTMLElement | null;
-    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [selected]);
+    if (!el) return;
+    const scrollLeft = el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2;
+    container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+  }, [selected?.marca]);
 
   if (loadingMarcas) return (
     <div className="cat-loading"><div className="cat-spinner" /><span>Cargando...</span></div>
