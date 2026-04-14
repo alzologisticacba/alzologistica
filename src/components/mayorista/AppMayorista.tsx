@@ -19,7 +19,7 @@ function LoginMayorista() {
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/247/mayorista`,
+        redirectTo: `${window.location.origin}/247/mayorista${window.location.search}`,
       },
     });
     if (error) {
@@ -86,7 +86,14 @@ function LoginMayorista() {
 export default function AppMayorista() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [seccion, setSeccion] = useState("presupuesto");
+  // Si viene ?punto= en la URL, abrir directamente el mapa
+  const [seccion, setSeccion] = useState(() => {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      if (p.has("punto")) return "mapa";
+    }
+    return "presupuesto";
+  });
 
   useEffect(() => {
     supabaseClient.auth.getSession().then(({ data }) => {

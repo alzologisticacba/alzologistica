@@ -119,6 +119,9 @@ export default function MapaVentas({ usuario }: Props) {
 
       // Renderizar visitas que ya cargaron antes que el mapa estuviera listo
       addMarkersToMap(Lf, map, visitasRef.current);
+
+      // Centrar en el punto compartido si viene en la URL
+      leerPuntoDeURL(Lf, map);
     });
 
     return () => {
@@ -186,7 +189,8 @@ export default function MapaVentas({ usuario }: Props) {
       const color = emailToColor(v.usuario);
       const esMio = v.usuario === usuario;
       const fecha = new Date(v.created_at).toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" });
-      const mapsUrl = `https://www.google.com/maps?q=${v.lat},${v.lng}`;
+      const mapsUrl   = `https://www.google.com/maps?q=${v.lat},${v.lng}`;
+      const portalUrl = `${window.location.origin}/247/mayorista?punto=${v.lat},${v.lng}`;
 
       const popupHtml = `
         <div class="may-mapa-popup">
@@ -195,6 +199,7 @@ export default function MapaVentas({ usuario }: Props) {
           <span class="may-mapa-popup__date">${fecha}</span>
           <div class="may-mapa-popup__actions">
             <button id="share-${v.id}" class="may-mapa-popup__share">&#x1F4E4; Compartir</button>
+            <a href="${mapsUrl}" target="_blank" rel="noopener" class="may-mapa-popup__maps">&#x1F5FA; Maps</a>
             ${esMio ? `<button id="del-${v.id}" class="may-mapa-popup__del">Eliminar</button>` : ""}
           </div>
         </div>`;
@@ -206,19 +211,20 @@ export default function MapaVentas({ usuario }: Props) {
         weight: 2,
         opacity: 1,
         fillOpacity: 0.9,
-      }).bindPopup(popupHtml);
+      }).bindPopup(popupHtml, { minWidth: 180 });
 
       m.on("popupopen", () => {
         setTimeout(() => {
-          // Compartir
+          // Compartir → link al portal
           document.getElementById(`share-${v.id}`)?.addEventListener("click", () => {
-            const texto = v.etiqueta
-              ? `${v.etiqueta} — ${mapsUrl}`
-              : `Visita de ${v.usuario.split("@")[0]} — ${mapsUrl}`;
+            const titulo = v.etiqueta ?? `Visita de ${v.usuario.split("@")[0]}`;
+            const texto  = v.etiqueta
+              ? `${v.etiqueta} — Ver en el portal: ${portalUrl}`
+              : `Visita de ${v.usuario.split("@")[0]} — Ver en el portal: ${portalUrl}`;
             if (navigator.share) {
-              navigator.share({ title: v.etiqueta ?? "Visita", text: texto, url: mapsUrl });
+              navigator.share({ title: titulo, text: texto, url: portalUrl });
             } else {
-              navigator.clipboard.writeText(mapsUrl).then(() => {
+              navigator.clipboard.writeText(portalUrl).then(() => {
                 const btn = document.getElementById(`share-${v.id}`);
                 if (btn) { btn.textContent = "✓ Copiado!"; setTimeout(() => { btn.textContent = "📤 Compartir"; }, 1800); }
               });
@@ -234,6 +240,37 @@ export default function MapaVentas({ usuario }: Props) {
       m.addTo(map);
       markersMap.current.set(v.id, m);
     });
+  }
+
+  // ─── Leer ?punto= de la URL y centrar el mapa ──────────────
+  function leerPuntoDeURL(Lf: any, map: any) {
+    const params = new URLSearchParams(window.location.search);
+    const punto  = params.get("punto");
+    if (!punto) return;
+    const [latStr, lngStr] = punto.split(",");
+    const lat = parseFloat(latStr);
+    const lng = parseFloat(lngStr);
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    map.setView([lat, lng], 17);
+
+    // Anillo resaltador temporal
+    const ring = Lf.circleMarker([lat, lng], {
+      radius: 22,
+      fillColor: "transparent",
+      color: "#118DFF",
+      weight: 3,
+      opacity: 1,
+      fillOpacity: 0,
+      className: "may-mapa-highlight-ring",
+    }).addTo(map);
+
+    setTimeout(() => { map.removeLayer(ring); }, 4000);
+
+    // Limpiar el param de la URL sin recargar
+    const url = new URL(window.location.href);
+    url.searchParams.delete("punto");
+    window.history.replaceState({}, "", url.toString());
   }
 
   // ─── GPS ───────────────────────────────────────────────────
