@@ -69,6 +69,19 @@ export default function CatalogoPage() {
   const [loadingProds,  setLoadingProds]  = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Scroll horizontal con rueda del mouse en desktop
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY * 3;
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
   // Marcas únicas (para el nav) — solo carga una vez
   useEffect(() => {
     let cancelled = false;
