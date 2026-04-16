@@ -134,10 +134,10 @@ export default function ListaExcel() {
       arts.forEach((art, i) => {
         const even  = i % 2 === 0;
         const uxb   = uxbMap.get(art["Cod. Art"]);
-        const base  = art["Precio Vta Final"] ?? 0;
-        const reco  = art["Reco."] ?? 0;
-        // descuento efectivo = (recoInput/10) × Reco.%
-        const dtoPct = reconocimientos && reco > 0 ? (recoInput / 10) * reco : 0;
+        const base   = art["Precio Vta Final"] ?? 0;
+        const recoPct = art["Reco."] ?? 0;
+        // descuento final = Reco. + slider (0-10%)
+        const dtoPct = reconocimientos ? recoPct + recoInput : 0;
         const prec   = base * (1 - dtoPct / 100);
 
         ws[XlsxStyle.utils.encode_cell({ r: R, c: 0 })] = cell(art["Cod. Art"] ?? "", sData(even, "center", true, COBALT));
@@ -225,9 +225,9 @@ export default function ListaExcel() {
           {reconocimientos && (
             <div className="may-reco-slider-wrap">
               <div className="may-reco-slider-labels">
-                <span>0</span>
-                <span className="may-reco-slider-val">{recoInput} <span className="may-reco-slider-pct">({recoInput * 10}% del Reco.)</span></span>
-                <span>10</span>
+                <span>0%</span>
+                <span className="may-reco-slider-val">+{recoInput}% <span className="may-reco-slider-pct">sobre el Reconocimiento</span></span>
+                <span>10%</span>
               </div>
               <input
                 type="range"

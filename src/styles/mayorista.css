@@ -1807,3 +1807,10 @@ body {
   box-shadow: 0 1px 6px rgba(30,64,175,0.4);
   cursor: pointer;
 }
+
+/* ─── Reconocimiento en presupuesto ──────────────────────── */
+.may-reco-presup {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+}

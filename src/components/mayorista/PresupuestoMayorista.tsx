@@ -237,30 +237,32 @@ export default function PresupuestoMayorista() {
   const [buscadorKey, setBuscadorKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
-  const [pactada, setPactada] = useState(false);
+  const [pactada, setPactada]           = useState(false);
   const nextId = useRef(1);
 
   const cant    = parseFloat(cantidad)  || 0;
   const desc    = parseFloat(descuento) || 0;
   const prec    = parseFloat(precio)    || 0;
-  const costoFinal = articulo?.["Costo Final"] ?? 0;
-  const topeDto    = articulo?.["Tope Dto"] ?? 100;
+  const costoFinal   = articulo?.["Costo Final"] ?? 0;
+  const topeDto      = articulo?.["Tope Dto"] ?? 100;
+  const descEfectivo = desc;
 
-  // Precio con descuento aplicado
-  const precioConDesc = prec * (1 - desc / 100);
-  const subtotal      = precioConDesc * cant;
+  // precio ya tiene el descuento aplicado (readonly calculado desde precioBase)
+  const subtotal = prec * cant;
 
   // Totales acumulados del presupuesto
   const totalPedidoBase = lineas.reduce((s, l) => s + l.subtotal, 0);
   const totalCosto      = lineas.reduce((s, l) => s + l.costoFinal * l.cantidad, 0);
-  const totalPedido     = pactada ? totalPedidoBase / 1.105 : totalPedidoBase;
 
-  // Rentabilidad proyectada = total acumulado + ítem actual (con pactada)
-  const projBaseTotal   = totalPedidoBase + precioConDesc * cant;
-  const projTotalPedido = pactada ? projBaseTotal / 1.105 : projBaseTotal;
-  const projTotalCosto  = totalCosto + costoFinal * cant;
-  const rentabilidad = projTotalPedido > 0
-    ? ((projTotalPedido - projTotalCosto) / projTotalPedido) * 100
+  // Total mostrado al cliente: pactada divide por 1.105 (precio neto sin IVA)
+  const totalPedido = pactada ? totalPedidoBase / 1.105 : totalPedidoBase;
+
+  // Profit proyectado: con pactada aplica fórmula ((precio/1.105) - costo) / (precio/1.105)
+  const projBaseTotal       = totalPedidoBase + prec * cant;
+  const projParaProfit      = pactada ? projBaseTotal / 1.105 : projBaseTotal;
+  const projTotalCosto      = totalCosto + costoFinal * cant;
+  const rentabilidad        = projParaProfit > 0
+    ? ((projParaProfit - projTotalCosto) / projParaProfit) * 100
     : 0;
 
   // Color de rentabilidad
@@ -272,14 +274,12 @@ export default function PresupuestoMayorista() {
 
   function handleDescuento(val: string) {
     setDescuento(val);
+    if (precioBase <= 0) return;
     const d = parseFloat(val) || 0;
-    if (precioBase > 0) {
-      const nuevoPrecio = precioBase * (1 - d / 100);
-      setPrecio(nuevoPrecio.toFixed(2));
-    }
+    setPrecio((precioBase * (1 - d / 100)).toFixed(2));
   }
 
-  const descExcedeTope  = articulo && desc > topeDto && desc > 0;
+  const descExcedeTope = articulo && desc > topeDto && desc > 0;
   const cantInvalida    = multiplo > 1 && cant > 0 && cant % multiplo !== 0;
 
   function handleCargar() {
@@ -292,13 +292,12 @@ export default function PresupuestoMayorista() {
       costoFinal,
       cantidad: cant,
       precio: prec,
-      descuento: desc,
+      descuento: descEfectivo,
       subtotal,
       rentabilidad,
     };
 
     setLineas(prev => [...prev, linea]);
-    // Resetear form
     setArticulo(null);
     setPrecioBase(0);
     setCantidad("");
@@ -311,7 +310,8 @@ export default function PresupuestoMayorista() {
     setLineas(prev => prev.filter(l => l.id !== id));
   }
 
-  const rentTotal = totalPedido > 0 ? ((totalPedido - totalCosto) / totalPedido) * 100 : 0;
+  const totalParaProfit = pactada ? totalPedidoBase / 1.105 : totalPedidoBase;
+  const rentTotal = totalParaProfit > 0 ? ((totalParaProfit - totalCosto) / totalParaProfit) * 100 : 0;
 
 
   const canCargar = !!articulo && cant > 0 && prec > 0 && !descExcedeTope && !cantInvalida;
@@ -459,11 +459,11 @@ export default function PresupuestoMayorista() {
                 <div className="may-item__bottom">
                   <span className="may-item__qty">
                     {l.cantidad} x $ {fmt(l.precio)}
+                    {l.descuento > 0 && (
+                      <span className="may-item__desc-pct" style={{ marginLeft: 6 }}>-{l.descuento}%</span>
+                    )}
                   </span>
                   <div className="may-item__right">
-                    {l.descuento > 0 && (
-                      <span className="may-item__desc-pct">-{l.descuento}%</span>
-                    )}
                     <span className="may-item__total">$ {fmt(l.subtotal)}</span>
                   </div>
                 </div>
