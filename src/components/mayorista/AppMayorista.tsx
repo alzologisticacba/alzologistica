@@ -7,6 +7,7 @@ import PresupuestoMayorista from "./PresupuestoMayorista";
 import ConsultaUxB from "./ConsultaUxB";
 import ImagenesProducto from "./ImagenesProducto";
 import MapaVentas from "./MapaVentas";
+import ListaExcel from "./ListaExcel";
 
 // ─── Login Screen ─────────────────────────────────────────
 function LoginMayorista() {
@@ -139,6 +140,7 @@ export default function AppMayorista() {
         {seccion === "uxb"         && <ConsultaUxB />}
         {seccion === "imagenes"    && <ImagenesProducto />}
         {seccion === "mapa"        && <MapaVentas usuario={session.user.email ?? ""} />}
+        {seccion === "lista"       && <ListaExcel />}
       </main>
     </div>
   );
