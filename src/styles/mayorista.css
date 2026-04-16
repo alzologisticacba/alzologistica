@@ -1706,3 +1706,104 @@ body {
   cursor: pointer;
   flex-shrink: 0;
 }
+
+/* ─── Reconocimientos input ───────────────────────────────── */
+.may-reco-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.may-reco-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 26px;
+}
+
+.may-reco-input {
+  width: 64px;
+  padding: 8px 10px;
+  border: 1.5px solid #1e40af;
+  border-radius: 8px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e40af;
+  background: #eff6ff;
+  text-align: center;
+  outline: none;
+}
+.may-reco-input:focus { border-color: #0f172a; background: #dbeafe; }
+
+.may-reco-input-hint {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ─── Reconocimientos slider ─────────────────────────────── */
+.may-reco-slider-wrap {
+  padding-left: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.may-reco-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.may-reco-slider-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e40af;
+}
+
+.may-reco-slider-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.may-reco-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: linear-gradient(
+    to right,
+    #1e40af calc(var(--val, 50%)),
+    #e2e8f0 calc(var(--val, 50%))
+  );
+  outline: none;
+  cursor: pointer;
+}
+.may-reco-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1e40af;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgba(30,64,175,0.4);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.may-reco-slider::-webkit-slider-thumb:hover { background: #0f172a; transform: scale(1.1); }
+.may-reco-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1e40af;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgba(30,64,175,0.4);
+  cursor: pointer;
+}

@@ -48,6 +48,7 @@ export default function ListaExcel() {
   const [proveedores, setProveedores]         = useState<string[]>([]);
   const [seleccion, setSeleccion]             = useState<Set<string>>(new Set()); // vacío = todos
   const [reconocimientos, setReconocimientos] = useState(false);
+  const [recoInput, setRecoInput]             = useState(10); // 0-10, default 10 = 100% del Reco.
   const [generando, setGenerando]             = useState(false);
   const [exportado, setExportado]             = useState<number | null>(null);
 
@@ -135,7 +136,9 @@ export default function ListaExcel() {
         const uxb   = uxbMap.get(art["Cod. Art"]);
         const base  = art["Precio Vta Final"] ?? 0;
         const reco  = art["Reco."] ?? 0;
-        const prec  = reconocimientos && reco > 0 ? base * (1 - reco / 100) : base;
+        // descuento efectivo = (recoInput/10) × Reco.%
+        const dtoPct = reconocimientos && reco > 0 ? (recoInput / 10) * reco : 0;
+        const prec   = base * (1 - dtoPct / 100);
 
         ws[XlsxStyle.utils.encode_cell({ r: R, c: 0 })] = cell(art["Cod. Art"] ?? "", sData(even, "center", true, COBALT));
         ws[XlsxStyle.utils.encode_cell({ r: R, c: 1 })] = cell(art.Descripcion ?? "", sData(even, "left", false));
@@ -209,15 +212,36 @@ export default function ListaExcel() {
         </div>
 
         {/* Reconocimientos */}
-        <label className="may-pactada" style={{ marginBottom: 16 }}>
-          <input
-            type="checkbox"
-            checked={reconocimientos}
-            onChange={e => { setReconocimientos(e.target.checked); setExportado(null); }}
-            className="may-pactada__check"
-          />
-          <span className="may-pactada__label">Reconocimientos</span>
-        </label>
+        <div className="may-reco-wrap">
+          <label className="may-pactada">
+            <input
+              type="checkbox"
+              checked={reconocimientos}
+              onChange={e => { setReconocimientos(e.target.checked); setExportado(null); }}
+              className="may-pactada__check"
+            />
+            <span className="may-pactada__label">Reconocimientos</span>
+          </label>
+          {reconocimientos && (
+            <div className="may-reco-slider-wrap">
+              <div className="may-reco-slider-labels">
+                <span>0</span>
+                <span className="may-reco-slider-val">{recoInput} <span className="may-reco-slider-pct">({recoInput * 10}% del Reco.)</span></span>
+                <span>10</span>
+              </div>
+              <input
+                type="range"
+                className="may-reco-slider"
+                min={0}
+                max={10}
+                step={1}
+                value={recoInput}
+                style={{ "--val": `${recoInput * 10}%` } as any}
+                onChange={e => { setRecoInput(parseInt(e.target.value)); setExportado(null); }}
+              />
+            </div>
+          )}
+        </div>
 
         {exportado !== null && (
           <div className="may-excel-ok">
