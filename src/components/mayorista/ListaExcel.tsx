@@ -36,10 +36,6 @@ const sDate = {
   alignment: { horizontal: "right" },
 };
 
-const sSub = {
-  font: { italic: true, sz: 10, color: { rgb: BLUE }, name: "Calibri" },
-};
-
 const sData = (even: boolean, align = "center", bold = false, color = "1A1A2E") => ({
   fill: { fgColor: { rgb: even ? WHITE : LBLUE } },
   font: { sz: 10, color: { rgb: color }, bold, name: "Calibri" },
@@ -47,20 +43,10 @@ const sData = (even: boolean, align = "center", bold = false, color = "1A1A2E") 
   border: { bottom: { style: "hair", color: { rgb: "E2E8F0" } } },
 });
 
-const sFootLabel = {
-  font: { bold: true, sz: 10, color: { rgb: GREY }, name: "Calibri" },
-  alignment: { horizontal: "right" },
-};
-
-const sFootVal = {
-  font: { bold: true, sz: 10, color: { rgb: NAVY }, name: "Calibri" },
-  alignment: { horizontal: "center" },
-};
-
 // ────────────────────────────────────────────────────────────
 export default function ListaExcel() {
   const [proveedores, setProveedores]         = useState<string[]>([]);
-  const [proveedor, setProveedor]             = useState("todos");
+  const [seleccion, setSeleccion]             = useState<Set<string>>(new Set()); // vacío = todos
   const [reconocimientos, setReconocimientos] = useState(false);
   const [generando, setGenerando]             = useState(false);
   const [exportado, setExportado]             = useState<number | null>(null);
@@ -78,6 +64,22 @@ export default function ListaExcel() {
       });
   }, []);
 
+  function toggleProveedor(p: string) {
+    setSeleccion(prev => {
+      const next = new Set(prev);
+      next.has(p) ? next.delete(p) : next.add(p);
+      return next;
+    });
+    setExportado(null);
+  }
+
+  function toggleTodos() {
+    setSeleccion(new Set());
+    setExportado(null);
+  }
+
+  const todosSeleccionados = seleccion.size === 0;
+
   async function generarExcel() {
     setGenerando(true);
     setExportado(null);
@@ -88,7 +90,12 @@ export default function ListaExcel() {
         .select('"Cod. Art", Descripcion, Proveedor, "Precio Vta Final", "Reco."')
         .limit(5000);
 
-      if (proveedor !== "todos") q = q.eq("Proveedor", proveedor);
+      if (seleccion.size === 1) {
+        q = q.eq("Proveedor", [...seleccion][0]);
+      } else if (seleccion.size > 1) {
+        q = q.in("Proveedor", [...seleccion]);
+      }
+
       const { data: artMay } = await q;
       const arts: any[] = artMay ?? [];
 
@@ -107,17 +114,14 @@ export default function ListaExcel() {
       // ── 3. Armar hoja ────────────────────────────────────
       const ws: any = {};
       const fechaStr = new Date().toLocaleDateString("es-AR");
-      let R = 0; // fila actual (0-based)
+      let R = 0;
 
-      // Fila 0: título + fecha
       ws[XlsxStyle.utils.encode_cell({ r: R, c: 0 })] = cell("Alzo Logística — Lista de Precios", sTitle);
       ws[XlsxStyle.utils.encode_cell({ r: R, c: 3 })] = cell(`Fecha: ${fechaStr}`, sDate);
       R++;
+      R++; // separador
 
-      // Fila 1: vacía (separador)
-      R++;
-
-      // Fila 3: encabezados de tabla
+      // Encabezados
       const headers = ["Código", "Descripción", "UxB", "Precio Final"];
       const hAlign  = ["center", "left", "center", "center"];
       headers.forEach((h, c) => {
@@ -139,37 +143,20 @@ export default function ListaExcel() {
         ws[XlsxStyle.utils.encode_cell({ r: R, c: 3 })] = cell(prec > 0 ? `$ ${fmt(prec)}` : "—", sData(even, "center", true));
         R++;
       });
-
       R++;
 
-      // Rango de la hoja
-      ws["!ref"] = XlsxStyle.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: R, c: 3 } });
+      ws["!ref"]  = XlsxStyle.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: R, c: 3 } });
+      ws["!cols"] = [{ wch: 11 }, { wch: 50 }, { wch: 8 }, { wch: 18 }];
+      ws["!rows"] = [{ hpt: 24 }, { hpt: 8 }, { hpt: 22 }];
 
-      // Anchos de columna
-      ws["!cols"] = [
-        { wch: 11 },
-        { wch: 50 },
-        { wch: 8  },
-        { wch: 18 },
-      ];
-
-      // Altura de filas especiales
-      ws["!rows"] = [
-        { hpt: 24 }, // título
-        { hpt: 8  }, // separador
-        { hpt: 22 }, // header tabla
-      ];
-
-      // ── 4. Workbook y descarga ────────────────────────────
       const wb = XlsxStyle.utils.book_new();
       XlsxStyle.utils.book_append_sheet(wb, ws, "Lista de Precios");
 
-      const pSlug = proveedor === "todos"
+      const pSlug = todosSeleccionados
         ? "todos"
-        : proveedor.replace(/\s+/g, "_").slice(0, 30);
+        : [...seleccion].map(p => p.replace(/\s+/g, "_").slice(0, 15)).join("-").slice(0, 50);
 
       XlsxStyle.writeFile(wb, `alzo_lista_precios_${pSlug}_${fechaStr.replace(/\//g, "-")}.xlsx`);
-
       setExportado(arts.length);
     } finally {
       setGenerando(false);
@@ -184,20 +171,44 @@ export default function ListaExcel() {
           Generá un Excel con código, descripción, UxB y precio final.
         </p>
 
+        {/* Selector de proveedores */}
         <div className="may-field may-field--full">
-          <label className="may-label">Proveedor</label>
-          <select
-            className="may-input may-excel-select"
-            value={proveedor}
-            onChange={e => { setProveedor(e.target.value); setExportado(null); }}
-          >
-            <option value="todos">— Todos los proveedores —</option>
+          <label className="may-label">
+            Proveedores
+            <span className="may-excel-prov-count">
+              {todosSeleccionados ? "Todos" : `${seleccion.size} seleccionado${seleccion.size !== 1 ? "s" : ""}`}
+            </span>
+          </label>
+          <div className="may-excel-prov-list">
+            {/* Opción "Todos" */}
+            <label className={`may-excel-prov-item${todosSeleccionados ? " may-excel-prov-item--active" : ""}`}>
+              <input
+                type="checkbox"
+                checked={todosSeleccionados}
+                onChange={toggleTodos}
+                className="may-excel-prov-check"
+              />
+              <span>Todos los proveedores</span>
+            </label>
+            {/* Cada proveedor */}
             {proveedores.map(p => (
-              <option key={p} value={p}>{p}</option>
+              <label
+                key={p}
+                className={`may-excel-prov-item${seleccion.has(p) ? " may-excel-prov-item--active" : ""}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={seleccion.has(p)}
+                  onChange={() => toggleProveedor(p)}
+                  className="may-excel-prov-check"
+                />
+                <span>{p}</span>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
 
+        {/* Reconocimientos */}
         <label className="may-pactada" style={{ marginBottom: 16 }}>
           <input
             type="checkbox"

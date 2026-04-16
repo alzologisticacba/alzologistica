@@ -1661,3 +1661,48 @@ body {
   margin-top: 6px;
   flex-wrap: wrap;
 }
+
+/* ─── Selector multi-proveedor ───────────────────────────── */
+.may-excel-prov-count {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1e40af;
+  background: #eff6ff;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.may-excel-prov-list {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.may-excel-prov-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a2e;
+  border-bottom: 1px solid #f0f2f5;
+  transition: background 0.12s;
+  user-select: none;
+}
+.may-excel-prov-item:last-child { border-bottom: none; }
+.may-excel-prov-item:hover { background: #f8fafc; }
+.may-excel-prov-item--active { background: #eff6ff; color: #1e40af; font-weight: 700; }
+.may-excel-prov-item--active:hover { background: #dbeafe; }
+
+.may-excel-prov-check {
+  width: 16px;
+  height: 16px;
+  accent-color: #1e40af;
+  cursor: pointer;
+  flex-shrink: 0;
+}
