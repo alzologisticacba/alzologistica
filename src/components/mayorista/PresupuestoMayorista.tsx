@@ -257,12 +257,12 @@ export default function PresupuestoMayorista() {
   // Total mostrado al cliente: pactada divide por 1.105 (precio neto sin IVA)
   const totalPedido = pactada ? totalPedidoBase / 1.105 : totalPedidoBase;
 
-  // Profit proyectado: con pactada aplica fórmula ((precio/1.105) - costo) / (precio/1.105)
-  const projBaseTotal       = totalPedidoBase + prec * cant;
-  const projParaProfit      = pactada ? projBaseTotal / 1.105 : projBaseTotal;
-  const projTotalCosto      = totalCosto + costoFinal * cant;
-  const rentabilidad        = projParaProfit > 0
-    ? ((projParaProfit - projTotalCosto) / projParaProfit) * 100
+  const projBaseTotal  = totalPedidoBase + prec * cant;
+  const projTotalCosto = totalCosto + costoFinal * cant;
+  const rentabilidad   = projBaseTotal > 0
+    ? pactada
+      ? ((projBaseTotal - projTotalCosto / 1.105) / projBaseTotal) * 100
+      : ((projBaseTotal - projTotalCosto) / projBaseTotal) * 100
     : 0;
 
   // Color de rentabilidad
@@ -310,8 +310,11 @@ export default function PresupuestoMayorista() {
     setLineas(prev => prev.filter(l => l.id !== id));
   }
 
-  const totalParaProfit = pactada ? totalPedidoBase / 1.105 : totalPedidoBase;
-  const rentTotal = totalParaProfit > 0 ? ((totalParaProfit - totalCosto) / totalParaProfit) * 100 : 0;
+  const rentTotal = totalPedidoBase > 0
+    ? pactada
+      ? ((totalPedidoBase - totalCosto / 1.105) / totalPedidoBase) * 100
+      : ((totalPedidoBase - totalCosto) / totalPedidoBase) * 100
+    : 0;
 
 
   const canCargar = !!articulo && cant > 0 && prec > 0 && !descExcedeTope && !cantInvalida;
