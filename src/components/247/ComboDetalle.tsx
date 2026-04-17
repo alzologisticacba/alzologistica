@@ -35,7 +35,7 @@ function fmt(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 });
 }
 
-function ItemRow({ item }: { item: DetalleLine }) {
+function ItemRow({ item, showCantidad }: { item: DetalleLine; showCantidad?: boolean }) {
   return (
     <div className="combo-item">
       <div className="combo-item__left">
@@ -46,6 +46,9 @@ function ItemRow({ item }: { item: DetalleLine }) {
         </div>
       </div>
       <div className="combo-item__right">
+        {showCantidad && item.cantidad > 0 && (
+          <span className="combo-item__cant">x{item.cantidad}</span>
+        )}
         {item.descuentos > 0 && <span className="combo-item__desc">-{item.descuentos}%</span>}
       </div>
     </div>
@@ -216,11 +219,11 @@ export default function ComboDetalle() {
                                     <span className="combo-grupo__badge combo-grupo__badge--eleccion">Elegí {items[0]?.cantidad ?? 1}</span>
                                   </div>
                                 )}
-                                {items.map(item => <ItemRow key={item.id} item={item} />)}
+                                {items.map(item => <ItemRow key={item.id} item={item} showCantidad={!esEleccion} />)}
                               </div>
                             );
                           })
-                        : combo.detalles.map(item => <ItemRow key={item.id} item={item} />)
+                        : combo.detalles.map(item => <ItemRow key={item.id} item={item} showCantidad />)
                       }
                     </div>
                   </div>
