@@ -432,6 +432,171 @@ html, body {
   margin: 0;
 }
 
+/* ── Sección ── */
+.rep-section {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+}
+
+.rep-section__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 0 0 20px;
+}
+
+/* ── Lector QR ── */
+.rep-qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.rep-qr-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #2556ff 0%, #00c6ff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+.rep-qr-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.rep-qr-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.rep-qr-scanner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.rep-qr-viewfinder {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+}
+
+.rep-qr-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rep-qr-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Esquinas del visor */
+.rep-qr-corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: #2556ff;
+  border-style: solid;
+}
+.rep-qr-corner--tl { top: 12px; left: 12px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+.rep-qr-corner--tr { top: 12px; right: 12px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+.rep-qr-corner--bl { bottom: 12px; left: 12px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+.rep-qr-corner--br { bottom: 12px; right: 12px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+.rep-qr-hint {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+  text-align: center;
+}
+
+.rep-qr-cancel {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 8px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rep-qr-cancel:hover {
+  background: #e2e8f0;
+}
+
+/* ── Resultado del escaneo ── */
+.rep-scan-result {
+  margin-top: 20px;
+  width: 100%;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rep-scan-result__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #16a34a;
+  margin: 0;
+}
+
+.rep-scan-result__value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #166534;
+  margin: 0;
+  word-break: break-all;
+}
+
+.rep-scan-result__clear {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid #86efac;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 4px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.15s;
+}
+.rep-scan-result__clear:hover {
+  background: #dcfce7;
+}
+
 /* ── Animaciones ── */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }

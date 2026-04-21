@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import QrScanner from "qr-scanner";
 import { supabaseClient } from "../../lib/supabaseClient";
 
 type TipoPatente = "mercosur" | "vieja" | null;
@@ -251,6 +252,89 @@ function LoginScreen({ onLogin }: { onLogin: (s: Session) => void }) {
 }
 
 /* ─────────────────────────────────────────
+   LECTOR QR
+───────────────────────────────────────── */
+function QrReader({ onResult }: { onResult: (text: string) => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerRef = useRef<QrScanner | null>(null);
+  const [active, setActive] = useState(false);
+  const [error, setError] = useState("");
+
+  const start = useCallback(async () => {
+    setError("");
+    setActive(true);
+  }, []);
+
+  const stop = useCallback(() => {
+    scannerRef.current?.stop();
+    scannerRef.current?.destroy();
+    scannerRef.current = null;
+    setActive(false);
+  }, []);
+
+  useEffect(() => {
+    if (!active || !videoRef.current) return;
+
+    const scanner = new QrScanner(
+      videoRef.current,
+      (result) => {
+        onResult(result.data);
+        stop();
+      },
+      {
+        preferredCamera: "environment",
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+        returnDetailedScanResult: true,
+      }
+    );
+
+    scannerRef.current = scanner;
+
+    scanner.start().catch(() => {
+      setError("No se pudo acceder a la cámara. Verificá los permisos.");
+      setActive(false);
+    });
+
+    return () => {
+      scanner.stop();
+      scanner.destroy();
+    };
+  }, [active, onResult, stop]);
+
+  return (
+    <div className="rep-qr-wrap">
+      {!active ? (
+        <button className="rep-qr-btn" onClick={start}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <path d="M14 14h1v1h-1zM14 17h1v1h-1zM17 14h1v1h-1zM17 17h3v3h-3z" />
+          </svg>
+          Escanear QR
+        </button>
+      ) : (
+        <div className="rep-qr-scanner">
+          <div className="rep-qr-viewfinder">
+            <video ref={videoRef} className="rep-qr-video" />
+            <div className="rep-qr-overlay">
+              <div className="rep-qr-corner rep-qr-corner--tl" />
+              <div className="rep-qr-corner rep-qr-corner--tr" />
+              <div className="rep-qr-corner rep-qr-corner--bl" />
+              <div className="rep-qr-corner rep-qr-corner--br" />
+            </div>
+          </div>
+          <p className="rep-qr-hint">Apuntá la cámara al código QR</p>
+          <button className="rep-qr-cancel" onClick={stop}>Cancelar</button>
+        </div>
+      )}
+      {error && <p className="rep-error-msg" style={{ marginTop: 8 }}>{error}</p>}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
    DASHBOARD (post-login)
 ───────────────────────────────────────── */
 function Dashboard({
@@ -260,6 +344,8 @@ function Dashboard({
   session: Session;
   onLogout: () => void;
 }) {
+  const [lastScan, setLastScan] = useState<string | null>(null);
+
   return (
     <div className="rep-page">
       <header className="rep-header">
@@ -287,9 +373,23 @@ function Dashboard({
           <p className="rep-welcome__sub">Patente: {session.patente}</p>
         </div>
 
-        <div className="rep-placeholder">
-          <p>Próximamente — herramientas de reparto</p>
-        </div>
+        <section className="rep-section">
+          <h2 className="rep-section__title">Escanear código QR</h2>
+          <QrReader onResult={(text) => setLastScan(text)} />
+
+          {lastScan && (
+            <div className="rep-scan-result">
+              <p className="rep-scan-result__label">Último escaneo</p>
+              <p className="rep-scan-result__value">{lastScan}</p>
+              <button
+                className="rep-scan-result__clear"
+                onClick={() => setLastScan(null)}
+              >
+                Limpiar
+              </button>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
