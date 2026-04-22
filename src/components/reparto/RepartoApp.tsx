@@ -293,9 +293,25 @@ function OcrReader({ onResult }: { onResult: (pex: string[]) => void }) {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
+
+    // Recortar solo la zona guía (franja central horizontal)
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    const sx = Math.floor(vw * 0.05);
+    const sy = Math.floor(vh * 0.32);
+    const sw = Math.floor(vw * 0.90);
+    const sh = Math.floor(vh * 0.36);
+
+    canvas.width = sw;
+    canvas.height = sh;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      // Escala 2x para mejorar precisión de Tesseract
+      canvas.width = sw * 2;
+      canvas.height = sh * 2;
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sw * 2, sh * 2);
+    }
+
     stop();
     setProcessing(true);
     setError("");
@@ -341,14 +357,21 @@ function OcrReader({ onResult }: { onResult: (pex: string[]) => void }) {
         <div className="rep-qr-scanner">
           <div className="rep-qr-viewfinder">
             <video ref={videoRef} className="rep-qr-video" autoPlay playsInline muted />
-            <div className="rep-qr-overlay">
-              <div className="rep-qr-corner rep-qr-corner--tl" />
-              <div className="rep-qr-corner rep-qr-corner--tr" />
-              <div className="rep-qr-corner rep-qr-corner--bl" />
-              <div className="rep-qr-corner rep-qr-corner--br" />
+            {/* Overlays oscuros alrededor de la zona guía */}
+            <div className="rep-scan-dark rep-scan-dark--top" />
+            <div className="rep-scan-dark rep-scan-dark--bottom" />
+            <div className="rep-scan-dark rep-scan-dark--left" />
+            <div className="rep-scan-dark rep-scan-dark--right" />
+            {/* Borde y línea animada de la zona guía */}
+            <div className="rep-scan-zone">
+              <div className="rep-scan-zone__corner rep-scan-zone__corner--tl" />
+              <div className="rep-scan-zone__corner rep-scan-zone__corner--tr" />
+              <div className="rep-scan-zone__corner rep-scan-zone__corner--bl" />
+              <div className="rep-scan-zone__corner rep-scan-zone__corner--br" />
+              <div className="rep-scan-zone__line" />
             </div>
           </div>
-          <p className="rep-qr-hint">Enfocá el campo "Pedidos" de la etiqueta</p>
+          <p className="rep-qr-hint">Alineá el número de pedido dentro del recuadro</p>
           <div style={{ display: "flex", gap: 10 }}>
             <button className="rep-qr-cancel" onClick={stop}>Cancelar</button>
             <button className="rep-qr-btn rep-qr-btn--capture" onClick={capture}>

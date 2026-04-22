@@ -492,8 +492,8 @@ html, body {
 .rep-qr-viewfinder {
   position: relative;
   width: 100%;
-  max-width: 320px;
-  aspect-ratio: 1;
+  max-width: 420px;
+  aspect-ratio: 4/3;
   border-radius: 16px;
   overflow: hidden;
   background: #000;
@@ -506,24 +506,76 @@ html, body {
   display: block;
 }
 
-.rep-qr-overlay {
+/* ── Overlays oscuros (todo menos la zona guía) ── */
+/* La zona guía ocupa: top 32%–68%, left 5%–95% */
+.rep-scan-dark {
   position: absolute;
-  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   pointer-events: none;
 }
+.rep-scan-dark--top    { top: 0; left: 0; right: 0; height: 32%; }
+.rep-scan-dark--bottom { bottom: 0; left: 0; right: 0; height: 32%; }
+.rep-scan-dark--left   { top: 32%; bottom: 32%; left: 0; width: 5%; }
+.rep-scan-dark--right  { top: 32%; bottom: 32%; right: 0; width: 5%; }
 
-/* Esquinas del visor */
-.rep-qr-corner {
+/* ── Zona guía ── */
+.rep-scan-zone {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  top: 32%; bottom: 32%;
+  left: 5%; right: 5%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Esquinas de la zona guía */
+.rep-scan-zone__corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
   border-color: #2556ff;
   border-style: solid;
 }
-.rep-qr-corner--tl { top: 12px; left: 12px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-.rep-qr-corner--tr { top: 12px; right: 12px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
-.rep-qr-corner--bl { bottom: 12px; left: 12px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
-.rep-qr-corner--br { bottom: 12px; right: 12px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+.rep-scan-zone__corner--tl { top: 0; left: 0;   border-width: 3px 0 0 3px; border-radius: 3px 0 0 0; }
+.rep-scan-zone__corner--tr { top: 0; right: 0;  border-width: 3px 3px 0 0; border-radius: 0 3px 0 0; }
+.rep-scan-zone__corner--bl { bottom: 0; left: 0;  border-width: 0 0 3px 3px; border-radius: 0 0 0 3px; }
+.rep-scan-zone__corner--br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 3px 0; }
+
+/* Línea animada de escaneo */
+.rep-scan-zone__line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #2556ff 20%, #00c6ff 50%, #2556ff 80%, transparent 100%);
+  box-shadow: 0 0 8px #2556ff;
+  animation: scanline 2s ease-in-out infinite;
+}
+
+@keyframes scanline {
+  0%   { top: 0; opacity: 1; }
+  48%  { top: calc(100% - 2px); opacity: 1; }
+  50%  { top: calc(100% - 2px); opacity: 0; }
+  52%  { top: 0; opacity: 0; }
+  54%  { top: 0; opacity: 1; }
+  100% { top: 0; opacity: 1; }
+}
+
+.rep-ocr-processing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 0;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+}
+.rep-ocr-processing .rep-spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+  border-color: #dbeafe;
+  border-top-color: #2556ff;
+}
 
 .rep-qr-hint {
   font-size: 13px;
