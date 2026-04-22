@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import QrScanner from "qr-scanner";
 import { supabaseClient } from "../../lib/supabaseClient";
 
 type TipoPatente = "mercosur" | "vieja" | null;
@@ -252,72 +251,93 @@ function LoginScreen({ onLogin }: { onLogin: (s: Session) => void }) {
 }
 
 /* ─────────────────────────────────────────
-   LECTOR QR
+   LECTOR OCR (extrae números PEX)
 ───────────────────────────────────────── */
-function QrReader({ onResult }: { onResult: (text: string) => void }) {
+function OcrReader({ onResult }: { onResult: (pex: string[]) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const scannerRef = useRef<QrScanner | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [active, setActive] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
 
-  const start = useCallback(async () => {
-    setError("");
-    setActive(true);
-  }, []);
-
   const stop = useCallback(() => {
-    scannerRef.current?.stop();
-    scannerRef.current?.destroy();
-    scannerRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
     setActive(false);
   }, []);
 
-  useEffect(() => {
-    if (!active || !videoRef.current) return;
+  useEffect(() => () => { stop(); }, [stop]);
 
-    const scanner = new QrScanner(
-      videoRef.current,
-      (result) => {
-        onResult(result.data);
-        stop();
-      },
-      {
-        preferredCamera: "environment",
-        highlightScanRegion: true,
-        highlightCodeOutline: true,
-        returnDetailedScanResult: true,
+  async function start() {
+    setError("");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } },
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
       }
-    );
-
-    scannerRef.current = scanner;
-
-    scanner.start().catch(() => {
+      setActive(true);
+    } catch {
       setError("No se pudo acceder a la cámara. Verificá los permisos.");
-      setActive(false);
-    });
+    }
+  }
 
-    return () => {
-      scanner.stop();
-      scanner.destroy();
-    };
-  }, [active, onResult, stop]);
+  async function capture() {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    stop();
+    setProcessing(true);
+    setError("");
+    try {
+      const { createWorker } = await import("tesseract.js");
+      const worker = await createWorker("eng");
+      const { data } = await worker.recognize(canvas);
+      await worker.terminate();
+      const matches = [...new Set(data.text.match(/\d-PEX\d+/gi) ?? [])];
+      if (matches.length === 0) {
+        setError("No se encontraron números PEX. Intentá con mejor iluminación o más cerca.");
+      } else {
+        onResult(matches.map((m) => m.toUpperCase()));
+      }
+    } catch {
+      setError("Error al procesar la imagen. Intentá de nuevo.");
+    }
+    setProcessing(false);
+  }
+
+  if (processing) {
+    return (
+      <div className="rep-ocr-processing">
+        <span className="rep-spinner" style={{ borderTopColor: "#2556ff", borderColor: "#dbeafe" }} />
+        <p>Leyendo etiqueta...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="rep-qr-wrap">
+      <canvas ref={canvasRef} style={{ display: "none" }} />
+
       {!active ? (
         <button className="rep-qr-btn" onClick={start}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <path d="M14 14h1v1h-1zM14 17h1v1h-1zM17 14h1v1h-1zM17 17h3v3h-3z" />
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
           </svg>
-          Escanear QR
+          Leer etiqueta con cámara
         </button>
       ) : (
         <div className="rep-qr-scanner">
           <div className="rep-qr-viewfinder">
-            <video ref={videoRef} className="rep-qr-video" />
+            <video ref={videoRef} className="rep-qr-video" playsInline muted />
             <div className="rep-qr-overlay">
               <div className="rep-qr-corner rep-qr-corner--tl" />
               <div className="rep-qr-corner rep-qr-corner--tr" />
@@ -325,10 +345,16 @@ function QrReader({ onResult }: { onResult: (text: string) => void }) {
               <div className="rep-qr-corner rep-qr-corner--br" />
             </div>
           </div>
-          <p className="rep-qr-hint">Apuntá la cámara al código QR</p>
-          <button className="rep-qr-cancel" onClick={stop}>Cancelar</button>
+          <p className="rep-qr-hint">Enfocá el campo "Pedidos" de la etiqueta</p>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className="rep-qr-cancel" onClick={stop}>Cancelar</button>
+            <button className="rep-qr-btn rep-qr-btn--capture" onClick={capture}>
+              Capturar
+            </button>
+          </div>
         </div>
       )}
+
       {error && <p className="rep-error-msg" style={{ marginTop: 8 }}>{error}</p>}
     </div>
   );
@@ -344,7 +370,7 @@ function Dashboard({
   session: Session;
   onLogout: () => void;
 }) {
-  const [lastScan, setLastScan] = useState<string | null>(null);
+  const [pexNumbers, setPexNumbers] = useState<string[]>([]);
 
   return (
     <div className="rep-page">
@@ -374,16 +400,18 @@ function Dashboard({
         </div>
 
         <section className="rep-section">
-          <h2 className="rep-section__title">Escanear código QR</h2>
-          <QrReader onResult={(text) => setLastScan(text)} />
+          <h2 className="rep-section__title">Leer etiqueta</h2>
+          <OcrReader onResult={(nums) => setPexNumbers(nums)} />
 
-          {lastScan && (
-            <div className="rep-scan-result">
-              <p className="rep-scan-result__label">Último escaneo</p>
-              <p className="rep-scan-result__value">{lastScan}</p>
+          {pexNumbers.length > 0 && (
+            <div className="rep-scan-result" style={{ marginTop: 20 }}>
+              <p className="rep-scan-result__label">Pedidos encontrados</p>
+              {pexNumbers.map((n) => (
+                <p key={n} className="rep-scan-result__value">{n}</p>
+              ))}
               <button
                 className="rep-scan-result__clear"
-                onClick={() => setLastScan(null)}
+                onClick={() => setPexNumbers([])}
               >
                 Limpiar
               </button>
