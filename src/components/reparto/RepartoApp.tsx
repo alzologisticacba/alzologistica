@@ -276,15 +276,18 @@ function OcrReader({ onResult }: { onResult: (pex: string[]) => void }) {
         video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
       setActive(true);
     } catch {
       setError("No se pudo acceder a la cámara. Verificá los permisos.");
     }
   }
+
+  // Asigna el stream al video una vez que el elemento existe en el DOM
+  useEffect(() => {
+    if (active && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [active]);
 
   async function capture() {
     if (!videoRef.current || !canvasRef.current) return;
@@ -337,7 +340,7 @@ function OcrReader({ onResult }: { onResult: (pex: string[]) => void }) {
       ) : (
         <div className="rep-qr-scanner">
           <div className="rep-qr-viewfinder">
-            <video ref={videoRef} className="rep-qr-video" playsInline muted />
+            <video ref={videoRef} className="rep-qr-video" autoPlay playsInline muted />
             <div className="rep-qr-overlay">
               <div className="rep-qr-corner rep-qr-corner--tl" />
               <div className="rep-qr-corner rep-qr-corner--tr" />
