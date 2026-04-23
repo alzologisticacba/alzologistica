@@ -14,7 +14,8 @@
       "Bash(npm run:*)",
       "Bash(npx tsc:*)",
       "Bash(node -e \"require\\('exceljs'\\); console.log\\('ok'\\)\")",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "WebFetch(domain:api.v2.digipwms.com)"
     ]
   }
 }

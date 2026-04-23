@@ -527,6 +527,12 @@ html, body {
   overflow: hidden;
 }
 
+/* Variante cuadrada para QR */
+.rep-scan-zone--square {
+  top: 20%; bottom: 20%;
+  left: 15%; right: 15%;
+}
+
 /* Esquinas de la zona guía */
 .rep-scan-zone__corner {
   position: absolute;
