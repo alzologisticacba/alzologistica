@@ -307,6 +307,53 @@ html, body {
   cursor: default;
 }
 
+/* ── Botón Google ── */
+.rep-btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.rep-btn-google:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.rep-btn-google:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* ── Botón salir de Google (link pequeño) ── */
+.rep-btn-salir-google {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: -8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.rep-btn-salir-google:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 /* ── Header (post-login) ── */
 .rep-header {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);

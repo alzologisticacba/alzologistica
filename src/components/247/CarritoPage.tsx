@@ -24,7 +24,7 @@ const LS_USER = "alzo_user_v1";
 
 const SELLERS = [
   { id: "858", nombre: "Yohana Novarino", phone: "5493513276516", photo: "/img/vendedores/Yohana Novarino.webp" },
-  { id: "10", nombre: "Fernando Castro", phone: "5493516316967", photo: "/img/vendedores/Fernando Castro.webp" },
+  { id: "10", nombre: "Pedro Galindo", phone: "5493516316967", photo: "/img/vendedores/Pedro Galindo.png" },
   { id: "30", nombre: "Franco Cofre", phone: "5493513276820", photo: "/img/vendedores/Franco Cofre.png" },
   { id: "40", nombre: "Nicolas Escobar", phone: "5493518559685", photo: "/img/vendedores/Nicolas Escobar.webp" },
   { id: "50", nombre: "Eliana Machado", phone: "5493518560195", photo: "/img/vendedores/Eliana Machado.webp" },
@@ -34,7 +34,7 @@ const SELLERS = [
   { id: "125", nombre: "Emiliano Moreno", phone: "5493516316968", photo: "/img/vendedores/Emiliano Moreno.webp" },
   { id: "306", nombre: "Federico Torres", phone: "5493518561081", photo: "/img/vendedores/Federico Torres.webp" },
   { id: "1000", nombre: "Nicolas Tabera", phone: "5493515138800", photo: "/img/vendedores/Nicolas Tavera.webp" },
-  { id: "2000", nombre: "Pedro Galindo", phone: "5493515303045", photo: "/img/vendedores/Pedro Galindo.png" },
+  { id: "2000", nombre: "Fernando Castro", phone: "5493515303045", photo: "/img/vendedores/Fernando Castro.webp" },
   { id: "3000", nombre: "Claudio Teves", phone: "5493517680109", photo: "/img/vendedores/Claudio Tevez.webp" },
   { id: "4000", nombre: "Gustavo Martinez", phone: "5493518561704", photo: "/img/vendedores/Gustavo Martinez.webp" },
   { id: "6000", nombre: "Joel Sanrame", phone: "5493516316971", photo: "/img/vendedores/Joel Sanrame.webp" },
