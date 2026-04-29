@@ -30,7 +30,7 @@ export function grupoRequiereEleccion(items: DetalleLine[]): boolean {
 
 // Total de unidades permitidas en un grupo (= cantidad del primer ítem)
 function totalPermitidoGrupo(detalles: DetalleLine[], g: number): number {
-  return detalles.find(d => d.grupo === g)?.cantidad ?? 1;
+  return Number(detalles.find(d => d.grupo === g)?.cantidad ?? 1);
 }
 
 // Construye el contenido del carrito a partir de detalles + elegidos por grupo
