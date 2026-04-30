@@ -250,11 +250,24 @@ export default function CarritoPage() {
     return `Hola! Soy *${user.nombre}* (${user.telefono}). Quiero hacer el siguiente pedido:\n\n${lineas}\n\n*Total: ${fmt(totalPrecio)}*`;
   }, [user, items, totalPrecio]);
 
+  const MAX_COMBO_TOTAL: Record<string, number> = { "COMBO597": 2 };
+
+  function maxParaItem(item: CartItem): number {
+    if (item.cod_combo && MAX_COMBO_TOTAL[item.cod_combo] !== undefined) {
+      const totalOtros = items
+        .filter(i => i.cod_combo === item.cod_combo && i.cartKey !== item.cartKey)
+        .reduce((s, i) => s + i.cantidad, 0);
+      return Math.max(0, MAX_COMBO_TOTAL[item.cod_combo] - totalOtros);
+    }
+    return item.codigo === 549146 ? 50 : Infinity;
+  }
+
   function cambiarCantidad(cartKey: string, dir: 1 | -1) {
     const item = getCart().find(i => i.cartKey === cartKey);
     if (!item) return;
     const paso = item.multiplo || 1;
-    const next = Math.max(paso, item.cantidad + dir * paso);
+    const max  = maxParaItem(item);
+    const next = Math.min(Math.max(paso, item.cantidad + dir * paso), max);
     updateQuantity(cartKey, next);
     const updated = getCart();
     setItems([...updated]);
@@ -451,7 +464,9 @@ export default function CarritoPage() {
                   </div>
                   <div className="cart-item__right">
                     <div className="cart-item__ctrl">
-                      <button onClick={() => item.cantidad <= (item.multiplo || 1) ? setConfirmEliminar(item.cartKey) : cambiarCantidad(item.cartKey, -1)}>−</button>
+                      <button
+                        onClick={() => item.cantidad <= (item.multiplo || 1) ? setConfirmEliminar(item.cartKey) : cambiarCantidad(item.cartKey, -1)}
+                      >−</button>
                       <input
                         className="cart-item__cantidad-val"
                         type="number"
@@ -460,15 +475,23 @@ export default function CarritoPage() {
                         onChange={e => setInputVals(v => ({ ...v, [item.cartKey]: e.target.value }))}
                         onBlur={() => {
                           const paso = item.multiplo || 1;
+                          const max  = maxParaItem(item);
                           const v = parseInt(inputVals[item.cartKey], 10);
-                          const rounded = isNaN(v) || v < paso ? paso : Math.round(v / paso) * paso;
+                          const rounded = Math.min(isNaN(v) || v < paso ? paso : Math.round(v / paso) * paso, max);
                           updateQuantity(item.cartKey, rounded);
                           setItems([...getCart()]);
                           setInputVals(iv => ({ ...iv, [item.cartKey]: String(rounded) }));
                         }}
                       />
-                      <button onClick={() => cambiarCantidad(item.cartKey, +1)}>+</button>
+                      <button
+                        onClick={() => cambiarCantidad(item.cartKey, +1)}
+                        disabled={item.cantidad >= maxParaItem(item)}
+                      >+</button>
                     </div>
+                    {item.cod_combo && MAX_COMBO_TOTAL[item.cod_combo] !== undefined &&
+                      items.filter(i => i.cod_combo === item.cod_combo).reduce((s, i) => s + i.cantidad, 0) >= MAX_COMBO_TOTAL[item.cod_combo] && (
+                      <p className="cart-item__max-notice">MÁXIMO DE COMBOS: 2</p>
+                    )}
                     <p className="cart-item__subtotal">{fmt(item.precioFinal * (parseInt(inputVals[item.cartKey], 10) || item.cantidad))}</p>
                     <button className="cart-item__del" onClick={() => setConfirmEliminar(item.cartKey)} title="Eliminar">✕</button>
                   </div>

@@ -43,6 +43,7 @@ export default function CombosPage() {
     supabaseClient
       .from("combos")
       .select("cod_combo, nombre, precio, descripcion, imagen")
+      .eq("activo", true)
       .order("nombre", { ascending: true })
       .limit(100)
       .then(({ data }) => setCombos(data ?? []))

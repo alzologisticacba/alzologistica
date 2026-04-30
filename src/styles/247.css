@@ -1755,6 +1755,19 @@
   margin: 0;;
 }
 
+.cart-item__max-notice {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: #e84000;
+  border-radius: 6px;
+  padding: 2px 7px;
+  margin: 2px 0 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .cart-item__del {
   background: none;
   border: none;
@@ -2410,7 +2423,9 @@ body.modal-open {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: linear-gradient(135deg, #3300ff 0%, #2979d4 100%);;
+  background:
+    linear-gradient(135deg, rgba(40,0,220,0.82) 0%, rgba(20,100,210,0.82) 100%),
+    url("/img/247/disenoBuscador.webp") center / cover no-repeat;
 }
 
 /* Override el sticky del header individual — lo maneja el wrapper */
@@ -2423,6 +2438,8 @@ body.modal-open {
 /* ── Navbar ── */
 
 .header-247-nav {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 0 !important;
@@ -2528,14 +2545,36 @@ body.modal-open {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: linear-gradient(135deg, #3300ff 0%, #2979d4 100%);
+  background: none;
   box-shadow: 0 2px 16px rgba(51,0,255,0.25);
   width: 100%;;
+}
+
+/* Fondo fijo — disenoBuscador.webp */
+.header-247__bg {
+  position: absolute;
+  inset: 0;
+  background: url("/img/247/disenoBuscador.webp") center / cover no-repeat;
+  z-index: 0;
+}
+
+/* Gradiente overlay mínimo solo para legibilidad del texto */
+.header-247__gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(20,0,120,0.28) 0%, rgba(10,60,160,0.28) 100%);
+  z-index: 1;
+}
+
+@media (max-width: 639px) {
+  .header-247__gradient { display: none; }
 }
 
 /* Inner container — centra en desktop */
 
 .header-247-inner {
+  position: relative;
+  z-index: 2;
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
@@ -4937,4 +4976,440 @@ body.modal-open {
   top: calc(100% + 8px);
   border-radius: 0 0 14px 14px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+}
+
+/* =============================================
+   FIGURITAS MUNDIAL 2026 — SECCIÓN PRODUCTOS
+   ============================================= */
+
+.figuritas-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  scroll-margin-top: 60px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+/* Fondos rotantes — cubren TODA la sección */
+.figuritas-section__bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+
+/* Header — disenoBuscador.webp encima del fondo rotante */
+.figuritas-section__header {
+  position: relative;
+  z-index: 3;
+  width: calc(100% - 32px);
+  margin: 16px 16px 0;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 24px 24px 32px;
+  overflow: hidden;
+  border-radius: 0 32px 0 32px;
+  background: url("/img/247/disenoBuscador.webp") center / cover no-repeat;
+}
+
+.figuritas-section__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,10,80,0.55) 0%, rgba(0,30,120,0.45) 100%);
+  z-index: 0;
+}
+
+
+/* Overlay blanco sobre el fondo rotante */
+.figuritas-section__body-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.82);
+  z-index: 2;
+  pointer-events: none;
+}
+
+
+.figuritas-section__body-content {
+  position: relative;
+  z-index: 3;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 0 28px;
+}
+
+/* Row propio de FiguritasSection */
+.figuritas-section__row-wrap {
+  overflow: visible;
+  padding: 0 16px;
+}
+.figuritas-section__row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+.figuritas-section__row > * {
+  scroll-snap-align: start;
+}
+
+/* Overrides para HomeSection dentro de FiguritasSection */
+.figuritas-section .home-section {
+  background: transparent;
+  border-radius: 0 32px 0 32px;
+  padding: 16px 16px 12px;
+  margin: 0 16px 16px;
+  box-shadow: none;
+  overflow: hidden;
+}
+.figuritas-section .home-section__banner-link {
+  display: none;
+}
+.figuritas-section .hs-ver-todos-card {
+  display: none;
+}
+
+/* Cards en la sección figuritas */
+.figuritas-section__row .product-card,
+.figuritas-section__row .combo-card {
+  flex: 0 0 260px;
+  min-width: 260px;
+}
+
+@media (max-width: 768px) {
+  .figuritas-section__row .product-card,
+  .figuritas-section__row .combo-card {
+    flex: 0 0 62vw;
+    min-width: 62vw;
+    height: calc(100vh - 280px);
+    display: flex;
+    flex-direction: column;
+  }
+  .figuritas-section .product-card__img-wrap {
+    height: 45%;
+    flex-shrink: 0;
+    aspect-ratio: unset;
+  }
+  .figuritas-section .product-card__info {
+    flex: 1;
+    padding: 14px 14px 6px;
+    gap: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+  .figuritas-section .product-card__desc {
+    font-size: 30px;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .figuritas-section .product-card__rubro {
+    font-size: 20px;
+  }
+  .figuritas-section .product-card__precio-original {
+    font-size: 18px;
+    margin-top: 0;
+  }
+  .figuritas-section .product-card__precio {
+    font-size: 42px;
+    margin-top: 0;
+  }
+  .figuritas-section .product-card__btn {
+    font-size: 26px;
+    padding: 18px;
+    margin: 0 12px 14px;
+    flex-shrink: 0;
+  }
+  .figuritas-section__row-wrap {
+    overflow: visible;
+  }
+  .figuritas-section__row {
+    padding-right: 20vw;
+  }
+}
+/* Tipografía Barlow Condensed en las cards de figuritas */
+.figuritas-section .product-card__desc {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #001060;
+}
+.figuritas-section .product-card__rubro {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #FFD700;
+}
+.figuritas-section .product-card__precio {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #001060;
+}
+.figuritas-section .product-card__precio-original {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-weight: 600;
+}
+.figuritas-section .product-card__btn {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #001060, #0033cc);
+}
+.figuritas-section .product-card {
+  border-color: #001060;
+  background: #fff;
+}
+.figuritas-section .product-card__img-wrap {
+  background: url("/img/247/diseñoParaCard.webp") center / cover no-repeat #f7f8fc;
+}
+.figuritas-section .product-card--descuento .product-card__precio {
+  color: #e84000;
+}
+
+/* Card de detalle con fondo figuritas */
+.app-247--figuritas .pd__body {
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(255,255,255,0.90), rgba(255,255,255,0.90)),
+    url("/img/247/porductoFiguritas.webp") center / cover no-repeat;
+}
+
+/* ---- Producto detalle — fondo figuritas ---- */
+.app-247--figuritas {
+  position: relative;
+}
+.pd-fig-bg {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+.pd-fig-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.30);
+  z-index: 2;
+  pointer-events: none;
+}
+.app-247--figuritas .shell-247,
+.app-247--figuritas .header-247-outer,
+.app-247--figuritas .page-footer-section {
+  position: relative;
+  z-index: 3;
+}
+
+.figuritas-section__deco {
+  height: clamp(80px, 14vw, 140px);
+  width: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4));
+  position: relative;
+  z-index: 1;
+}
+
+.figuritas-section__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.figuritas-section__title {
+  font-family: "Barlow Condensed", "Montserrat", system-ui, sans-serif;
+  font-size: clamp(36px, 7vw, 72px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.figuritas-section__subtitle {
+  font-family: "Barlow Condensed", "Montserrat", system-ui, sans-serif;
+  font-size: clamp(16px, 3vw, 30px);
+  font-weight: 800;
+  color: #FFD700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .figuritas-section__header { padding: 20px 16px; gap: 14px; }
+}
+
+/* =============================================
+   FIGURITAS MUNDIAL 2026 — HERO BANNER
+   ============================================= */
+
+.figuritas-hero {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #001060;
+}
+
+.figuritas-hero__bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: opacity 0.7s ease;
+  z-index: 1;
+}
+
+/* Contenido central */
+.figuritas-hero__content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 32px 48px 36px;
+  background: none;
+  border-radius: 0;
+}
+
+/* Badge */
+.figuritas-hero__badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-family: "Montserrat", system-ui, sans-serif;
+  background: rgba(0,0,0,0.3);
+}
+
+/* Título */
+.figuritas-hero__title {
+  font-size: clamp(52px, 13vw, 120px);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  text-transform: uppercase;
+  margin: 0;
+  font-family: "Barlow Condensed", "Montserrat", system-ui, sans-serif;
+  text-shadow:
+    0 4px 24px rgba(0,0,0,0.5),
+    0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Subtítulo */
+.figuritas-hero__subtitle {
+  font-size: clamp(16px, 4vw, 34px);
+  font-weight: 800;
+  color: #FFD700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+  font-family: "Barlow Condensed", "Montserrat", system-ui, sans-serif;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.4);
+}
+
+/* Botón CTA */
+@keyframes cta-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255,215,0,0.7), 0 6px 32px rgba(255,180,0,0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(255,215,0,0), 0 6px 32px rgba(255,180,0,0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(255,215,0,0), 0 6px 32px rgba(255,180,0,0.5); }
+}
+
+@keyframes cta-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.figuritas-hero__cta {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    #FF8C00 0%, #FFD700 30%, #fff8a0 50%, #FFD700 70%, #FF8C00 100%
+  );
+  background-size: 200% auto;
+  color: #1a0a00;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  padding: 16px 44px;
+  border-radius: 50px;
+  text-decoration: none;
+  text-transform: uppercase;
+  margin-top: 12px;
+  font-family: "Barlow Condensed", "Montserrat", system-ui, sans-serif;
+  animation: cta-pulse 2s ease-in-out infinite, cta-shimmer 3s linear infinite;
+  border: 2px solid rgba(255,255,255,0.4);
+  transition: transform 0.2s, filter 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.figuritas-hero__cta:hover {
+  transform: scale(1.07);
+  filter: brightness(1.1);
+}
+
+.figuritas-hero__cta:active {
+  transform: scale(0.97);
+}
+
+/* Imagen flotante dentro del card */
+@keyframes figuritas-float {
+  0%   { transform: translateY(0px) rotate(-2deg); }
+  50%  { transform: translateY(-16px) rotate(1.5deg); }
+  100% { transform: translateY(0px) rotate(-2deg); }
+}
+
+.figuritas-hero__paquete {
+  height: clamp(240px, 42vh, 460px);
+  width: auto;
+  animation: figuritas-float 3.6s ease-in-out infinite;
+  filter: drop-shadow(0 16px 32px rgba(0,0,0,0.5));
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .figuritas-hero__paquete {
+    height: clamp(280px, 78vw, 420px);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .figuritas-hero__content { padding: 16px 20px 24px; gap: 14px; }
+  .figuritas-hero__title    { font-size: clamp(52px, 16vw, 88px); }
+  .figuritas-hero__subtitle { font-size: clamp(22px, 6vw, 36px); }
+  .figuritas-hero__cta      { font-size: 16px; padding: 18px 48px; }
 }

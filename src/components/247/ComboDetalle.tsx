@@ -157,6 +157,7 @@ export default function ComboDetalle() {
       supabaseClient
         .from("combos")
         .select("cod_combo, nombre, precio, descripcion, imagen")
+        .eq("activo", true)
         .neq("cod_combo", cod)
         .limit(12)
         .then(({ data }) => {

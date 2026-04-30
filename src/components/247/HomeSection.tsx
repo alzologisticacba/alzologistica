@@ -20,6 +20,7 @@ interface Filtro {
   id?: string;
   familia?: string;
   familias?: string[];
+  seccion?: string;
   grid2x2?: boolean;
   descuento?: boolean;
   combos?: boolean;
@@ -187,7 +188,8 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
               .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
               .gt("stock", 0)
               .limit(300);
-            if (filtro.familia) query = query.ilike("familiaNombre", filtro.familia);
+            if (filtro.familia)  query = query.ilike("familiaNombre", filtro.familia);
+            if (filtro.seccion)  query = query.eq("seccion", filtro.seccion);
             const { data: pool } = await query;
             shufflePoolRef.current = shuffleArray(pool ?? []);
           }

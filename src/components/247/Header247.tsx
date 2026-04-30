@@ -247,6 +247,8 @@ export default function Header247({
     )}
 
     <header ref={headerRef} className="header-247-wrap">
+      <div className="header-247__bg" aria-hidden="true" />
+      <div className="header-247__gradient" aria-hidden="true" />
       <div className="header-247-inner">
 
         {showSearch ? (

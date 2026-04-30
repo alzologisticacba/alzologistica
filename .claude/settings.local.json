@@ -15,7 +15,9 @@
       "Bash(npx tsc:*)",
       "Bash(node -e \"require\\('exceljs'\\); console.log\\('ok'\\)\")",
       "Bash(npm uninstall:*)",
-      "WebFetch(domain:api.v2.digipwms.com)"
+      "WebFetch(domain:api.v2.digipwms.com)",
+      "Bash(powershell -command 'Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\('\\\\''c:/workspace/alzologistica/public/img/247/figuritasFondo.png'\\\\''\\); Write-Output \"$\\($img.Width\\)x$\\($img.Height\\)\"; $img.Dispose\\(\\)')",
+      "Bash(powershell -command 'Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\('\\\\''c:/workspace/alzologistica/public/img/247/disenoBuscador.png'\\\\''\\); Write-Output \"$\\($img.Width\\)x$\\($img.Height\\)\"; $img.Dispose\\(\\)')"
     ]
   }
 }

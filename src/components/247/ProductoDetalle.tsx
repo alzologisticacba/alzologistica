@@ -8,6 +8,12 @@ import PageFooterSection from "./PageFooterSection";
 import { addToCart } from "./hooks/cartStore";
 import { supabaseClient } from "../../lib/supabaseClient";
 
+const FONDOS_FIG = [
+  "/img/247/figuritasFondo.webp",
+  "/img/247/figuritasFondo1.webp",
+  "/img/247/figuritasFondo2.webp",
+];
+
 interface Articulo {
   codigo: number;
   descripcion: string;
@@ -16,6 +22,7 @@ interface Articulo {
   descuento: number;
   multiplo: number;
   familiaNombre: string;
+  seccion?: string;
   uxb: number;
 }
 
@@ -79,6 +86,9 @@ export default function ProductoDetalle() {
   const [error, setError]             = useState(false);
   const [cantidad, setCantidad]       = useState(1);
   const [inputVal, setInputVal]       = useState("1");
+  const [bgIdx, setBgIdx]             = useState(0);
+  const [bgNext, setBgNext]           = useState(1);
+  const [bgFading, setBgFading]       = useState(false);
 
   useEffect(() => {
     const codigo = new URLSearchParams(window.location.search).get("codigo");
@@ -86,7 +96,7 @@ export default function ProductoDetalle() {
 
     supabaseClient
       .from("articulos")
-      .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock, uxb")
+      .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, seccion, stock, uxb")
       .eq("codigo", parseInt(codigo))
       .gt("stock", 0)
       .single()
@@ -112,6 +122,19 @@ export default function ProductoDetalle() {
       .finally(() => setLoading(false));
   }, []);
 
+  const esFiguritas = articulo?.seccion === "figuritas";
+
+  useEffect(() => {
+    if (!esFiguritas) return;
+    const interval = setInterval(() => {
+      const next = (bgIdx + 1) % FONDOS_FIG.length;
+      setBgNext(next);
+      setBgFading(true);
+      setTimeout(() => { setBgIdx(next); setBgFading(false); }, 700);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [esFiguritas, bgIdx]);
+
   const relRowRef = useRef<HTMLDivElement>(null);
   const scrollRel = (dir: "left" | "right") => {
     if (relRowRef.current) relRowRef.current.scrollBy({ left: dir === "right" ? 320 : -320, behavior: "smooth" });
@@ -119,9 +142,15 @@ export default function ProductoDetalle() {
 
   const tieneDescuento = articulo && articulo.descuento > 0;
   const precioConDescuento = tieneDescuento ? articulo!.precioFinal * (1 - articulo!.descuento / 100) : null;
+  const maxCantidad = articulo?.codigo === 549146 ? 50 : Infinity;
 
   return (
-    <div className="app-247">
+    <div className={`app-247${esFiguritas ? " app-247--figuritas" : ""}`}>
+      {esFiguritas && <>
+        <div className="pd-fig-bg" style={{ backgroundImage: `url("${FONDOS_FIG[bgNext]}")`, opacity: 1, zIndex: 0 }} />
+        <div className="pd-fig-bg" style={{ backgroundImage: `url("${FONDOS_FIG[bgIdx]}")`, opacity: bgFading ? 0 : 1, zIndex: 1 }} />
+        <div className="pd-fig-overlay" />
+      </>}
       <Header247 showBack={true} />
       <div className="shell-247">
         {loading && (
@@ -164,7 +193,6 @@ export default function ProductoDetalle() {
                         />
                     }
                   </div>
-                  {tieneDescuento && <div className="pd__badge">-{articulo.descuento}% OFF</div>}
                 </div>
 
                 <div className="pd__info-col">
@@ -227,7 +255,8 @@ export default function ProductoDetalle() {
                         }}
                       />
                       <button className="pd__cantidad-btn"
-                        onClick={() => { const paso = articulo.multiplo || 1; const next = cantidad + paso; setCantidad(next); setInputVal(String(next)); }}>+</button>
+                        onClick={() => { const paso = articulo.multiplo || 1; const next = Math.min(cantidad + paso, maxCantidad); setCantidad(next); setInputVal(String(next)); }}
+                        disabled={cantidad >= maxCantidad}>+</button>
                     </div>
                   </div>
 

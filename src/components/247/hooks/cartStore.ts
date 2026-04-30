@@ -65,13 +65,30 @@ export function addToCart(item: Omit<CartItem, "cantidad" | "cartKey">): "added"
       return "pending";
     }
   }
-  const cartKey  = buildCartKey(item);
-  const cart     = load();
-  const existing = cart.find(i => i.cartKey === cartKey);
-  if (existing) {
-    existing.cantidad += item.multiplo || 1;
+  const MAX_POR_CODIGO: Record<number, number> = { 549146: 50 };
+  const MAX_COMBO_TOTAL: Record<string, number> = { "COMBO597": 2 };
+
+  const cartKey    = buildCartKey(item);
+  const cart       = load();
+  const existing   = cart.find(i => i.cartKey === cartKey);
+  const incremento = item.multiplo || 1;
+
+  // Combos: límite sobre la SUMA de cantidades de todas las filas con el mismo cod_combo
+  let maxQty: number;
+  if (item.cod_combo && MAX_COMBO_TOTAL[item.cod_combo] !== undefined) {
+    const totalOtros = cart
+      .filter(i => i.cod_combo === item.cod_combo && i.cartKey !== cartKey)
+      .reduce((s, i) => s + i.cantidad, 0);
+    maxQty = Math.max(0, MAX_COMBO_TOTAL[item.cod_combo] - totalOtros);
   } else {
-    cart.push({ ...item, cartKey, cantidad: item.multiplo || 1 });
+    maxQty = item.cod_combo ? Infinity : (MAX_POR_CODIGO[item.codigo] ?? Infinity);
+  }
+
+  if (existing) {
+    existing.cantidad = Math.min(existing.cantidad + incremento, maxQty);
+  } else {
+    if (maxQty <= 0) return "added"; // sin cupo disponible, ignorar
+    cart.push({ ...item, cartKey, cantidad: Math.min(incremento, maxQty) });
   }
   save(cart);
   dispatch();
