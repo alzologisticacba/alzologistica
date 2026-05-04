@@ -5092,52 +5092,55 @@ body.modal-open {
 @media (max-width: 768px) {
   .figuritas-section__row .product-card,
   .figuritas-section__row .combo-card {
-    flex: 0 0 62vw;
-    min-width: 62vw;
-    height: calc(100vh - 280px);
+    flex: 0 0 72vw;
+    min-width: 72vw;
+    height: calc(100vh - 300px);
     display: flex;
     flex-direction: column;
   }
   .figuritas-section .product-card__img-wrap {
-    height: 45%;
+    height: 55%;
     flex-shrink: 0;
     aspect-ratio: unset;
   }
   .figuritas-section .product-card__info {
     flex: 1;
-    padding: 14px 14px 6px;
-    gap: 0;
+    padding: 10px 12px 4px;
+    gap: 4px;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: flex-start;
+    overflow: hidden;
   }
   .figuritas-section .product-card__desc {
-    font-size: 30px;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    font-size: 22px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
   .figuritas-section .product-card__rubro {
-    font-size: 20px;
+    font-size: 14px;
   }
   .figuritas-section .product-card__precio-original {
-    font-size: 18px;
+    font-size: 13px;
     margin-top: 0;
   }
   .figuritas-section .product-card__precio {
-    font-size: 42px;
+    font-size: 28px;
     margin-top: 0;
   }
   .figuritas-section .product-card__btn {
-    font-size: 26px;
-    padding: 18px;
-    margin: 0 12px 14px;
+    font-size: 18px;
+    padding: 13px;
+    margin: auto 10px 12px;
     flex-shrink: 0;
+    border-radius: 10px;
   }
   .figuritas-section__row-wrap {
     overflow: visible;
   }
   .figuritas-section__row {
     padding-right: 20vw;
+    justify-content: flex-start;
   }
 }
 /* Tipografía Barlow Condensed en las cards de figuritas */
