@@ -16,14 +16,14 @@ interface Combo {
   detalles: DetalleLine[];
 }
 
-const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/render/image/public/Productos/articulos";
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
 
 function ComboImgDetalle({ cod_combo, nombre }: { cod_combo: string; nombre: string }) {
   const [error, setError] = React.useState(false);
   if (error) return <div className="pd__img-placeholder">🎁</div>;
   return (
     <img
-      src={`${IMG_BASE}/${cod_combo}.png?width=500&quality=80&resize=contain`}
+      src={`${IMG_BASE}/${cod_combo}.png`}
       alt={nombre}
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
       onError={() => setError(true)}

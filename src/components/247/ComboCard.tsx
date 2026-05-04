@@ -10,14 +10,14 @@ interface Combo {
   imagen?: string;
 }
 
-const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/render/image/public/Productos/articulos";
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
 
 function ComboImg({ cod_combo }: { cod_combo: string }) {
   const [error, setError] = React.useState(false);
   if (error) return <div className="product-card__img-placeholder">🎁</div>;
   return (
     <img
-      src={`${IMG_BASE}/${cod_combo}.png?width=300&quality=75&resize=contain`}
+      src={`${IMG_BASE}/${cod_combo}.png`}
       alt=""
       className="combo-card__img"
       onError={() => setError(true)}

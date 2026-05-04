@@ -186,7 +186,7 @@ export default function ProductoDetalle() {
                     {imgError
                       ? <div className="pd__img-placeholder">📦</div>
                       : <img
-                          src={`https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/render/image/public/Productos/articulos/${articulo.codigo}.png?width=500&quality=80&resize=contain`}
+                          src={`https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos/${articulo.codigo}.png`}
                           alt={articulo.descripcion}
                           className="pd__img"
                           onError={() => setImgError(true)}

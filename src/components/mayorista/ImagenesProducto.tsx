@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabaseClient } from "../../lib/supabaseClient";
 
-const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/render/image/public/Productos/articulos";
+const IMG_BASE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
 
 interface Articulo {
   codigo: number;
@@ -22,7 +22,7 @@ function ProductImg({ codigo, descripcion }: { codigo: number; descripcion: stri
   }
   return (
     <img
-      src={`${IMG_BASE}/${codigo}.png?width=400&quality=80&resize=contain`}
+      src={`${IMG_BASE}/${codigo}.png`}
       alt={descripcion}
       className="may-img-photo"
       onError={() => setErr(true)}

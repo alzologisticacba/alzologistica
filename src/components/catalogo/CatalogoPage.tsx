@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabaseClient } from "../../lib/supabaseClient";
 
 const MARCAS_IMG = "/img/247/MarcasMayorista";
-const PROD_IMG   = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/render/image/public/Productos/articulos";
+const PROD_IMG   = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos";
 
 interface Marca {
   codigo: number;
@@ -53,7 +53,7 @@ function ProductImg({ codigo }: { codigo: number }) {
   );
   return (
     <img
-      src={`${PROD_IMG}/${codigo}.png?width=300&quality=75&resize=contain`}
+      src={`${PROD_IMG}/${codigo}.png`}
       alt="" className="cat-card__img"
       onError={() => setError(true)}
       loading="lazy"

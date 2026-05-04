@@ -5051,7 +5051,7 @@ body.modal-open {
 /* Row propio de FiguritasSection */
 .figuritas-section__row-wrap {
   overflow: visible;
-  padding: 0 16px;
+  padding: 8px 16px;
 }
 .figuritas-section__row {
   display: flex;
@@ -5060,6 +5060,7 @@ body.modal-open {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
+  justify-content: center;
 }
 .figuritas-section__row > * {
   scroll-snap-align: start;
@@ -5081,11 +5082,11 @@ body.modal-open {
   display: none;
 }
 
-/* Cards en la sección figuritas */
+/* Cards en la sección figuritas — desktop */
 .figuritas-section__row .product-card,
 .figuritas-section__row .combo-card {
-  flex: 0 0 260px;
-  min-width: 260px;
+  flex: 0 0 380px;
+  min-width: 380px;
 }
 
 @media (max-width: 768px) {
@@ -5172,11 +5173,39 @@ body.modal-open {
   background: linear-gradient(90deg, #001060, #0033cc);
 }
 .figuritas-section .product-card {
-  border-color: #001060;
+  border-color: transparent;
   background: #fff;
 }
+.figuritas-section .product-card:hover {
+  transform: none;
+  box-shadow: 0 6px 28px rgba(0,16,96,0.22);
+}
 .figuritas-section .product-card__img-wrap {
-  background: url("/img/247/diseñoParaCard.webp") center / cover no-repeat #f7f8fc;
+  position: relative;
+  overflow: hidden;
+  background: #001060;
+}
+.figuritas-section .product-card__img-wrap::before,
+.figuritas-section .product-card__img-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+.figuritas-section .product-card__img-wrap::before {
+  background-image: linear-gradient(rgba(255,255,255,0.45), rgba(255,255,255,0.45)), var(--fig-bg-next);
+  opacity: 1;
+}
+.figuritas-section .product-card__img-wrap::after {
+  background-image: linear-gradient(rgba(255,255,255,0.45), rgba(255,255,255,0.45)), var(--fig-bg-cur);
+  opacity: var(--fig-opacity);
+  transition: opacity 0.7s ease;
+}
+.figuritas-section .product-card__img-wrap > * {
+  position: relative;
+  z-index: 1;
 }
 .figuritas-section .product-card--descuento .product-card__precio {
   color: #e84000;

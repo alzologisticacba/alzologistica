@@ -1,5 +1,5 @@
 // src/components/247/FiguritasSection.tsx
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProductCard from "./ProductCard";
 import ComboCard from "./ComboCard";
 import { supabaseClient } from "../../lib/supabaseClient";
@@ -51,8 +51,14 @@ export default function FiguritasSection() {
   const hayItems = !loading && (articulos.length > 0 || combo);
   if (!loading && !hayItems) return null;
 
+  const cssVars = {
+    "--fig-bg-next": `url("${FONDOS[nextIdx]}")`,
+    "--fig-bg-cur":  `url("${FONDOS[idx]}")`,
+    "--fig-opacity": fading ? "0" : "1",
+  } as React.CSSProperties;
+
   return (
-    <section id="figuritas" className="figuritas-section">
+    <section id="figuritas" className="figuritas-section" style={cssVars}>
 
       {/* ── Fondos rotantes ── */}
       <div className="figuritas-section__bg-layer" style={{ backgroundImage: `url("${FONDOS[nextIdx]}")`, opacity: 1, zIndex: 0 }} />
