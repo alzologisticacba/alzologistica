@@ -15,7 +15,7 @@ export default function FiguritasSection() {
   const [nextIdx, setNextIdx] = useState(1);
   const [fading, setFading]   = useState(false);
   const [articulos, setArticulos] = useState<any[]>([]);
-  const [combo, setCombo]         = useState<any | null>(null);
+  const [combos, setCombos]       = useState<any[]>([]);
   const [loading, setLoading]     = useState(true);
   const rowRef = useRef<HTMLDivElement>(null);
 
@@ -39,16 +39,15 @@ export default function FiguritasSection() {
       supabaseClient
         .from("combos")
         .select("cod_combo, nombre, precio, descripcion, imagen")
-        .eq("cod_combo", "COMBO597")
-        .eq("activo", true)
-        .single(),
+        .in("cod_combo", ["COMBO597", "COMBO592"])
+        .eq("activo", true),
     ]).then(([artRes, comboRes]) => {
       setArticulos(artRes.data ?? []);
-      if (!comboRes.error && comboRes.data) setCombo(comboRes.data);
+      setCombos(comboRes.data ?? []);
     }).finally(() => setLoading(false));
   }, []);
 
-  const hayItems = !loading && (articulos.length > 0 || combo);
+  const hayItems = !loading && (articulos.length > 0 || combos.length > 0);
   if (!loading && !hayItems) return null;
 
   const cssVars = {
@@ -83,7 +82,7 @@ export default function FiguritasSection() {
               ? [...Array(2)].map((_, i) => <div key={i} className="product-card product-card--skeleton" />)
               : <>
                   {articulos.map(a => <ProductCard key={a.codigo} articulo={a} />)}
-                  {combo && <ComboCard combo={combo} />}
+                  {combos.map(c => <ComboCard key={c.cod_combo} combo={c} />)}
                 </>
             }
           </div>
