@@ -832,20 +832,29 @@ body {
 }
 
 .may-btn-remove {
-  background: none;
-  border: none;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
-  color: #cbd5e1;
-  font-size: 12px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  transition: color .2s, background .2s;
+  color: #94a3b8;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  border-radius: 10px;
+  transition: color .2s, background .2s, border-color .2s, transform .12s;
   float: right;
 }
 
 .may-btn-remove:hover {
   color: #ef4444;
   background: #fef2f2;
+  border-color: #fecaca;
+  transform: scale(1.04);
 }
 
 /* ── Responsive ── */

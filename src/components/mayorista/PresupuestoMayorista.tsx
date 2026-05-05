@@ -27,6 +27,7 @@ interface LineaPresupuesto {
   descripcion: string;
   costoFinal: number;
   cantidad: number;
+  multiplo: number;
   precio: number;
   descuento: number;
   subtotal: number;
@@ -234,6 +235,7 @@ export default function PresupuestoMayorista() {
   const [multiplo, setMultiplo]   = useState<number>(0);
   const [uxbValue, setUxbValue]   = useState<number | null>(null);
   const [lineas, setLineas]       = useState<LineaPresupuesto[]>([]);
+  const [lineaCantInputs, setLineaCantInputs] = useState<Record<number, string>>({});
   const [buscadorKey, setBuscadorKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
@@ -241,13 +243,15 @@ export default function PresupuestoMayorista() {
   const nextId = useRef(1);
 
   const cant    = parseFloat(cantidad)  || 0;
-  const desc    = parseFloat(descuento) || 0;
   const prec    = parseFloat(precio)    || 0;
   const costoFinal   = articulo?.["Costo Final"] ?? 0;
   const topeDto      = articulo?.["Tope Dto"] ?? 100;
-  const descEfectivo = desc;
+  const descCalculado = precioBase > 0 && prec > 0
+    ? (1 - (prec / precioBase)) * 100
+    : 0;
+  const descEfectivo = descCalculado;
 
-  // precio ya tiene el descuento aplicado (readonly calculado desde precioBase)
+  // El subtotal se calcula con el precio de venta editable
   const subtotal = prec * cant;
 
   // Totales acumulados del presupuesto
@@ -272,25 +276,30 @@ export default function PresupuestoMayorista() {
     return "#ef4444";
   }
 
-  function handleDescuento(val: string) {
-    setDescuento(val);
-    if (precioBase <= 0) return;
-    const d = parseFloat(val) || 0;
-    setPrecio((precioBase * (1 - d / 100)).toFixed(2));
+  function handlePrecio(val: string) {
+    setPrecio(val);
+
+    const parsed = parseFloat(val);
+    if (precioBase > 0 && !isNaN(parsed) && parsed > 0) {
+      setDescuento(((1 - (parsed / precioBase)) * 100).toFixed(2));
+    } else {
+      setDescuento("");
+    }
   }
 
-  const descExcedeTope = articulo && desc > topeDto && desc > 0;
   const cantInvalida    = multiplo > 1 && cant > 0 && cant % multiplo !== 0;
 
   function handleCargar() {
     if (!articulo || cant <= 0 || prec <= 0) return;
 
+    const id = nextId.current++;
     const linea: LineaPresupuesto = {
-      id: nextId.current++,
+      id,
       codArt: articulo["Cod. Art"],
       descripcion: articulo.Descripcion,
       costoFinal,
       cantidad: cant,
+      multiplo: multiplo > 0 ? multiplo : 1,
       precio: prec,
       descuento: descEfectivo,
       subtotal,
@@ -298,6 +307,7 @@ export default function PresupuestoMayorista() {
     };
 
     setLineas(prev => [...prev, linea]);
+    setLineaCantInputs(prev => ({ ...prev, [id]: String(cant) }));
     setArticulo(null);
     setPrecioBase(0);
     setCantidad("");
@@ -308,6 +318,61 @@ export default function PresupuestoMayorista() {
 
   function handleRemove(id: number) {
     setLineas(prev => prev.filter(l => l.id !== id));
+    setLineaCantInputs(prev => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }
+
+  function updateLineaCantidad(id: number, cantidadNueva: number) {
+    setLineas(prev => prev.map((linea) => {
+      if (linea.id !== id) return linea;
+
+      const subtotalLinea = linea.precio * cantidadNueva;
+      const rentabilidadLinea = subtotalLinea > 0
+        ? ((subtotalLinea - linea.costoFinal * cantidadNueva) / subtotalLinea) * 100
+        : 0;
+
+      return {
+        ...linea,
+        cantidad: cantidadNueva,
+        subtotal: subtotalLinea,
+        rentabilidad: rentabilidadLinea,
+      };
+    }));
+  }
+
+  function handleCantidadLineaDraftChange(id: number, raw: string) {
+    setLineaCantInputs(prev => ({
+      ...prev,
+      [id]: raw,
+    }));
+
+    const parsed = parseFloat(raw);
+    if (!isNaN(parsed) && parsed > 0) {
+      updateLineaCantidad(id, parsed);
+    }
+  }
+
+  function commitCantidadLinea(id: number) {
+    const lineaActual = lineas.find(linea => linea.id === id);
+    if (!lineaActual) return;
+
+    const raw = lineaCantInputs[id] ?? String(lineaActual.cantidad);
+    const parsed = parseFloat(raw);
+    const paso = lineaActual.multiplo > 0 ? lineaActual.multiplo : 1;
+    const cantidadNormalizada = isNaN(parsed) || parsed <= 0
+      ? paso
+      : paso > 1
+      ? Math.max(paso, Math.round(parsed / paso) * paso)
+      : parsed;
+
+    updateLineaCantidad(id, cantidadNormalizada);
+    setLineaCantInputs(inputs => ({
+      ...inputs,
+      [id]: String(cantidadNormalizada),
+    }));
   }
 
   const rentTotal = totalPedidoBase > 0
@@ -317,7 +382,7 @@ export default function PresupuestoMayorista() {
     : 0;
 
 
-  const canCargar = !!articulo && cant > 0 && prec > 0 && !descExcedeTope && !cantInvalida;
+  const canCargar = !!articulo && cant > 0 && prec > 0 && !cantInvalida;
 
   return (
     <div className="may-page">
@@ -336,7 +401,7 @@ export default function PresupuestoMayorista() {
               const base = a["Precio Vta Final"] ?? 0;
               setPrecioBase(base);
               setPrecio(base > 0 ? base.toFixed(2) : "");
-              setDescuento("");
+              setDescuento(base > 0 ? "0.00" : "");
               // Fetch multiplo y uxb desde tabla articulos
               const { data } = await supabaseClient
                 .from("articulos")
@@ -387,24 +452,24 @@ export default function PresupuestoMayorista() {
             <label className="may-label">Descuento %</label>
             <input
               type="number"
-              className={`may-input${descExcedeTope ? " may-input--error" : ""}`}
+              className="may-input may-input--readonly"
               placeholder="0"
-              min="0"
               value={descuento}
-              onChange={e => handleDescuento(e.target.value)}
+              readOnly
             />
-            {descExcedeTope && (
-              <span className="may-input-error-msg">Tope: {topeDto}%</span>
+            {articulo && (
+              <span className="may-input-hint">Tope sugerido: {topeDto}%</span>
             )}
           </div>
           <div className="may-field">
             <label className="may-label">Precio Vta</label>
             <input
               type="number"
-              className="may-input may-input--readonly"
+              className="may-input"
               placeholder="0.00"
+              min="0"
               value={precio}
-              readOnly
+              onChange={e => handlePrecio(e.target.value)}
             />
           </div>
           <div className="may-field">
@@ -460,10 +525,25 @@ export default function PresupuestoMayorista() {
                 </div>
                 <div className="may-item__desc">{l.descripcion}</div>
                 <div className="may-item__bottom">
-                  <span className="may-item__qty">
-                    {l.cantidad} x $ {fmt(l.precio)}
-                    {l.descuento > 0 && (
-                      <span className="may-item__desc-pct" style={{ marginLeft: 6 }}>-{l.descuento}%</span>
+                  <span className="may-item__qty" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <input
+                      type="number"
+                      className="may-input"
+                      style={{ width: 84, minWidth: 84, padding: "8px 10px", height: 36 }}
+                      min={l.multiplo > 0 ? l.multiplo : 1}
+                      step={l.multiplo > 0 ? l.multiplo : 1}
+                      value={lineaCantInputs[l.id] ?? String(l.cantidad)}
+                      onChange={(e) => handleCantidadLineaDraftChange(l.id, e.target.value)}
+                      onBlur={() => commitCantidadLinea(l.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.currentTarget.blur();
+                        }
+                      }}
+                    />
+                    <span>x $ {fmt(l.precio)}</span>
+                    {l.descuento !== 0 && (
+                      <span className="may-item__desc-pct" style={{ marginLeft: 6 }}>{fmt(l.descuento)}%</span>
                     )}
                   </span>
                   <div className="may-item__right">
