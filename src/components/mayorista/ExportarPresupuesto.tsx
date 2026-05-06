@@ -87,7 +87,7 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
         l.descripcion,
         `$ ${fmt(l.precio)}`,
         l.cantidad,
-        l.descuento > 0 ? `${l.descuento}%` : "-",
+        l.descuento > 0 ? `${l.descuento.toFixed(2)}%` : "-",
         `$ ${fmt(l.subtotal)}`,
       ]),
       foot: [["", "", "", "", "Total", `$ ${fmt(totalPedido)}`]],
@@ -204,7 +204,7 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
                   <td style={{ padding: "10px 12px", color: "#64748b" }}>$ {fmt(l.precio)}</td>
                   <td style={{ padding: "10px 12px", textAlign: "center" }}>{l.cantidad}</td>
                   <td style={{ padding: "10px 12px", textAlign: "center", color: l.descuento > 0 ? "#f59e0b" : "#94a3b8" }}>
-                    {l.descuento > 0 ? `${l.descuento}%` : "-"}
+                    {l.descuento > 0 ? `${l.descuento.toFixed(2)}%` : "-"}
                   </td>
                   <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1a1a2e" }}>$ {fmt(l.subtotal)}</td>
                 </tr>

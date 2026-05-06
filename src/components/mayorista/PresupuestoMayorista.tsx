@@ -29,6 +29,8 @@ interface LineaPresupuesto {
   cantidad: number;
   multiplo: number;
   precio: number;
+  precioBase: number;
+  topeDto: number;
   descuento: number;
   subtotal: number;
   rentabilidad: number;
@@ -54,7 +56,6 @@ function BuscadorProducto({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const stockCodes = useRef<number[]>([]);
-  const [stockLoaded, setStockLoaded] = useState(false);
 
   // Carga códigos con stock al montar
   useEffect(() => {
@@ -69,7 +70,6 @@ function BuscadorProducto({
       const codes = (data ?? []).map((s: any) => s.codigo);
       console.log(`Stocks cargados: ${codes.length} artículos con stock`);
       stockCodes.current = codes;
-      setStockLoaded(true);
     }
     fetchStock();
   }, []);
@@ -235,7 +235,6 @@ export default function PresupuestoMayorista() {
   const [multiplo, setMultiplo]   = useState<number>(0);
   const [uxbValue, setUxbValue]   = useState<number | null>(null);
   const [lineas, setLineas]       = useState<LineaPresupuesto[]>([]);
-  const [lineaCantInputs, setLineaCantInputs] = useState<Record<number, string>>({});
   const [buscadorKey, setBuscadorKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
@@ -259,7 +258,7 @@ export default function PresupuestoMayorista() {
   const totalCosto      = lineas.reduce((s, l) => s + l.costoFinal * l.cantidad, 0);
 
   // Total mostrado al cliente: pactada divide por 1.105 (precio neto sin IVA)
-  const totalPedido = pactada ? totalPedidoBase / 1.105 : totalPedidoBase;
+  const totalPedido = totalPedidoBase;
 
   const projBaseTotal  = totalPedidoBase + prec * cant;
   const projTotalCosto = totalCosto + costoFinal * cant;
@@ -276,9 +275,15 @@ export default function PresupuestoMayorista() {
     return "#ef4444";
   }
 
+  function handleDescuento(val: string) {
+    setDescuento(val);
+    if (precioBase <= 0) return;
+    const d = parseFloat(val) || 0;
+    setPrecio((precioBase * (1 - d / 100)).toFixed(2));
+  }
+
   function handlePrecio(val: string) {
     setPrecio(val);
-
     const parsed = parseFloat(val);
     if (precioBase > 0 && !isNaN(parsed) && parsed > 0) {
       setDescuento(((1 - (parsed / precioBase)) * 100).toFixed(2));
@@ -287,7 +292,8 @@ export default function PresupuestoMayorista() {
     }
   }
 
-  const cantInvalida    = multiplo > 1 && cant > 0 && cant % multiplo !== 0;
+  const descExcedeTope = articulo && (parseFloat(descuento) || 0) > topeDto && (parseFloat(descuento) || 0) > 0;
+  const cantInvalida   = multiplo > 1 && cant > 0 && cant % multiplo !== 0;
 
   function handleCargar() {
     if (!articulo || cant <= 0 || prec <= 0) return;
@@ -301,13 +307,14 @@ export default function PresupuestoMayorista() {
       cantidad: cant,
       multiplo: multiplo > 0 ? multiplo : 1,
       precio: prec,
+      precioBase,
+      topeDto,
       descuento: descEfectivo,
       subtotal,
       rentabilidad,
     };
 
     setLineas(prev => [...prev, linea]);
-    setLineaCantInputs(prev => ({ ...prev, [id]: String(cant) }));
     setArticulo(null);
     setPrecioBase(0);
     setCantidad("");
@@ -318,61 +325,6 @@ export default function PresupuestoMayorista() {
 
   function handleRemove(id: number) {
     setLineas(prev => prev.filter(l => l.id !== id));
-    setLineaCantInputs(prev => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-  }
-
-  function updateLineaCantidad(id: number, cantidadNueva: number) {
-    setLineas(prev => prev.map((linea) => {
-      if (linea.id !== id) return linea;
-
-      const subtotalLinea = linea.precio * cantidadNueva;
-      const rentabilidadLinea = subtotalLinea > 0
-        ? ((subtotalLinea - linea.costoFinal * cantidadNueva) / subtotalLinea) * 100
-        : 0;
-
-      return {
-        ...linea,
-        cantidad: cantidadNueva,
-        subtotal: subtotalLinea,
-        rentabilidad: rentabilidadLinea,
-      };
-    }));
-  }
-
-  function handleCantidadLineaDraftChange(id: number, raw: string) {
-    setLineaCantInputs(prev => ({
-      ...prev,
-      [id]: raw,
-    }));
-
-    const parsed = parseFloat(raw);
-    if (!isNaN(parsed) && parsed > 0) {
-      updateLineaCantidad(id, parsed);
-    }
-  }
-
-  function commitCantidadLinea(id: number) {
-    const lineaActual = lineas.find(linea => linea.id === id);
-    if (!lineaActual) return;
-
-    const raw = lineaCantInputs[id] ?? String(lineaActual.cantidad);
-    const parsed = parseFloat(raw);
-    const paso = lineaActual.multiplo > 0 ? lineaActual.multiplo : 1;
-    const cantidadNormalizada = isNaN(parsed) || parsed <= 0
-      ? paso
-      : paso > 1
-      ? Math.max(paso, Math.round(parsed / paso) * paso)
-      : parsed;
-
-    updateLineaCantidad(id, cantidadNormalizada);
-    setLineaCantInputs(inputs => ({
-      ...inputs,
-      [id]: String(cantidadNormalizada),
-    }));
   }
 
   const rentTotal = totalPedidoBase > 0
@@ -452,12 +404,16 @@ export default function PresupuestoMayorista() {
             <label className="may-label">Descuento %</label>
             <input
               type="number"
-              className="may-input may-input--readonly"
+              className={`may-input${descExcedeTope ? " may-input--error" : ""}`}
               placeholder="0"
+              min="0"
               value={descuento}
-              readOnly
+              onChange={e => handleDescuento(e.target.value)}
             />
-            {articulo && (
+            {descExcedeTope && (
+              <span className="may-input-error-msg">Tope: {topeDto}%</span>
+            )}
+            {articulo && !descExcedeTope && (
               <span className="may-input-hint">Tope sugerido: {topeDto}%</span>
             )}
           </div>
@@ -525,25 +481,10 @@ export default function PresupuestoMayorista() {
                 </div>
                 <div className="may-item__desc">{l.descripcion}</div>
                 <div className="may-item__bottom">
-                  <span className="may-item__qty" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <input
-                      type="number"
-                      className="may-input"
-                      style={{ width: 84, minWidth: 84, padding: "8px 10px", height: 36 }}
-                      min={l.multiplo > 0 ? l.multiplo : 1}
-                      step={l.multiplo > 0 ? l.multiplo : 1}
-                      value={lineaCantInputs[l.id] ?? String(l.cantidad)}
-                      onChange={(e) => handleCantidadLineaDraftChange(l.id, e.target.value)}
-                      onBlur={() => commitCantidadLinea(l.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.currentTarget.blur();
-                        }
-                      }}
-                    />
-                    <span>x $ {fmt(l.precio)}</span>
-                    {l.descuento !== 0 && (
-                      <span className="may-item__desc-pct" style={{ marginLeft: 6 }}>{fmt(l.descuento)}%</span>
+                  <span className="may-item__qty">
+                    {l.cantidad} x $ {fmt(l.precio)}
+                    {l.descuento > 0 && (
+                      <span className="may-item__desc-pct" style={{ marginLeft: 6 }}>-{l.descuento.toFixed(1)}%</span>
                     )}
                   </span>
                   <div className="may-item__right">
