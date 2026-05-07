@@ -229,13 +229,13 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
     <section className="home-section home-section--banner">
       {banner ? (
         <a href={verTodosHref} className="home-section__banner-link">
-          <img src={banner} alt={titulo} className="home-section__banner" />
+          <img src={banner} alt={titulo} className="home-section__banner" loading="lazy" />
         </a>
       ) : (
         <a href={verTodosHref} className="home-section__banner-link home-section__banner-link--css">
           <div className="home-section__css-banner">
             <h2 className="home-section__css-banner__titulo">{titulo}</h2>
-            <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" className="home-section__css-banner__logo" />
+            <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" className="home-section__css-banner__logo" loading="lazy" />
           </div>
         </a>
       )}

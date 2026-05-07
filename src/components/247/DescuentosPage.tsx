@@ -43,6 +43,7 @@ export default function DescuentosPage() {
             src="/img/247/secciones/descuentosExlusivosBanner.png"
             alt="Descuentos Exclusivos"
             className="seccion-banner"
+            loading="lazy"
           />
         </div>
         <div className="cat-page__search-wrap">

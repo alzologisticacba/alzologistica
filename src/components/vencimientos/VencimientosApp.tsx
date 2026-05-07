@@ -3,19 +3,20 @@ import { useState, useEffect, useMemo } from "react";
 import { supabaseClient } from "../../lib/supabaseClient";
 
 interface Producto {
-  CodigoArticulo: number;
+  CodigoArticulo: string;
   Area: string;
   Ubicacion: string;
   FechaVencimiento: string;
   "Dias para vencer": number;
   Cantidad: number;
   Descripcion: string;
+  Lote?: string;
+  Contenedor?: string;
 }
 
 type Filtro = "todos" | "rojo" | "naranja" | "verde";
 
 const SESSION_KEY  = "venc_auth";
-const DIAS_PROXIMO = 30;
 const POR_PAGINA   = 30;
 
 function estadoProducto(dias: number): "rojo" | "naranja" | "verde" {
@@ -168,10 +169,13 @@ export default function VencimientosApp() {
   const [expandido, setExpandido]     = useState<string | null>(null);
 
   useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) === "1") setAutenticado(true);
+    const sesionActiva = sessionStorage.getItem(SESSION_KEY) === "1";
+    console.info("[vencimientos] sesion", { sesionActiva });
+    if (sesionActiva) setAutenticado(true);
   }, []);
 
   useEffect(() => {
+    console.info("[vencimientos] autenticado", { autenticado });
     if (autenticado) fetchProductos();
   }, [autenticado]);
 
@@ -182,13 +186,36 @@ export default function VencimientosApp() {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabaseClient
-        .from("vencimientos")
-        .select(`CodigoArticulo, Area, Ubicacion, FechaVencimiento, "Dias para vencer", Cantidad, Descripcion`)
-        .order("Dias para vencer", { ascending: true });
+      const url = `/api/vencimientos/digip?t=${Date.now()}`;
+      console.info("[vencimientos] consultando Digip", { url });
 
-      if (error) throw new Error(error.message);
-      setProductos(data ?? []);
+      const res = await fetch(url, {
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+          "Cache-Control": "no-cache",
+        },
+      });
+      const data = await res.json().catch(() => null);
+
+      console.info("[vencimientos] respuesta Digip", {
+        status: res.status,
+        ok: res.ok,
+        esArray: Array.isArray(data),
+        total: Array.isArray(data) ? data.length : null,
+        data,
+      });
+
+      if (!res.ok) {
+        throw new Error(data?.error ?? `Error ${res.status}`);
+      }
+
+      const productosDigip = Array.isArray(data) ? data : [];
+      console.info("[vencimientos] productos recibidos", {
+        total: productosDigip.length,
+        primero: productosDigip[0] ?? null,
+      });
+      setProductos(productosDigip);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -371,6 +398,10 @@ export default function VencimientosApp() {
                                 <div className="venc-detail-grid">
                                   <div><span>Descripción</span><strong>{p.Descripcion}</strong></div>
                                   <div><span>Código</span><strong>{p.CodigoArticulo}</strong></div>
+                                  <div><span>Área</span><strong>{p.Area || "Sin área"}</strong></div>
+                                  <div><span>Ubicación</span><strong>{p.Ubicacion || "Sin ubicación"}</strong></div>
+                                  <div><span>Lote</span><strong>{p.Lote || "Sin lote"}</strong></div>
+                                  <div><span>Contenedor</span><strong>{p.Contenedor || "Sin contenedor"}</strong></div>
                                   <div><span>Vencimiento</span><strong>{formatFecha(p.FechaVencimiento)}</strong></div>
                                   <div><span>Días restantes</span><strong>{p["Dias para vencer"]}d</strong></div>
                                   <div><span>Cantidad</span><strong>{p.Cantidad}</strong></div>

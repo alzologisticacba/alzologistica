@@ -167,7 +167,8 @@ function StepSeller({ user, totalPrecio, cartMessage, onSend }: StepSellerProps)
             <div className="alzomodal-seller-card__photo">
               {s.photo && !imgErrors[s.id]
                 ? <img src={s.photo} alt={s.nombre}
-                    onError={() => setImgErrors(p => ({ ...p, [s.id]: true }))} />
+                    onError={() => setImgErrors(p => ({ ...p, [s.id]: true }))}
+                    loading="lazy" />
                 : <span className="alzomodal-seller-card__initials">
                     {s.nombre.split(" ").map(w => w[0]).slice(0, 2).join("")}
                   </span>

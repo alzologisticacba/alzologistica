@@ -66,6 +66,7 @@ export default function CombosPage() {
             src="/img/247/secciones/combosBanner.png"
             alt="Combos"
             className="seccion-banner"
+            loading="lazy"
           />
         </div>
         <div className="cat-page__search-wrap">

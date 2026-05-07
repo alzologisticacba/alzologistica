@@ -88,6 +88,7 @@ export default function BrandSection({ seccion, titulo }: Props) {
               alt={titulo}
               className="brand-section__banner-img"
               onError={() => setImgError(true)}
+              loading="lazy"
             />
             <span className="brand-section__banner-cta-overlay">ver todos →</span>
           </div>

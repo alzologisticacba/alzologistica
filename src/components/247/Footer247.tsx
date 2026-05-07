@@ -59,6 +59,7 @@ export default function Footer247() {
                     src={item.img}
                     alt={item.titulo}
                     className="footer247__icon-img"
+                    loading="lazy"
                   />
                 </div>
                 <h3 className="footer247__titulo">{item.titulo}</h3>

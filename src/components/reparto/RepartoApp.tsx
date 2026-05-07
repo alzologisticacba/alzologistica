@@ -2,14 +2,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import QrScanner from "qr-scanner";
 import { supabaseClient } from "../../lib/supabaseClient";
 import type { Session as SupabaseSession } from "@supabase/supabase-js";
-import { getPedidosPorContenedor, getContenedoresDePedido } from "../../lib/digip";
+import { getPedidosPorContenedor, getContenedoresDePedido, getCliente } from "../../lib/digip";
+import AdminDashboard from "./AdminDashboard";
 
 type TipoPatente = "mercosur" | "vieja" | null;
 
-/** Detecta el tipo según el patrón:
- *  Mercosur (2015): LL NNN LL  → 2 letras, 3 dígitos, 2 letras
- *  Vieja    (1994): LLL NNN    → 3 letras, 3 dígitos
- */
 function detectTipo(p: string): TipoPatente {
   if (p.length < 2) return null;
   if (/^[A-Z]{2}\d/.test(p)) return "mercosur";
@@ -17,6 +14,19 @@ function detectTipo(p: string): TipoPatente {
   return null;
 }
 
+function fechaArgentina(): string {
+  return new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+  });
+}
+
+function horaCorta(iso: string): string {
+  return new Date(iso).toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Argentina/Buenos_Aires",
+  });
+}
 
 /* ── Input con forma de patente ── */
 function PlateInput({
@@ -34,7 +44,6 @@ function PlateInput({
 
   return (
     <div className={`rep-plate rep-plate--${tipo ?? "neutral"}${errorClass}`}>
-      {/* Header — siempre presente, contenido cambia sin remountar el input */}
       <div className="rep-plate__header">
         {tipo === "mercosur" && (
           <>
@@ -52,8 +61,6 @@ function PlateInput({
           </>
         )}
       </div>
-
-      {/* Input — siempre en la misma posición del DOM → nunca pierde foco */}
       <input
         id="patente"
         type="text"
@@ -66,8 +73,6 @@ function PlateInput({
         spellCheck={false}
         onChange={(e) => onChange(e.target.value.toUpperCase())}
       />
-
-      {/* Footer */}
       <div className="rep-plate__footer">
         {tipo === "mercosur" && "MERCOSUR"}
       </div>
@@ -78,16 +83,47 @@ function PlateInput({
 interface OperativeSession {
   repartidor: string;
   patente: string;
+  sesionId: string;
 }
+
+interface ItemReparto {
+  id: string;
+  contenedor: string;
+  codigo_pedido: string;
+  codigo_cliente: string;
+  cliente_nombre: string;
+  cant_bultos: number;
+  estado: "pendiente" | "entregado";
+  hora_carga: string;
+  hora_egreso: string | null;
+}
+
+interface BultoMode {
+  contenedor: string;
+  clienteNombre: string;
+  totalBultos: number;
+  escaneados: number;
+  tipo: "carga" | "entrega";
+  item?: ItemReparto;
+  codigoPedido?: string;
+  codigoCliente?: string;
+}
+
+type FeedbackTipo = "ok" | "warn" | "error";
 
 const SESSION_KEY = "reparto_session";
 
+/* ─────────────────────────────────────────
+   ROOT
+───────────────────────────────────────── */
 export default function RepartoApp() {
   const [authSession, setAuthSession] = useState<SupabaseSession | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
+  const [role, setRole] = useState<"admin" | "repartidor" | null>(null);
   const [opSession, setOpSession] = useState<OperativeSession | null>(null);
 
-  // Supabase Auth
   useEffect(() => {
     supabaseClient.auth.getSession().then(({ data }) => {
       setAuthSession(data.session);
@@ -100,18 +136,37 @@ export default function RepartoApp() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Sesión operativa (patente + repartidor)
   useEffect(() => {
     if (!authSession) return;
+
+    setCheckingAdmin(true);
+    supabaseClient
+      .from("admins")
+      .select("email")
+      .eq("email", authSession.user.email ?? "")
+      .maybeSingle()
+      .then(({ data }) => {
+        setIsAdmin(!!data);
+        setCheckingAdmin(false);
+      });
+
     const saved = sessionStorage.getItem(SESSION_KEY);
     if (saved) {
-      try { setOpSession(JSON.parse(saved)); } catch { /* ignore */ }
+      try {
+        const parsed = JSON.parse(saved);
+        if (!parsed.sesionId) {
+          sessionStorage.removeItem(SESSION_KEY);
+          return;
+        }
+        setOpSession(parsed);
+      } catch { /* ignore */ }
     }
   }, [authSession]);
 
   async function handleGoogleLogout() {
     sessionStorage.removeItem(SESSION_KEY);
     setOpSession(null);
+    setRole(null);
     await supabaseClient.auth.signOut();
   }
 
@@ -125,10 +180,53 @@ export default function RepartoApp() {
     setOpSession(null);
   }
 
-  if (authLoading) return <LoadingScreen />;
+  if (authLoading || checkingAdmin) return <LoadingScreen />;
   if (!authSession) return <GoogleLoginScreen />;
+  if (isAdmin && !role) return <RoleSelector onSelect={setRole} onGoogleLogout={handleGoogleLogout} />;
+  if (role === "admin") return <AdminDashboard authSession={authSession} onBack={() => setRole(null)} onGoogleLogout={handleGoogleLogout} />;
   if (!opSession) return <LoginScreen onLogin={handleOpLogin} onGoogleLogout={handleGoogleLogout} />;
   return <Dashboard session={opSession} authToken={authSession.access_token} onLogout={handleOpLogout} onGoogleLogout={handleGoogleLogout} />;
+}
+
+/* ─────────────────────────────────────────
+   SELECTOR DE ROL
+───────────────────────────────────────── */
+function RoleSelector({ onSelect, onGoogleLogout }: { onSelect: (role: "admin" | "repartidor") => void; onGoogleLogout: () => void }) {
+  return (
+    <div className="rep-login-wrap">
+      <div className="rep-login-card">
+        <img src="/img/alzo_logo.png" alt="Alzo Logística" className="rep-login-card__logo" />
+        <p className="rep-login-card__title">¿Cómo querés ingresar?</p>
+
+        <div className="rep-role-btns">
+          <button className="rep-role-btn" onClick={() => onSelect("admin")}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            <span className="rep-role-btn__title">Administrador</span>
+            <span className="rep-role-btn__sub">Estadísticas y control</span>
+          </button>
+
+          <button className="rep-role-btn" onClick={() => onSelect("repartidor")}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M1 3h15v13H1zM16 8h4l3 3v5h-7V8z" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+            <span className="rep-role-btn__title">Repartidor</span>
+            <span className="rep-role-btn__sub">Control de ruta</span>
+          </button>
+        </div>
+
+        <button type="button" className="rep-btn-salir-google" onClick={onGoogleLogout}>
+          Cerrar sesión de Google
+        </button>
+      </div>
+    </div>
+  );
 }
 
 /* ─────────────────────────────────────────
@@ -167,9 +265,7 @@ function GoogleLoginScreen() {
       <div className="rep-login-card">
         <img src="/img/alzo_logo.png" alt="Alzo Logística" className="rep-login-card__logo" />
         <p className="rep-login-card__title">Herramienta para reparto</p>
-
         {error && <p style={{ color: "#fca5a5", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{error}</p>}
-
         <button className="rep-btn-google" onClick={handleGoogle} disabled={loading}>
           {loading ? (
             <><span className="rep-spinner" />Redirigiendo...</>
@@ -234,100 +330,98 @@ function LoginScreen({ onLogin, onGoogleLogout }: { onLogin: (s: OperativeSessio
     }
 
     setLoading(true);
-    const { data } = await supabaseClient
+
+    // Verificar patente
+    const { data: patenteData } = await supabaseClient
       .from("patentes")
       .select("nroPatente")
       .eq("nroPatente", patenteClean)
       .maybeSingle();
-    setLoading(false);
 
-    if (!data) {
+    if (!patenteData) {
       setPatenteError(true);
       setError("Patente no encontrada. Verificá el número ingresado.");
+      setLoading(false);
       return;
     }
 
-    onLogin({ repartidor, patente: patenteClean });
+    // Verificar o crear sesión del día
+    const hoy = fechaArgentina();
+    const { data: sesionExistente } = await supabaseClient
+      .from("sesiones_reparto")
+      .select("id, patente")
+      .eq("repartidor", repartidor)
+      .eq("fecha", hoy)
+      .maybeSingle();
+
+    let sesionId: string;
+
+    if (sesionExistente) {
+      if (sesionExistente.patente !== patenteClean) {
+        setError(`${repartidor} ya tiene una sesión activa hoy con la patente ${sesionExistente.patente}.`);
+        setLoading(false);
+        return;
+      }
+      sesionId = sesionExistente.id;
+    } else {
+      const { data: nueva, error: insertError } = await supabaseClient
+        .from("sesiones_reparto")
+        .insert({ fecha: hoy, repartidor, patente: patenteClean })
+        .select("id")
+        .single();
+
+      if (insertError || !nueva) {
+        setError("Error al crear la sesión. Intentá de nuevo.");
+        setLoading(false);
+        return;
+      }
+      sesionId = nueva.id;
+    }
+
+    setLoading(false);
+    onLogin({ repartidor, patente: patenteClean, sesionId });
   }
 
   return (
     <div className="rep-login-wrap">
       <div className="rep-login-card">
-        <img
-          src="/img/alzo_logo.png"
-          alt="Alzo Logística"
-          className="rep-login-card__logo"
-        />
+        <img src="/img/alzo_logo.png" alt="Alzo Logística" className="rep-login-card__logo" />
         <p className="rep-login-card__title">Herramienta para reparto</p>
 
         <form className="rep-form" onSubmit={handleSubmit} noValidate>
-          {/* Patente */}
           <div className="rep-field">
-            <label className="rep-label" htmlFor="patente">
-              Número de patente
-            </label>
+            <label className="rep-label" htmlFor="patente">Número de patente</label>
             <PlateInput
               value={patente}
               hasError={patenteError}
-              onChange={(v) => {
-                setPatenteError(false);
-                setError("");
-                setPatente(v);
-              }}
+              onChange={(v) => { setPatenteError(false); setError(""); setPatente(v); }}
             />
           </div>
 
-          {/* Repartidor */}
           <div className="rep-field">
-            <label className="rep-label" htmlFor="repartidor">
-              Seleccioná tu perfil
-            </label>
+            <label className="rep-label" htmlFor="repartidor">Seleccioná tu perfil</label>
             <div className="rep-select-wrap">
               <select
                 id="repartidor"
                 className={`rep-select${selectError ? " rep-select--error" : ""}`}
                 value={repartidor}
                 disabled={loadingOptions}
-                onChange={(e) => {
-                  setSelectError(false);
-                  setError("");
-                  setRepartidor(e.target.value);
-                }}
+                onChange={(e) => { setSelectError(false); setError(""); setRepartidor(e.target.value); }}
               >
-                <option value="">
-                  {loadingOptions ? "Cargando..." : "Seleccioná tu perfil"}
-                </option>
+                <option value="">{loadingOptions ? "Cargando..." : "Seleccioná tu perfil"}</option>
                 {repartidores.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
+                  <option key={r} value={r}>{r}</option>
                 ))}
               </select>
-              {/* Ícono chevron */}
-              <svg
-                className="rep-select-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                  clipRule="evenodd"
-                />
+              <svg className="rep-select-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </div>
           </div>
 
-          {/* Error */}
           <p className="rep-error-msg">{error}</p>
 
-          {/* Botón */}
-          <button
-            type="submit"
-            className="rep-btn-ingresar"
-            disabled={loading}
-          >
+          <button type="submit" className="rep-btn-ingresar" disabled={loading}>
             {loading && <span className="rep-spinner" />}
             {loading ? "Verificando..." : "Ingresar"}
           </button>
@@ -344,10 +438,11 @@ function LoginScreen({ onLogin, onGoogleLogout }: { onLogin: (s: OperativeSessio
 /* ─────────────────────────────────────────
    LECTOR QR
 ───────────────────────────────────────── */
-function QrReader({ onResult }: { onResult: (contenedor: string) => void }) {
+function QrReader({ onResult, autoOpen = false }: { onResult: (contenedor: string) => void; autoOpen?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const scannerRef = useRef<QrScanner | null>(null);
-  const [active, setActive] = useState(false);
+  const handledRef = useRef(false);
+  const [active, setActive] = useState(autoOpen);
   const [error, setError] = useState("");
 
   const stop = useCallback(() => {
@@ -359,13 +454,15 @@ function QrReader({ onResult }: { onResult: (contenedor: string) => void }) {
 
   useEffect(() => () => { stop(); }, [stop]);
 
-  // Inicia el scanner cuando el video ya está en el DOM
   useEffect(() => {
-    if (!active || !videoRef.current) return;
+    if (!active) { handledRef.current = false; return; }
+    if (!videoRef.current) return;
 
     const scanner = new QrScanner(
       videoRef.current,
       (result) => {
+        if (handledRef.current) return;
+        handledRef.current = true;
         onResult(result.data);
         stop();
       },
@@ -401,7 +498,7 @@ function QrReader({ onResult }: { onResult: (contenedor: string) => void }) {
       ) : (
         <div className="rep-qr-scanner">
           <div className="rep-qr-viewfinder">
-            <video ref={videoRef} className="rep-qr-video" />
+            <video ref={videoRef} className="rep-qr-video" autoPlay playsInline muted />
             <div className="rep-scan-zone rep-scan-zone--square">
               <div className="rep-scan-zone__corner rep-scan-zone__corner--tl" />
               <div className="rep-scan-zone__corner rep-scan-zone__corner--tr" />
@@ -420,7 +517,130 @@ function QrReader({ onResult }: { onResult: (contenedor: string) => void }) {
 }
 
 /* ─────────────────────────────────────────
-   DASHBOARD (post-login)
+   FINALIZAR DÍA
+───────────────────────────────────────── */
+function FinalizarScreen({
+  session,
+  items,
+  onCancel,
+  onConfirm,
+}: {
+  session: OperativeSession;
+  items: ItemReparto[];
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const entregados = items.filter((i) => i.estado === "entregado");
+  const pendientes = items.filter((i) => i.estado === "pendiente");
+  const bultosEntregados = entregados.reduce((sum, i) => sum + i.cant_bultos, 0);
+  const totalBultos = items.reduce((sum, i) => sum + i.cant_bultos, 0);
+
+  return (
+    <div className="rep-finalizar-overlay">
+      <div className="rep-finalizar-card">
+        <div className="rep-finalizar-header">
+          <p className="rep-finalizar-fecha">{new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Argentina/Buenos_Aires" })}</p>
+          <h2 className="rep-finalizar-title">Resumen del día</h2>
+          <p className="rep-finalizar-sub">{session.repartidor} · Patente {session.patente}</p>
+        </div>
+
+        <div className="rep-finalizar-stats">
+          <div className="rep-finalizar-stat">
+            <span className="rep-finalizar-stat__num rep-finalizar-stat__num--done">{entregados.length}</span>
+            <span className="rep-finalizar-stat__label">Entregados</span>
+          </div>
+          <div className="rep-finalizar-stat">
+            <span className={`rep-finalizar-stat__num${pendientes.length > 0 ? " rep-finalizar-stat__num--pending" : ""}`}>{pendientes.length}</span>
+            <span className="rep-finalizar-stat__label">Pendientes</span>
+          </div>
+          <div className="rep-finalizar-stat">
+            <span className="rep-finalizar-stat__num">{totalBultos}</span>
+            <span className="rep-finalizar-stat__label">Bultos totales</span>
+          </div>
+          <div className="rep-finalizar-stat">
+            <span className="rep-finalizar-stat__num rep-finalizar-stat__num--done">{bultosEntregados}</span>
+            <span className="rep-finalizar-stat__label">Bultos entregados</span>
+          </div>
+        </div>
+
+        {pendientes.length > 0 && (
+          <div className="rep-finalizar-warning">
+            ⚠️ Quedan {pendientes.length} pedido{pendientes.length !== 1 ? "s" : ""} sin entregar
+          </div>
+        )}
+
+        <div className="rep-finalizar-actions">
+          <button className="rep-btn-confirmar-finalizar" onClick={onConfirm}>
+            Confirmar y finalizar día
+          </button>
+          <button className="rep-btn-volver" onClick={onCancel}>
+            Volver
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
+   ITEM CARD
+───────────────────────────────────────── */
+function ItemCard({
+  item,
+  onEntregar,
+  isDeliveryTarget,
+  onCancelDelivery,
+  onCancelEntrega,
+}: {
+  item: ItemReparto;
+  onEntregar: () => void;
+  isDeliveryTarget: boolean;
+  onCancelDelivery: () => void;
+  onCancelEntrega: () => void;
+}) {
+  const entregado = item.estado === "entregado";
+  return (
+    <div className={`rep-item-card${entregado ? " rep-item-card--entregado" : ""}${isDeliveryTarget ? " rep-item-card--scanning" : ""}`}>
+      <div className="rep-item-card__header">
+        <span className="rep-item-card__cliente">{item.cliente_nombre}</span>
+        <span className={`rep-badge rep-badge--${item.estado}`}>
+          {entregado ? "Entregado" : isDeliveryTarget ? "Escaneando..." : "Pendiente"}
+        </span>
+      </div>
+      <div className="rep-item-card__body">
+        <span className="rep-item-card__detail">
+          <span className="rep-item-card__detail-label">Pedido</span>
+          {item.codigo_pedido}
+        </span>
+        <span className="rep-item-card__detail">
+          <span className="rep-item-card__detail-label">Bultos</span>
+          {item.cant_bultos}
+        </span>
+      </div>
+      {entregado ? (
+        <div className="rep-item-card__footer rep-item-card__footer--entregado">
+          {item.hora_egreso && (
+            <span className="rep-item-card__hora">✓ Entregado a las {horaCorta(item.hora_egreso)}</span>
+          )}
+          <button className="rep-btn-cancelar-entrega-sm" onClick={onCancelEntrega}>
+            Cancelar entrega
+          </button>
+        </div>
+      ) : isDeliveryTarget ? (
+        <button className="rep-btn-cancelar-entrega" onClick={onCancelDelivery}>
+          Cancelar entrega
+        </button>
+      ) : (
+        <button className="rep-btn-entregar-full" onClick={onEntregar}>
+          Entregar
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
+   DASHBOARD
 ───────────────────────────────────────── */
 function Dashboard({
   session,
@@ -433,33 +653,235 @@ function Dashboard({
   onLogout: () => void;
   onGoogleLogout: () => void;
 }) {
-  const [bultos, setBultos] = useState<number | null>(null);
+  const [items, setItems] = useState<ItemReparto[]>([]);
+  const [loadingItems, setLoadingItems] = useState(true);
   const [loadingApi, setLoadingApi] = useState(false);
-  const [apiError, setApiError] = useState("");
+  const [feedback, setFeedback] = useState<{ msg: string; tipo: FeedbackTipo } | null>(null);
+  const [deliveryTarget, setDeliveryTarget] = useState<ItemReparto | null>(null);
+  const [bultoMode, setBultoMode] = useState<BultoMode | null>(null);
+  const [scannerKey, setScannerKey] = useState(0);
+  const [showFinalizar, setShowFinalizar] = useState(false);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scannerSectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    supabaseClient
+      .from("items_reparto")
+      .select("*")
+      .eq("sesion_id", session.sesionId)
+      .order("hora_carga", { ascending: true })
+      .then(({ data }) => {
+        setItems((data as ItemReparto[]) ?? []);
+        setLoadingItems(false);
+      });
+  }, [session.sesionId]);
+
+  function showFeedback(msg: string, tipo: FeedbackTipo) {
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    setFeedback({ msg, tipo });
+    feedbackTimer.current = setTimeout(() => setFeedback(null), 3500);
+  }
+
+  async function cancelarEntrega(item: ItemReparto) {
+    const { error } = await supabaseClient
+      .from("items_reparto")
+      .update({ estado: "pendiente", hora_egreso: null })
+      .eq("id", item.id);
+    if (!error) {
+      setItems((prev) =>
+        prev.map((i) => i.id === item.id ? { ...i, estado: "pendiente", hora_egreso: null } : i)
+      );
+      showFeedback(`Entrega cancelada: ${item.cliente_nombre}`, "warn");
+    }
+  }
+
+  async function marcarEntregado(item: ItemReparto) {
+    const horaEgreso = new Date().toISOString();
+    const { error } = await supabaseClient
+      .from("items_reparto")
+      .update({ estado: "entregado", hora_egreso: horaEgreso })
+      .eq("id", item.id);
+    if (!error) {
+      setItems((prev) =>
+        prev.map((i) => i.id === item.id ? { ...i, estado: "entregado", hora_egreso: horaEgreso } : i)
+      );
+      showFeedback(`Entregado: ${item.cliente_nombre}`, "ok");
+    }
+  }
+
+  function scrollToScanner() {
+    setTimeout(() => {
+      scannerSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }
+
+  function handleEntregarClick(item: ItemReparto) {
+    setDeliveryTarget(item);
+    setBultoMode(null);
+    setScannerKey((k) => k + 1);
+    scrollToScanner();
+  }
 
   async function handleScan(contenedor: string) {
-    setBultos(null);
-    setApiError("");
+    // ── MODO BULTOS (escaneo uno por uno) ──
+    if (bultoMode) {
+      if (contenedor !== bultoMode.contenedor) {
+        showFeedback(`Bulto incorrecto. Escaneá uno de ${bultoMode.clienteNombre}.`, "error");
+        setScannerKey((k) => k + 1);
+        return;
+      }
+
+      const siguiente = bultoMode.escaneados + 1;
+
+      if (siguiente < bultoMode.totalBultos) {
+        setBultoMode((prev) => prev ? { ...prev, escaneados: siguiente } : null);
+        setTimeout(() => setScannerKey((k) => k + 1), 1500);
+        return;
+      }
+
+      // ¡Todos los bultos escaneados!
+      const modoFinal = bultoMode;
+      setBultoMode(null);
+      setLoadingApi(true);
+      try {
+        if (modoFinal.tipo === "carga") {
+          const { data: nuevo, error: insertError } = await supabaseClient
+            .from("items_reparto")
+            .insert({
+              sesion_id: session.sesionId,
+              contenedor: modoFinal.contenedor,
+              codigo_pedido: modoFinal.codigoPedido!,
+              codigo_cliente: modoFinal.codigoCliente!,
+              cliente_nombre: modoFinal.clienteNombre,
+              cant_bultos: modoFinal.totalBultos,
+              estado: "pendiente",
+            })
+            .select()
+            .single();
+          if (!insertError && nuevo) {
+            setItems((prev) => [...prev, nuevo as ItemReparto]);
+            showFeedback(`✓ ${modoFinal.clienteNombre} — ${modoFinal.totalBultos} bultos cargados`, "ok");
+          }
+        } else if (modoFinal.item) {
+          await marcarEntregado(modoFinal.item);
+        }
+      } catch {
+        showFeedback("Error al guardar. Intentá de nuevo.", "error");
+      }
+      setLoadingApi(false);
+      return;
+    }
+
+    // ── MODO ENTREGA (primer escaneo identifica el contenedor) ──
+    if (deliveryTarget) {
+      if (contenedor !== deliveryTarget.contenedor) {
+        showFeedback(`Contenedor incorrecto para ${deliveryTarget.cliente_nombre}.`, "error");
+        setDeliveryTarget(null);
+        return;
+      }
+      setDeliveryTarget(null);
+      if (deliveryTarget.cant_bultos <= 1) {
+        await marcarEntregado(deliveryTarget);
+      } else {
+        setBultoMode({
+          contenedor,
+          clienteNombre: deliveryTarget.cliente_nombre,
+          totalBultos: deliveryTarget.cant_bultos,
+          escaneados: 1,
+          tipo: "entrega",
+          item: deliveryTarget,
+        });
+        setScannerKey((k) => k + 1);
+      }
+      return;
+    }
+
+    // ── ESCANEO NORMAL ──
+    const existing = items.find((i) => i.contenedor === contenedor);
+    if (existing) {
+      if (existing.estado === "entregado") {
+        showFeedback(`Ya estaba entregado: ${existing.cliente_nombre}`, "warn");
+        return;
+      }
+      // Re-escaneo de un pendiente → inicia entrega por bultos
+      if (existing.cant_bultos <= 1) {
+        await marcarEntregado(existing);
+      } else {
+        setBultoMode({
+          contenedor,
+          clienteNombre: existing.cliente_nombre,
+          totalBultos: existing.cant_bultos,
+          escaneados: 1,
+          tipo: "entrega",
+          item: existing,
+        });
+        setScannerKey((k) => k + 1);
+      }
+      return;
+    }
+
+    // ── CONTENEDOR NUEVO → consulta WMS ──
     setLoadingApi(true);
     try {
-      // 1. Obtener el código del pedido por contenedor
       const pedidos = await getPedidosPorContenedor(contenedor, authToken);
       const lista = Array.isArray(pedidos) ? pedidos : [pedidos];
-      const codigo = lista[0]?.Codigo;
-      if (!codigo) throw new Error("No se encontró un pedido para este contenedor.");
+      const pedido = lista[0];
+      if (!pedido?.Codigo) throw new Error("No se encontró un pedido para este contenedor.");
 
-      // 2. Obtener los contenedores del pedido y sumar bultos
-      const contenedores = await getContenedoresDePedido(codigo, authToken);
-      const totalBultos = Array.isArray(contenedores)
-        ? contenedores.reduce((sum, c) => sum + (c.CantidadBulto ?? 0), 0)
-        : (contenedores as { CantidadBulto?: number }).CantidadBulto ?? 0;
+      const [contenedoresResult, clienteResult] = await Promise.allSettled([
+        getContenedoresDePedido(pedido.Codigo, authToken),
+        getCliente(pedido.CodigoClienteUbicacion, authToken),
+      ]);
 
-      setBultos(totalBultos);
+      const contenedoresList = contenedoresResult.status === "fulfilled" ? contenedoresResult.value : [];
+      const clienteNombre = clienteResult.status === "fulfilled"
+        ? clienteResult.value.Descripcion
+        : pedido.CodigoClienteUbicacion;
+      const totalBultos = Array.isArray(contenedoresList)
+        ? contenedoresList.reduce((sum, c) => sum + (c.CantidadBulto ?? 0), 0)
+        : 0;
+
+      setLoadingApi(false);
+
+      if (totalBultos <= 1) {
+        const { data: nuevo, error: insertError } = await supabaseClient
+          .from("items_reparto")
+          .insert({
+            sesion_id: session.sesionId,
+            contenedor,
+            codigo_pedido: pedido.Codigo,
+            codigo_cliente: pedido.CodigoClienteUbicacion,
+            cliente_nombre: clienteNombre,
+            cant_bultos: totalBultos,
+            estado: "pendiente",
+          })
+          .select()
+          .single();
+        if (!insertError && nuevo) {
+          setItems((prev) => [...prev, nuevo as ItemReparto]);
+          showFeedback(`Cargado: ${clienteNombre} — 1 bulto`, "ok");
+        }
+      } else {
+        setBultoMode({
+          contenedor,
+          clienteNombre,
+          totalBultos,
+          escaneados: 1,
+          tipo: "carga",
+          codigoPedido: pedido.Codigo,
+          codigoCliente: pedido.CodigoClienteUbicacion,
+        });
+        setScannerKey((k) => k + 1);
+      }
     } catch (e) {
-      setApiError(e instanceof Error ? e.message : "Error al consultar el WMS");
+      setLoadingApi(false);
+      showFeedback(e instanceof Error ? e.message : "Error al consultar el WMS", "error");
     }
-    setLoadingApi(false);
   }
+
+  const pendientes = items.filter((i) => i.estado === "pendiente");
+  const entregados = items.filter((i) => i.estado === "entregado");
+  const totalBultos = items.reduce((sum, i) => sum + i.cant_bultos, 0);
 
   return (
     <div className="rep-page">
@@ -467,7 +889,6 @@ function Dashboard({
         <div className="rep-header__logo">
           <img src="/img/alzo_logo.png" alt="Alzo" />
           <span>Reparto</span>
-          <span className="rep-header__badge">Beta</span>
         </div>
         <div className="rep-header__right">
           <div className="rep-header__info">
@@ -484,16 +905,65 @@ function Dashboard({
       </header>
 
       <main className="rep-main">
-        <div className="rep-welcome">
-          <h1 className="rep-welcome__title">
-            Bienvenido, {session.repartidor.split(" ")[0]}
-          </h1>
-          <p className="rep-welcome__sub">Patente: {session.patente}</p>
+        {/* Resumen del día */}
+        <div className="rep-summary">
+          <div className="rep-summary__card">
+            <span className="rep-summary__num">{items.length}</span>
+            <span className="rep-summary__label">Pedidos</span>
+          </div>
+          <div className="rep-summary__card">
+            <span className="rep-summary__num rep-summary__num--pending">{pendientes.length}</span>
+            <span className="rep-summary__label">Pendientes</span>
+          </div>
+          <div className="rep-summary__card">
+            <span className="rep-summary__num rep-summary__num--done">{entregados.length}</span>
+            <span className="rep-summary__label">Entregados</span>
+          </div>
+          <div className="rep-summary__card">
+            <span className="rep-summary__num">{totalBultos}</span>
+            <span className="rep-summary__label">Bultos</span>
+          </div>
         </div>
 
-        <section className="rep-section">
-          <h2 className="rep-section__title">Escanear contenedor</h2>
-          <QrReader onResult={handleScan} />
+        {/* Escáner */}
+        <section className="rep-section" ref={scannerSectionRef as React.RefObject<HTMLElement>}>
+          <h2 className="rep-section__title">
+            {bultoMode
+              ? (bultoMode.tipo === "carga" ? "Cargando bultos" : "Entregando bultos")
+              : deliveryTarget ? "Confirmar entrega"
+              : "Escanear contenedor"}
+          </h2>
+
+          {bultoMode && (
+            <div className="rep-bulto-counter">
+              <p className="rep-bulto-counter__nombre">
+                {bultoMode.tipo === "carga" ? "Cargando:" : "Entregando:"} <strong>{bultoMode.clienteNombre}</strong>
+              </p>
+              <div className="rep-bulto-counter__display">
+                <span className="rep-bulto-counter__current">{bultoMode.escaneados}</span>
+                <span className="rep-bulto-counter__sep">/</span>
+                <span className="rep-bulto-counter__total">{bultoMode.totalBultos}</span>
+              </div>
+              <p className="rep-bulto-counter__hint">Escaneá el siguiente bulto</p>
+              <button className="rep-btn-cancel-delivery" onClick={() => setBultoMode(null)}>
+                Cancelar
+              </button>
+            </div>
+          )}
+
+          {deliveryTarget && !bultoMode && (
+            <div className="rep-delivery-banner">
+              <div className="rep-delivery-banner__text">
+                <span>Escaneá el contenedor de:</span>
+                <strong>{deliveryTarget.cliente_nombre}</strong>
+              </div>
+              <button className="rep-btn-cancel-delivery" onClick={() => setDeliveryTarget(null)}>
+                Cancelar
+              </button>
+            </div>
+          )}
+
+          <QrReader key={scannerKey} onResult={handleScan} autoOpen={!!deliveryTarget || !!bultoMode} />
 
           {loadingApi && (
             <div className="rep-ocr-processing" style={{ paddingTop: 20 }}>
@@ -502,23 +972,73 @@ function Dashboard({
             </div>
           )}
 
-          {!loadingApi && apiError && (
-            <p className="rep-error-msg" style={{ marginTop: 16 }}>{apiError}</p>
+          {!loadingApi && feedback && (
+            <div className={`rep-feedback rep-feedback--${feedback.tipo}`}>
+              {feedback.msg}
+            </div>
           )}
+        </section>
 
-          {!loadingApi && bultos !== null && (
-            <div className="rep-scan-result" style={{ marginTop: 20 }}>
-              <p className="rep-scan-result__label">Cantidad de bultos</p>
-              <p className="rep-scan-result__value" style={{ fontSize: 32, fontWeight: 900 }}>
-                {bultos}
-              </p>
-              <button className="rep-scan-result__clear" onClick={() => setBultos(null)}>
-                Limpiar
-              </button>
+        {/* Finalizar día */}
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <button className="rep-btn-finalizar" onClick={() => setShowFinalizar(true)}>
+            Finalizar día
+          </button>
+        </div>
+
+        {/* Lista de pedidos del día */}
+        <section className="rep-section">
+          <h2 className="rep-section__title">
+            Pedidos del día
+            {items.length > 0 && (
+              <span className="rep-section__count">{items.length}</span>
+            )}
+          </h2>
+
+          {loadingItems ? (
+            <div className="rep-ocr-processing">
+              <span className="rep-spinner" style={{ borderColor: "#dbeafe", borderTopColor: "#2556ff" }} />
+              <p>Cargando pedidos...</p>
+            </div>
+          ) : items.length === 0 ? (
+            <p className="rep-empty">
+              Aún no hay pedidos escaneados. Escaneá el primer contenedor para comenzar.
+            </p>
+          ) : (
+            <div className="rep-items-list">
+              {pendientes.map((item) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  isDeliveryTarget={deliveryTarget?.id === item.id}
+                  onEntregar={() => handleEntregarClick(item)}
+                  onCancelDelivery={() => setDeliveryTarget(null)}
+                  onCancelEntrega={() => cancelarEntrega(item)}
+                />
+              ))}
+              {entregados.map((item) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  isDeliveryTarget={false}
+                  onEntregar={() => handleEntregarClick(item)}
+                  onCancelDelivery={() => setDeliveryTarget(null)}
+                  onCancelEntrega={() => cancelarEntrega(item)}
+                />
+              ))}
             </div>
           )}
         </section>
       </main>
+
+      {showFinalizar && (
+        <FinalizarScreen
+          session={session}
+          items={items}
+          onCancel={() => setShowFinalizar(false)}
+          onConfirm={onLogout}
+        />
+      )}
     </div>
   );
 }

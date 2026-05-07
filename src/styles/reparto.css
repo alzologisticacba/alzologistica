@@ -488,13 +488,6 @@ html, body {
   margin-bottom: 24px;
 }
 
-.rep-section__title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e3a8a;
-  margin: 0 0 20px;
-}
-
 /* ── Lector QR ── */
 .rep-qr-wrap {
   display: flex;
@@ -724,6 +717,737 @@ html, body {
   margin-right: 8px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Resumen del día ── */
+.rep-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.rep-summary__card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rep-summary__num {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1e3a8a;
+  line-height: 1;
+}
+
+.rep-summary__num--pending { color: #f59e0b; }
+.rep-summary__num--done    { color: #22c55e; }
+
+.rep-summary__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* ── Título de sección con contador ── */
+.rep-section__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rep-section__count {
+  background: #dbeafe;
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+/* ── Feedback de escaneo ── */
+.rep-feedback {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.rep-feedback--ok    { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+.rep-feedback--warn  { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+.rep-feedback--error { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Lista de pedidos ── */
+.rep-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rep-empty {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 500;
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}
+
+/* ── Item card ── */
+.rep-item-card {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+
+.rep-item-card--entregado {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  opacity: 0.75;
+}
+
+.rep-item-card--scanning {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.rep-item-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rep-item-card__cliente {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rep-item-card--entregado .rep-item-card__cliente {
+  color: #64748b;
+}
+
+.rep-item-card__body {
+  display: flex;
+  gap: 20px;
+}
+
+.rep-item-card__detail {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.rep-item-card__detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.rep-item-card__footer {
+  display: flex;
+  align-items: center;
+}
+
+.rep-item-card__footer--entregado {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rep-btn-cancelar-entrega-sm {
+  background: none;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.rep-btn-cancelar-entrega-sm:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.rep-item-card__hora {
+  font-size: 12px;
+  font-weight: 600;
+  color: #22c55e;
+}
+
+/* ── Badge de estado ── */
+.rep-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.rep-badge--pendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.rep-badge--entregado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ── Contador de bultos ── */
+.rep-bulto-counter {
+  text-align: center;
+  padding: 8px 0 20px;
+  margin-bottom: 4px;
+}
+
+.rep-bulto-counter__nombre {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0 0 16px;
+}
+
+.rep-bulto-counter__nombre strong {
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.rep-bulto-counter__display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.rep-bulto-counter__current {
+  font-size: 80px;
+  font-weight: 900;
+  color: #2556ff;
+  line-height: 1;
+}
+
+.rep-bulto-counter__sep {
+  font-size: 40px;
+  font-weight: 300;
+  color: #cbd5e1;
+}
+
+.rep-bulto-counter__total {
+  font-size: 40px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.rep-bulto-counter__hint {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 16px;
+}
+
+/* ── Banner de entrega ── */
+.rep-delivery-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #eff6ff;
+  border: 1.5px solid #93c5fd;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.rep-delivery-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.rep-delivery-banner__text strong {
+  font-size: 15px;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.rep-btn-cancel-delivery {
+  background: none;
+  border: 1px solid #93c5fd;
+  color: #3b82f6;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.rep-btn-cancel-delivery:hover {
+  background: #dbeafe;
+}
+
+/* ── Botón cancelar entrega ── */
+.rep-btn-cancelar-entrega {
+  width: 100%;
+  padding: 13px;
+  margin-top: 4px;
+  background: none;
+  border: 1.5px solid #93c5fd;
+  color: #1e3a8a;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rep-btn-cancelar-entrega:hover {
+  background: #dbeafe;
+}
+
+/* ── Botón entregar (full width) ── */
+.rep-btn-entregar-full {
+  width: 100%;
+  padding: 13px;
+  margin-top: 4px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.rep-btn-entregar-full:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.rep-btn-entregar-full:active {
+  transform: translateY(0);
+}
+
+/* ── Botón finalizar día ── */
+.rep-btn-finalizar {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.rep-btn-finalizar:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+/* ── Overlay finalizar ── */
+.rep-finalizar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 200;
+  padding: 0;
+}
+
+.rep-finalizar-card {
+  background: #fff;
+  border-radius: 28px 28px 0 0;
+  padding: 36px 28px 48px;
+  width: 100%;
+  max-width: 520px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.rep-finalizar-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.rep-finalizar-fecha {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin: 0 0 6px;
+}
+
+.rep-finalizar-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.rep-finalizar-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+}
+
+.rep-finalizar-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rep-finalizar-stat {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 18px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rep-finalizar-stat__num {
+  font-size: 36px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.rep-finalizar-stat__num--done    { color: #22c55e; }
+.rep-finalizar-stat__num--pending { color: #f59e0b; }
+
+.rep-finalizar-stat__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.rep-finalizar-warning {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #92400e;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.rep-finalizar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.rep-btn-confirmar-finalizar {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: filter 0.15s;
+}
+
+.rep-btn-confirmar-finalizar:hover {
+  filter: brightness(1.15);
+}
+
+.rep-btn-volver {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rep-btn-volver:hover {
+  background: #f8fafc;
+}
+
+/* ── Selector de rol ── */
+.rep-role-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rep-role-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.rep-role-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.rep-role-btn svg {
+  width: 32px;
+  height: 32px;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.rep-role-btn__title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.rep-role-btn__sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Tabs de período (Admin) ── */
+.rep-periodo-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.rep-periodo-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rep-periodo-tab--active {
+  background: #1e3a8a;
+  color: #fff;
+}
+
+/* ── Cards resumen admin ── */
+.rep-admin-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.rep-admin-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 12px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rep-admin-card--done     { border-top: 3px solid #22c55e; }
+.rep-admin-card--pending  { border-top: 3px solid #f59e0b; }
+.rep-admin-card--highlight { border-top: 3px solid #2556ff; }
+
+.rep-admin-card__num {
+  font-size: 30px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.rep-admin-card--done     .rep-admin-card__num { color: #16a34a; }
+.rep-admin-card--pending  .rep-admin-card__num { color: #d97706; }
+.rep-admin-card--highlight .rep-admin-card__num { color: #2556ff; }
+
+.rep-admin-card__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* ── Tabla de repartidores ── */
+.rep-admin-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.rep-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.rep-admin-table thead tr {
+  background: #f8fafc;
+}
+
+.rep-admin-table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.rep-admin-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-weight: 500;
+}
+
+.rep-admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.rep-admin-table tbody tr:hover td {
+  background: #f8fafc;
+}
+
+.rep-admin-table__name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rep-admin-table__done    { color: #16a34a; font-weight: 700; }
+.rep-admin-table__pending { color: #d97706; font-weight: 700; }
+
+/* ── Barra de progreso ── */
+.rep-admin-pct {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rep-admin-pct__track {
+  flex: 1;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.rep-admin-pct__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #2556ff, #22c55e);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.rep-admin-pct__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  min-width: 32px;
+}
 
 /* ── Móvil ── */
 @media (max-width: 480px) {

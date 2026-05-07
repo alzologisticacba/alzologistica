@@ -7,8 +7,8 @@ import SearchResults from "./SearchResults";
 import { getCartCount } from "./hooks/cartStore";
 import Footer247 from "./Footer247";
 import BrandSection from "./BrandSection";
-import FiguritasHero from "./FiguritasHero";
-import FiguritasSection from "./FiguritasSection";
+// import FiguritasHero from "./FiguritasHero";
+// import FiguritasSection from "./FiguritasSection";
 import { supabaseClient } from "../../lib/supabaseClient";
 
 export default function App247() {
@@ -106,8 +106,8 @@ export default function App247() {
         onBusquedaClear={() => setBusqueda("")}
         cartCount={cartCount}
       />
-      {!buscando && <FiguritasHero />}
-      {!buscando && mounted && <FiguritasSection />}
+      {/* {!buscando && <FiguritasHero />} */}
+      {/* {!buscando && mounted && <FiguritasSection />} */}
       <div className="shell-247">
         {buscando
           ? <SearchResults q={deferredQ} />

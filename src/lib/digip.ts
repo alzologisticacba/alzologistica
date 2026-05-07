@@ -46,3 +46,14 @@ export function getContenedoresDePedido(codigo: string, token: string) {
     token
   );
 }
+
+export interface Cliente {
+  Codigo: string;
+  Descripcion: string;
+  IdentificadorFiscal: string;
+  Activo: boolean;
+}
+
+export function getCliente(codigo: string, token: string) {
+  return get<Cliente>(`/Clientes/${encodeURIComponent(codigo)}`, token);
+}

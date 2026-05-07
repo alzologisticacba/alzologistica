@@ -66,7 +66,7 @@ export default function FiguritasSection() {
       {/* ── Header ── */}
       <div className="figuritas-section__header">
         <div className="figuritas-section__overlay" />
-        <img src="/img/247/figuritasPaquete.png" alt="" className="figuritas-section__deco" aria-hidden="true" />
+        <img src="/img/247/figuritasPaquete.png" alt="" className="figuritas-section__deco" aria-hidden="true" loading="lazy" />
         <div className="figuritas-section__titles">
           <h2 className="figuritas-section__title">FIGURITAS</h2>
           <p className="figuritas-section__subtitle">MUNDIAL 2026</p>

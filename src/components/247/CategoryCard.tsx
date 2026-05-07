@@ -27,6 +27,7 @@ export default function CategoryCard({
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = "none";
           }}
+          loading="lazy"
         />
       )}
       <div className="category-card__overlay" aria-hidden="true" />

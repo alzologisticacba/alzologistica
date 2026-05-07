@@ -74,6 +74,13 @@ export default function HeaderMayorista({ usuario, onLogout, seccion, onSeccion 
               <span className="may-menu__item-icon">📥</span>
               Lista de Precios
             </button>
+            <button
+              className={`may-menu__item${seccion === "flyer" ? " may-menu__item--active" : ""}`}
+              onClick={() => ir("flyer")}
+            >
+              <span className="may-menu__item-icon">🎨</span>
+              Generador de Flyers
+            </button>
 
             <div className="may-menu__divider" />
 
