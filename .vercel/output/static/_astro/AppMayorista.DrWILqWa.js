@@ -1,1 +1,0 @@
-import{A as a}from"./AppMayorista.S0WBUhdI.js";import"./jsx-runtime.D_zvdyIk.js";import"./index.BBya4vsB.js";import"./supabaseClient.DqlHeDhQ.js";import"./preload-helper.BlTxHScW.js";export{a as default};
