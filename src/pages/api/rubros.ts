@@ -1,4 +1,5 @@
 // src/pages/api/rubros.ts
+export const prerender = false;
 import type { APIRoute } from "astro";
 import { supabase } from "../../lib/supabase";
 

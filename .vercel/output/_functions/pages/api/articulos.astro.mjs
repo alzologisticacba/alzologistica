@@ -1,6 +1,7 @@
 import { s as supabase } from '../../chunks/supabase_Vzda_zB7.mjs';
 export { renderers } from '../../renderers.mjs';
 
+const prerender = false;
 const GET = async ({ url }) => {
   const familia = url.searchParams.get("familia");
   const rubro = url.searchParams.get("rubro");
@@ -33,7 +34,8 @@ const GET = async ({ url }) => {
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
-  GET
+  GET,
+  prerender
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const page = () => _page;

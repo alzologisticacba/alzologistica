@@ -1,6 +1,7 @@
 import { s as supabase } from '../../../chunks/supabase_Vzda_zB7.mjs';
 export { renderers } from '../../../renderers.mjs';
 
+const prerender = false;
 const GET = async () => {
   const { data, error } = await supabase.from("repartidores").select("repartidor").order("repartidor", { ascending: true });
   if (error) {
@@ -13,7 +14,8 @@ const GET = async () => {
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
-  GET
+  GET,
+  prerender
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const page = () => _page;

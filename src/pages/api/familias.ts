@@ -1,5 +1,6 @@
 // src/pages/api/familias.ts
 // Devuelve los familiaNombre únicos con stock disponible
+export const prerender = false;
 // Uso: GET /api/familias
 
 import type { APIRoute } from "astro";

@@ -1,6 +1,7 @@
 import { s as supabase } from '../../chunks/supabase_Vzda_zB7.mjs';
 export { renderers } from '../../renderers.mjs';
 
+const prerender = false;
 const GET = async () => {
   try {
     const { data, error } = await supabase.from("articulos").select("familiaNombre").gt("stock", 0).order("familiaNombre", { ascending: true });
@@ -30,7 +31,8 @@ const GET = async () => {
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
-  GET
+  GET,
+  prerender
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const page = () => _page;

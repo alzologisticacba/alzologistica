@@ -1,5 +1,6 @@
 // src/pages/api/combos.ts
 // GET /api/combos?limit=10
+export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { supabase } from "../../lib/supabase";

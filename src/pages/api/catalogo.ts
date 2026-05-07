@@ -1,5 +1,6 @@
 // src/pages/api/catalogo.ts
 // Catálogo digital: todos los productos sin importar el stock, sin precios
+export const prerender = false;
 import type { APIRoute } from "astro";
 import { supabase } from "../../lib/supabase";
 

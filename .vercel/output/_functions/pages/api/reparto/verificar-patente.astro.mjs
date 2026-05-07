@@ -1,6 +1,7 @@
 import { s as supabase } from '../../../chunks/supabase_Vzda_zB7.mjs';
 export { renderers } from '../../../renderers.mjs';
 
+const prerender = false;
 const GET = async ({ request }) => {
   const { searchParams } = new URL(request.url);
   const patente = searchParams.get("patente")?.trim().replace(/\s+/g, "").toUpperCase();
@@ -18,7 +19,8 @@ const GET = async ({ request }) => {
 
 const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
-  GET
+  GET,
+  prerender
 }, Symbol.toStringTag, { value: 'Module' }));
 
 const page = () => _page;
