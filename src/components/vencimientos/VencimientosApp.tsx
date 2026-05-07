@@ -170,12 +170,10 @@ export default function VencimientosApp() {
 
   useEffect(() => {
     const sesionActiva = sessionStorage.getItem(SESSION_KEY) === "1";
-    console.info("[vencimientos] sesion", { sesionActiva });
     if (sesionActiva) setAutenticado(true);
   }, []);
 
   useEffect(() => {
-    console.info("[vencimientos] autenticado", { autenticado });
     if (autenticado) fetchProductos();
   }, [autenticado]);
 
@@ -187,8 +185,6 @@ export default function VencimientosApp() {
     setError(null);
     try {
       const url = `/api/vencimientos/digip?t=${Date.now()}`;
-      console.info("[vencimientos] consultando Digip", { url });
-
       const res = await fetch(url, {
         cache: "no-store",
         headers: {
@@ -198,23 +194,11 @@ export default function VencimientosApp() {
       });
       const data = await res.json().catch(() => null);
 
-      console.info("[vencimientos] respuesta Digip", {
-        status: res.status,
-        ok: res.ok,
-        esArray: Array.isArray(data),
-        total: Array.isArray(data) ? data.length : null,
-        data,
-      });
-
       if (!res.ok) {
         throw new Error(data?.error ?? `Error ${res.status}`);
       }
 
       const productosDigip = Array.isArray(data) ? data : [];
-      console.info("[vencimientos] productos recibidos", {
-        total: productosDigip.length,
-        primero: productosDigip[0] ?? null,
-      });
       setProductos(productosDigip);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
