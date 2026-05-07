@@ -1,0 +1,10 @@
+---
+// src/pages/247/combo/index.astro
+// Página estática — el cod_combo se lee desde URL params en el cliente
+import Layout247 from "../../../layouts/Layout247.astro";
+import ComboDetalle from "../../../components/247/ComboDetalle";
+import "../../../styles/247.css";
+---
+<Layout247 title="Combo | Alzo 24/7">
+  <ComboDetalle client:only="react" />
+</Layout247>

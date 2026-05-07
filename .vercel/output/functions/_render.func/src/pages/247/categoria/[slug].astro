@@ -1,0 +1,30 @@
+---
+// src/pages/247/categoria/[slug].astro
+import Layout247 from "../../../layouts/Layout247.astro";
+import CategoryPage from "../../../components/247/CategoryPage";
+import "../../../styles/247.css";
+import "../../../styles/categoria.css";
+import { supabase } from "../../../lib/supabase";
+
+export async function getStaticPaths() {
+  const { data } = await supabase
+    .from("articulos")
+    .select("familiaNombre")
+    .gt("stock", 0);
+
+  const familias = [...new Set(data?.map((r) => r.familiaNombre as string) ?? [])]
+    .filter(Boolean);
+
+  return familias.map((familia) => ({
+    params: { slug: familia.toLowerCase().replace(/\s+/g, "-") },
+    props: { familia, titulo: familia },
+  }));
+}
+
+const { familia, titulo } = Astro.props;
+---
+
+<Layout247 title={`${titulo} | Alzo 24/7`}>
+  <!-- client:only evita problemas de hidratación SSR con props -->
+  <CategoryPage familia={familia} titulo={titulo} client:only="react" />
+</Layout247>

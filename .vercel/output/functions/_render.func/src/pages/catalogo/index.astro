@@ -1,0 +1,96 @@
+---
+// src/pages/catalogo/index.astro
+import CatalogoBody from "../../components/catalogo/CatalogoPage";
+import "../../styles/catalogo.css";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catálogo ALZO</title>
+    <meta name="description" content="Catálogo de todos los productos de Alzo" />
+    <link rel="icon" type="image/png" href="/img/alzo_logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="cat-body">
+
+    <!-- ═══ HERO ═══ -->
+    <section class="cat-hero">
+      <div class="cat-hero__inner">
+
+        <img
+          src="/logos/alzo_logo.png"
+          alt="Alzo"
+          class="cat-hero__logo"
+          width="793"
+          height="334"
+          fetchpriority="high"
+          loading="eager"
+        />
+
+        <p class="cat-hero__subtitle">CATÁLOGO DE PRODUCTOS</p>
+
+        <a href="#productos" class="cat-hero__cta">
+          <span>Mirá nuestros productos</span>
+          <svg
+            class="cat-hero__cta-arrow"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ═══ PRODUCTOS ═══ -->
+    <section id="productos" class="cat-productos">
+      <CatalogoBody client:load />
+    </section>
+
+  </body>
+</html>
+
+<script>
+  function easeInOutCubic(t: number) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function smoothScrollTo(target: HTMLElement, duration = 900) {
+    const start    = window.scrollY;
+    const end      = target.getBoundingClientRect().top + window.scrollY;
+    const distance = end - start;
+    let startTime: number | null = null;
+
+    function step(timestamp: number) {
+      if (!startTime) startTime = timestamp;
+      const elapsed  = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      window.scrollTo(0, start + distance * easeInOutCubic(progress));
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  document.addEventListener("click", (e) => {
+    const a = (e.target as HTMLElement).closest('a[href="#productos"]');
+    if (!a) return;
+    e.preventDefault();
+    const target = document.getElementById("productos");
+    if (target) smoothScrollTo(target);
+  });
+</script>

@@ -1,0 +1,11 @@
+---
+// src/pages/247/seccion/index.astro
+// Página estática — el slug se lee desde URL en el cliente (SeccionPage)
+import Layout247 from "../../../layouts/Layout247.astro";
+import SeccionPage from "../../../components/247/SeccionPage";
+import "../../../styles/247.css";
+import "../../../styles/categoria.css";
+---
+<Layout247 title="Sección | Alzo 24/7">
+  <SeccionPage client:only="react" />
+</Layout247>

@@ -1,0 +1,155 @@
+{
+	"version": 3,
+	"routes": [
+		{
+			"handle": "filesystem"
+		},
+		{
+			"src": "^/_astro/(.*)$",
+			"headers": {
+				"cache-control": "public, max-age=31536000, immutable"
+			},
+			"continue": true
+		},
+		{
+			"src": "^/_server-islands/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/_image/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/carrito/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/categoria/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/combo/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/combos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/descuentos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/mayorista/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/pedidos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/producto/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/seccion/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/todos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/ultimo-pedido/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/vistos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/247/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/articulos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/buscar/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/catalogo/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/combos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/debug-familias/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/descuentos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/familias/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/reparto/digip/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/reparto/repartidores/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/reparto/verificar-patente/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/rubros/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/vencimientos/digip/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/catalogo/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/condiciones-del-servicio/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/politicas-de-privacidad/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/reparto/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/soy-cliente/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/vencimientos/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/vendedores/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/$",
+			"dest": "_render"
+		}
+	]
+}

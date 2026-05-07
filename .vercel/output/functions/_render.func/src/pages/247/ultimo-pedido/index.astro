@@ -1,0 +1,15 @@
+---
+// src/pages/247/ultimo-pedido/index.astro
+import Layout247 from "../../../layouts/Layout247.astro";
+import FamiliasPage from "../../../components/247/FamiliasPage";
+import "../../../styles/247.css";
+import "../../../styles/categoria.css";
+---
+<Layout247 title="Según tu último pedido | Alzo 24/7">
+  <FamiliasPage
+    client:only="react"
+    titulo="Según tu último pedido"
+    subtitulo="Productos similares a los que pediste la última vez"
+    emoji="📦"
+  />
+</Layout247>

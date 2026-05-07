@@ -1,0 +1,9 @@
+---
+// src/pages/247/pedidos.astro
+import Layout247 from "../../layouts/Layout247.astro";
+import PedidosPage from "../../components/247/PedidosPage";
+import "../../styles/247.css";
+---
+<Layout247 title="Tus Pedidos | Alzo 24/7">
+  <PedidosPage client:only="react" />
+</Layout247>

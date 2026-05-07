@@ -1,0 +1,9 @@
+---
+// src/pages/247/carrito.astro
+import Layout247 from "../../layouts/Layout247.astro";
+import CarritoPage from "../../components/247/CarritoPage";
+import "../../styles/247.css";
+---
+<Layout247 title="Tu carrito | Alzo 24/7">
+  <CarritoPage client:only="react" />
+</Layout247>

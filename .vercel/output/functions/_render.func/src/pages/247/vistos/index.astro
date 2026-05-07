@@ -1,0 +1,15 @@
+---
+// src/pages/247/vistos/index.astro
+import Layout247 from "../../../layouts/Layout247.astro";
+import FamiliasPage from "../../../components/247/FamiliasPage";
+import "../../../styles/247.css";
+import "../../../styles/categoria.css";
+---
+<Layout247 title="Inspirado en lo que viste | Alzo 24/7">
+  <FamiliasPage
+    client:only="react"
+    titulo="Inspirado en lo último que viste"
+    subtitulo="Productos similiares a los que exploraste recientemente"
+    emoji="👁️"
+  />
+</Layout247>

@@ -1,0 +1,10 @@
+---
+// src/pages/247/todos.astro
+import Layout247 from "../../layouts/Layout247.astro";
+import TodosPage from "../../components/247/TodosPage";
+import "../../styles/247.css";
+import "../../styles/categoria.css";
+---
+<Layout247 title="Todos los productos | Alzo 24/7">
+  <TodosPage client:only="react" />
+</Layout247>
