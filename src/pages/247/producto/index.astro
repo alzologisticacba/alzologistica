@@ -15,8 +15,13 @@ let ogImage       = `${SUPABASE_STORAGE}/assets/og-default.png`; // imagen fallb
 let ogUrl         = `https://alzologistica.com/247/producto/${codigo ? `?codigo=${codigo}` : ""}`;
 
 if (codigo) {
-  // Siempre apuntamos a la imagen del producto — si no existe, WhatsApp usa el fallback
-  ogImage = `${SUPABASE_STORAGE}/Productos/articulos/${codigo}.png`;
+  const productImageUrl = `${SUPABASE_STORAGE}/Productos/articulos/${codigo}.png`;
+  try {
+    const imgCheck = await fetch(productImageUrl, { method: "HEAD" });
+    ogImage = imgCheck.ok ? productImageUrl : `${SUPABASE_STORAGE}/assets/og-default.png`;
+  } catch {
+    ogImage = `${SUPABASE_STORAGE}/assets/og-default.png`;
+  }
 
   const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
   const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
