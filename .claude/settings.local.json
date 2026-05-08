@@ -21,7 +21,8 @@
       "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(JSON.stringify\\(Object.keys\\(p.dependencies\\), null, 2\\)\\)\")",
       "PowerShell($lines = Get-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; $lines[0..4978] | Set-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; Write-Host \"Done. Lines: $\\($lines[0..4978].Count\\)\")",
       "Bash(git checkout *)",
-      "PowerShell($lines = Get-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; $lines[0..4978] | Set-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; Write-Host \"Lines now: $\\($lines[0..4978].Count\\)\")"
+      "PowerShell($lines = Get-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; $lines[0..4978] | Set-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; Write-Host \"Lines now: $\\($lines[0..4978].Count\\)\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\workspace\\\\alzologistica\" -Force)"
     ]
   }
 }

@@ -7,6 +7,7 @@ import Footer247 from "./Footer247";
 import PageFooterSection from "./PageFooterSection";
 import { addToCart } from "./hooks/cartStore";
 import { supabaseClient } from "../../lib/supabaseClient";
+import ShareButton from "./ShareButton";
 
 // const FONDOS_FIG = [
 //   "/img/247/figuritasFondo.webp",
@@ -263,6 +264,10 @@ export default function ProductoDetalle() {
                   <p className="pd__total">Subtotal: <strong>{fmt((precioConDescuento ?? articulo.precioFinal) * (parseInt(inputVal, 10) || cantidad))}</strong></p>
 
                   <BtnAgregar articulo={articulo} cantidad={cantidad} precioConDescuento={precioConDescuento} />
+                  {/* <ShareButton
+                    productName={articulo.descripcion}
+                    productUrl={`https://alzologistica.com/247/producto/?codigo=${articulo.codigo}`}
+                  /> */}
                 </div>
               </div>
             </div>

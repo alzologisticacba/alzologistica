@@ -5,7 +5,7 @@ import vercel from "@astrojs/vercel";
 
 export default defineConfig({
   site: "https://alzologistica.com",
-  output: "static",
+  output: "hybrid",
   adapter: vercel(),
   integrations: [react()],
 });

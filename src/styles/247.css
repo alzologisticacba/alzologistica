@@ -1910,6 +1910,52 @@
   background: #e53e3e !important;
 }
 
+/* CTA row — Agregar + Share */
+
+.pd__cta-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.pd__cta-row .pd__btn-agregar {
+  flex: 1;
+  width: auto;
+  margin-top: 0;
+}
+
+.pd__btn-share {
+  flex-shrink: 0;
+  width: 52px;
+  margin-top: 4px;
+  border-radius: 50%;
+  border: none;
+  background: #1a1a2e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.pd__btn-share:hover {
+  background: #2d2d4e;
+}
+
+.pd__btn-share:active {
+  transform: scale(0.95);
+}
+
+.pd__btn-share--copied {
+  background: #00a650 !important;
+}
+
+.pd__share-menu-item:hover {
+  background: #f5f7ff;
+}
+
+
 /* Paginación */
 
 .cat-page__pagination {

@@ -1,10 +1,58 @@
 ---
 // src/pages/247/producto/index.astro
-// Página estática — el código se lee desde URL params en el cliente
+export const prerender = false;
 import Layout247 from "../../../layouts/Layout247.astro";
 import ProductoDetalle from "../../../components/247/ProductoDetalle";
 import "../../../styles/247.css";
+
+const codigo = Astro.url.searchParams.get("codigo");
+
+const SUPABASE_STORAGE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public";
+
+let ogTitle       = "Alzo 24/7 — Tu mayorista online";
+let ogDescription = "Hacé tu pedido simple, sin registros y sin vueltas";
+let ogImage       = `${SUPABASE_STORAGE}/assets/og-default.png`; // imagen fallback
+let ogUrl         = `https://alzologistica.com/247/producto/${codigo ? `?codigo=${codigo}` : ""}`;
+
+if (codigo) {
+  // Siempre apuntamos a la imagen del producto — si no existe, WhatsApp usa el fallback
+  ogImage = `${SUPABASE_STORAGE}/Productos/articulos/${codigo}.png`;
+
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/articulos?codigo=eq.${encodeURIComponent(codigo)}&stock=gt.0&select=descripcion,rubro`,
+      {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    if (res.ok) {
+      const rows: Array<{ descripcion: string; rubro: string }> = await res.json();
+      const data = rows[0];
+      if (data) {
+        ogTitle       = `${data.descripcion} | Alzo 24/7`;
+        ogDescription = `${data.rubro} · Disponible en Alzo 24/7`;
+      }
+    }
+  } catch {
+    // título/descripción quedan como fallback genérico, ogImage ya está seteado
+  }
+}
 ---
-<Layout247 title="Producto | Alzo 24/7">
+<Layout247
+  title={ogTitle}
+  description={ogDescription}
+  canonical={ogUrl}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  ogImage={ogImage}
+  ogUrl={ogUrl}
+>
   <ProductoDetalle client:only="react" />
 </Layout247>

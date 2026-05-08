@@ -6,7 +6,15 @@ const {
   title       = "Alzo 24/7",
   description = "Alzo 24/7: Hace tu pedido simple, sin registros y sin vueltas",
   canonical   = "https://alzologistica.com/247",
+  ogTitle,
+  ogDescription,
+  ogImage,
+  ogUrl,
 } = Astro.props;
+
+const resolvedOgTitle = ogTitle ?? title;
+const resolvedOgDesc  = ogDescription ?? description;
+const resolvedOgUrl   = ogUrl ?? canonical;
 ---
 
 <html lang="es">
@@ -17,6 +25,15 @@ const {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href="/img/alzo_logo.png" />
+    <meta property="og:type" content="product" />
+    <meta property="og:site_name" content="Alzo 24/7" />
+    <meta property="og:title" content={resolvedOgTitle} />
+    <meta property="og:description" content={resolvedOgDesc} />
+    <meta property="og:url" content={resolvedOgUrl} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={resolvedOgTitle} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Barlow+Condensed:wght@800&display=swap" rel="stylesheet" />
