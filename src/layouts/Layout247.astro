@@ -25,14 +25,16 @@ const resolvedOgUrl   = ogUrl ?? canonical;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href="/img/alzo_logo.png" />
-    <meta property="og:type" content="product" />
+    <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Alzo 24/7" />
     <meta property="og:title" content={resolvedOgTitle} />
     <meta property="og:description" content={resolvedOgDesc} />
     <meta property="og:url" content={resolvedOgUrl} />
     {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:type" content="image/png" />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={resolvedOgTitle} />
+    <meta name="twitter:description" content={resolvedOgDesc} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
