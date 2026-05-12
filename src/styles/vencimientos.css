@@ -1,24 +1,29 @@
 /* =============================================
-   ALZO VENCIMIENTOS
+   ALZO VENCIMIENTOS — clean dashboard style
    ============================================= */
 
 *, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  --azul:     #2556ff;
-  --azul-dk:  #1a3ecf;
-  --rojo:     #ef4444;
-  --amarillo: #f59e0b;
-  --verde:    #22c55e;
-  --borde:    #e2e8f0;
-  --fondo:    #dbeafe;   /* azul claro como en la foto */
+  --azul:      #4F70E8;
+  --azul-dk:   #3B55C4;
+  --rojo:      #EF4444;
+  --amarillo:  #F59E0B;
+  --verde:     #10B981;
+  --borde:     #E5E7EB;
+  --fondo:     #F3F4F8;
+  --card:      #FFFFFF;
+  --texto:     #111827;
+  --texto-2:   #6B7280;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.07), 0 8px 24px rgba(0,0,0,0.05);
 }
 
 html, body {
   min-height: 100vh;
   background: var(--fondo);
   font-family: "Montserrat", system-ui, sans-serif;
-  color: #1a1a2e;
+  color: var(--texto);
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -27,8 +32,8 @@ html, body {
 /* ── Header ── */
 .venc-header {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-  padding: 0 24px;
-  height: 58px;
+  padding: 0 28px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -43,11 +48,11 @@ html, body {
   align-items: center;
   gap: 10px;
   color: #fff;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
 }
 .venc-header__logo img {
-  height: 34px;
+  height: 30px;
   width: auto;
   mix-blend-mode: screen;
 }
@@ -57,7 +62,7 @@ html, body {
   border: 1px solid rgba(255,255,255,0.2);
   color: rgba(255,255,255,0.8);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 4px 12px;
   border-radius: 999px;
   letter-spacing: 0.06em;
@@ -70,10 +75,30 @@ html, body {
   gap: 10px;
 }
 
+.venc-header__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
 .venc-header__vendedor {
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,0.8);
   font-size: 13px;
   font-weight: 600;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .venc-header__logout {
@@ -90,7 +115,7 @@ html, body {
 }
 .venc-header__logout:hover { background: rgba(255,255,255,0.2); }
 
-/* ── Página entera ── */
+/* ── Página ── */
 .venc-page {
   min-height: 100vh;
   background: var(--fondo);
@@ -102,163 +127,126 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2556ff 100%);
+  background: var(--fondo);
   padding: 24px;
 }
 
 .venc-login-card {
-  background: #fff;
+  background: var(--card);
   border-radius: 20px;
   padding: 48px 40px;
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
   text-align: center;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--borde);
 }
 
 .venc-login-card__logo {
-  height: 54px;
+  height: 48px;
   width: auto;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .venc-login-card h1 {
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 6px;
+  color: var(--texto);
+  margin: 0 0 6px;
 }
 
 .venc-login-card p {
   font-size: 13px;
-  color: #64748b;
-  margin-bottom: 28px;
+  color: var(--texto-2);
+  margin: 0 0 28px;
 }
 
-.venc-login-form {
+/* Botón de Google */
+.venc-btn-google {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.venc-input-label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: #475569;
-  text-align: left;
-  margin-bottom: 6px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.venc-input {
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   width: 100%;
-  padding: 14px 16px;
-  border: 2px solid var(--borde);
-  border-radius: 12px;
-  font-size: 24px;
-  font-weight: 700;
-  font-family: "Montserrat", monospace;
-  color: #0f172a;
-  letter-spacing: 0.35em;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  padding: 13px 20px;
+  background: var(--card);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--texto);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  box-shadow: var(--shadow-sm);
 }
-.venc-input:focus {
-  border-color: var(--azul);
-  box-shadow: 0 0 0 3px rgba(37,86,255,0.15);
+.venc-btn-google:hover:not(:disabled) {
+  border-color: #4285F4;
+  box-shadow: 0 4px 16px rgba(66,133,244,0.12);
+  background: #FAFBFF;
 }
-.venc-input--error {
-  border-color: var(--rojo);
-  box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
-  animation: shake 0.35s ease;
-}
-
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  20%      { transform: translateX(-8px); }
-  40%      { transform: translateX(8px); }
-  60%      { transform: translateX(-6px); }
-  80%      { transform: translateX(6px); }
-}
+.venc-btn-google:active { transform: translateY(1px); }
+.venc-btn-google:disabled { opacity: 0.6; cursor: default; }
+.venc-btn-google__icon { width: 20px; height: 20px; flex-shrink: 0; }
 
 .venc-login-error {
   color: var(--rojo);
   font-size: 12px;
   font-weight: 600;
-  min-height: 16px;
+  margin-top: 14px;
+  display: none;
 }
-
-.venc-btn-login {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #2556ff 0%, #00c6ff 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: filter 0.15s, transform 0.15s;
-}
-.venc-btn-login:hover  { filter: brightness(1.1); transform: translateY(-1px); }
-.venc-btn-login:active { transform: translateY(0); }
+.venc-login-error--visible { display: block; }
 
 /* ── Hero / buscador ── */
 .venc-hero {
   background: var(--fondo);
-  padding: 40px 24px 28px;
+  padding: 32px 28px 18px;
   text-align: center;
 }
 
 .venc-hero__title {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 800;
-  color: #1e3a8a;
-  margin-bottom: 20px;
+  color: var(--texto);
+  margin-bottom: 16px;
   letter-spacing: -0.01em;
 }
 
 .venc-hero__search-wrap {
   position: relative;
-  max-width: 520px;
+  max-width: 480px;
   margin: 0 auto;
 }
 
 .venc-hero__search-icon {
   position: absolute;
-  left: 18px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--rojo);
-  width: 18px;
-  height: 18px;
+  color: #9CA3AF;
+  width: 17px;
+  height: 17px;
   pointer-events: none;
 }
 
 .venc-hero__search {
   width: 100%;
-  padding: 16px 18px 16px 48px;
-  border: 2px solid rgba(255,255,255,0.7);
-  border-radius: 16px;
-  background: rgba(255,255,255,0.85);
-  font-size: 16px;
+  padding: 13px 16px 13px 44px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--card);
+  font-size: 14px;
   font-family: inherit;
-  color: #0f172a;
+  color: var(--texto);
   outline: none;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-  backdrop-filter: blur(4px);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
 }
-.venc-hero__search::placeholder { color: var(--rojo); font-weight: 500; }
+.venc-hero__search::placeholder { color: #9CA3AF; font-weight: 500; }
 .venc-hero__search:focus {
-  border-color: rgba(255,255,255,1);
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(37,86,255,0.15);
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(79,112,232,0.1);
 }
 
 /* ── Controls ── */
@@ -266,322 +254,354 @@ html, body {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 0 24px 20px;
-  max-width: 1200px;
+  gap: 8px;
+  padding: 0 16px 18px;
+  max-width: 712px;
   margin: 0 auto;
 }
 
-/* Chip único "Menos de 30 días" */
 .venc-chip-30 {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 18px;
-  border-radius: 999px;
-  border: 2px solid rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.75);
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--borde);
+  background: var(--card);
   cursor: pointer;
   font-family: inherit;
   transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
 }
 .venc-chip-30:hover {
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  border-color: var(--amarillo);
 }
 .venc-chip-30.active {
-  background: #fff;
+  background: #FFFBEB;
   border-color: var(--amarillo);
-  box-shadow: 0 2px 12px rgba(245,158,11,0.2);
 }
 .venc-chip-30__num {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--amarillo);
   line-height: 1;
 }
 .venc-chip-30__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--texto-2);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
-/* Select de área */
 .venc-select {
-  padding: 9px 14px;
-  border: 2px solid rgba(255,255,255,0.7);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.8);
+  padding: 8px 14px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--card);
   font-size: 13px;
   font-family: inherit;
   font-weight: 600;
-  color: #0f172a;
+  color: #374151;
   outline: none;
   cursor: pointer;
   transition: border-color 0.15s;
+  box-shadow: var(--shadow-sm);
 }
-.venc-select:focus { border-color: var(--azul); background: #fff; }
+.venc-select:focus { border-color: var(--azul); }
 
-/* Botón actualizar */
+.venc-select-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--azul);
+  border-radius: 10px;
+  background: #EEF2FF;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--azul);
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.venc-select-toggle:hover { background: #E0E7FF; }
+.venc-select-toggle--cancel {
+  border-color: var(--borde);
+  background: var(--card);
+  color: #6B7280;
+}
+.venc-select-toggle--cancel:hover { background: #F3F4F6; }
+
 .venc-refresh-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 9px 16px;
-  border: 2px solid rgba(255,255,255,0.7);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.8);
+  padding: 8px 16px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--card);
   font-size: 13px;
   font-family: inherit;
   font-weight: 600;
-  color: #475569;
+  color: var(--texto-2);
   cursor: pointer;
   transition: all 0.15s;
   margin-left: auto;
+  box-shadow: var(--shadow-sm);
 }
-.venc-refresh-btn:hover { background: #fff; border-color: var(--azul); color: var(--azul); }
+.venc-refresh-btn:hover { border-color: var(--azul); color: var(--azul); }
 
-/* ── Tabla ── */
-.venc-table-outer {
-  padding: 0 24px 60px;
-  max-width: 1200px;
+/* ── Cards ── */
+.venc-list-outer {
+  padding: 0 16px 60px;
+  max-width: 712px;
   margin: 0 auto;
 }
 
-.venc-table-wrap {
-  background: rgba(255,255,255,0.85);
-  border-radius: 18px 18px 0 0;
+.venc-card-list {
+  background: var(--card);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(30,58,138,0.12);
-  border: 1px solid rgba(255,255,255,0.9);
-  border-bottom: none;
-  /* Altura mínima = 30 filas × ~49px por fila + thead */
-  min-height: 540px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--borde);
+  min-height: 200px;
+}
+
+.venc-card {
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.venc-card + .venc-card {
+  border-top: 1px solid #F3F4F6;
+}
+.venc-card--rojo    { border-left-color: var(--rojo);     background: #FFFAFA; }
+.venc-card--naranja { border-left-color: var(--amarillo); background: #FFFDF5; }
+.venc-card--verde   { border-left-color: var(--verde);    background: var(--card); }
+
+.venc-card:hover { background: #F9FAFB; }
+.venc-card--rojo:hover    { background: #FEF2F2; }
+.venc-card--naranja:hover { background: #FFFBEB; }
+
+/* Fila principal */
+.venc-card__main {
   display: flex;
-  flex-direction: column;
-}
-
-.venc-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed; /* columnas con ancho fijo, sin saltos */
-}
-
-/* Anchos de columna fijos */
-.venc-table th:nth-child(1),
-.venc-table td:nth-child(1) { width: 100px; }   /* Código */
-.venc-table th:nth-child(2),
-.venc-table td:nth-child(2) { width: auto; }     /* Descripción — ocupa el resto */
-.venc-table th:nth-child(3),
-.venc-table td:nth-child(3) { width: 120px; }    /* Vencimiento */
-.venc-table th:nth-child(4),
-.venc-table td:nth-child(4) { width: 90px; }     /* Días */
-.venc-table th:nth-child(5),
-.venc-table td:nth-child(5) { width: 70px; }     /* Cant. */
-
-.venc-table thead {
-  background: rgba(248,250,252,0.9);
-}
-
-.venc-table th {
+  align-items: center;
+  gap: 12px;
   padding: 14px 18px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #64748b;
-  text-align: left;
-  border-bottom: 2px solid var(--borde);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.venc-table td {
-  padding: 13px 18px;
-  font-size: 14px;
-  border-bottom: 1px solid rgba(226,232,240,0.6);
-  vertical-align: middle;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* La descripción sí puede wrappear */
-.venc-td-desc { white-space: normal; }
-
-.venc-table tbody tr:last-child td { border-bottom: none; }
-
-/* Filas clickeables */
-.venc-tr-clickable { cursor: pointer; }
-.venc-tr-clickable:hover { filter: brightness(0.97); }
-.venc-tr-open td { border-bottom: none; }
-
-/* Fila de detalle expandida */
-.venc-tr-detail td { padding: 0 !important; border-bottom: 1px solid rgba(226,232,240,0.6); }
-
-.venc-td-detail {
-  padding: 0 !important;
-}
-
-.venc-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: rgba(226,232,240,0.4);
-  border-top: 1px solid rgba(226,232,240,0.6);
-  padding: 0;
-}
-
-.venc-detail-grid > div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 16px;
-  background: rgba(248,250,252,0.95);
-}
-
-.venc-detail-grid > div:first-child {
-  grid-column: 1 / -1; /* descripción ocupa todo el ancho */
-}
-
-.venc-detail-grid span {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #94a3b8;
-}
-
-.venc-detail-grid strong {
-  font-size: 14px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-/* Colores por estado */
-.venc-table tbody tr[data-estado="rojo"]    { background: rgba(254,242,242,0.6); }
-.venc-table tbody tr[data-estado="naranja"] { background: rgba(255,237,213,0.6); }
-.venc-table tbody tr[data-estado="verde"]   { background: transparent; }
-
-.venc-table tbody tr[data-estado="rojo"]:hover    { background: rgba(254,226,226,0.75); }
-.venc-table tbody tr[data-estado="naranja"]:hover { background: rgba(255,220,185,0.75); }
-.venc-table tbody tr[data-estado="verde"]:hover   { background: rgba(240,249,255,0.6); }
-
-/* Celdas específicas */
-.venc-td-codigo {
-  font-family: "Montserrat", monospace;
-  font-weight: 700;
-  color: #1e3a8a;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-.venc-td-desc {
-  font-weight: 600;
-  color: #0f172a;
-  max-width: 300px;
-}
-
-.venc-td-area { white-space: nowrap; }
-
-.venc-area-tag {
-  display: inline-block;
-  background: #eff6ff;
-  color: #1e40af;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 6px;
-  letter-spacing: 0.04em;
-}
-
-.venc-ubicacion {
-  display: block;
-  font-size: 11px;
-  color: #64748b;
-  margin-top: 3px;
-  font-weight: 500;
-}
-
-.venc-td-fecha {
-  font-weight: 600;
-  white-space: nowrap;
-  color: #334155;
-}
-
+/* Badge días */
 .venc-dias-badge {
   display: inline-flex;
   align-items: center;
-  padding: 5px 12px;
-  border-radius: 999px;
+  justify-content: center;
+  min-width: 46px;
+  padding: 5px 10px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+  flex-shrink: 0;
 }
-.venc-dias-badge--rojo    { background: #fee2e2; color: #dc2626; }
-.venc-dias-badge--naranja { background: #ffedd5; color: #c2410c; }
-.venc-dias-badge--verde   { background: #dcfce7; color: #15803d; }
+.venc-dias-badge--rojo    { background: #FEE2E2; color: #DC2626; }
+.venc-dias-badge--naranja { background: #FEF3C7; color: #D97706; }
+.venc-dias-badge--verde   { background: #D1FAE5; color: #059669; }
 
-.venc-td-cant {
-  font-weight: 700;
-  color: #334155;
-  text-align: center;
+/* Info central */
+.venc-card__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
-
-/* Footer de tabla */
-.venc-table-footer {
-  padding: 12px 18px;
+.venc-card__desc {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto);
+  line-height: 1.3;
+}
+.venc-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--texto-2);
   font-weight: 500;
+}
+.venc-card__codigo {
+  font-weight: 700;
+  color: var(--azul);
+}
+.venc-card__sep { color: #D1D5DB; }
+
+/* Fecha lado derecho */
+.venc-card__cant {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  flex-shrink: 0;
   text-align: right;
-  background: rgba(255,255,255,0.85);
-  border-radius: 0 0 18px 18px;
-  border-top: 1px solid var(--borde);
-  margin-top: -1px;
+  white-space: nowrap;
 }
 
-/* Loading */
+/* Detalle expandido */
+.venc-card__detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid #F3F4F6;
+  background: #FAFAFA;
+}
+.venc-card__detail > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 18px;
+  border-right: 1px solid #F3F4F6;
+  border-bottom: 1px solid #F3F4F6;
+}
+.venc-card__detail > div:nth-child(2n) { border-right: none; }
+.venc-card__detail > div:nth-last-child(-n+2) { border-bottom: none; }
+.venc-card__detail > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.venc-card__detail span {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9CA3AF;
+}
+.venc-card__detail strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+/* ── Checkbox de selección ── */
+.venc-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--borde);
+  background: var(--card);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.venc-check--on {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: #fff;
+}
+
+/* Cards en modo selección */
+.venc-card--selectable { user-select: none; }
+.venc-card--selected {
+  outline: 2px solid var(--azul);
+  outline-offset: -2px;
+}
+.venc-card--disabled { opacity: 0.4; pointer-events: none; }
+
+/* ── Barra flotante de selección ── */
+.venc-sel-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: #0f172a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+.venc-sel-bar__cancel {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.venc-sel-bar__cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+.venc-sel-bar__count {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+}
+.venc-sel-bar__count strong {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
+.venc-sel-bar__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: var(--azul);
+  border: none;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+.venc-sel-bar__btn:hover:not(:disabled) { filter: brightness(1.15); }
+.venc-sel-bar__btn:disabled { opacity: 0.45; cursor: default; }
+
+/* ── Loading ── */
 .venc-loading {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
   padding: 60px;
-  color: #64748b;
+  color: var(--texto-2);
   font-size: 14px;
   font-weight: 600;
 }
 
 .venc-spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid rgba(37,86,255,0.15);
+  width: 26px;
+  height: 26px;
+  border: 3px solid #E5E7EB;
   border-top-color: var(--azul);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Error */
+/* ── Error ── */
 .venc-error {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px 24px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 14px;
-  color: #dc2626;
+  padding: 16px 20px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 12px;
+  color: #DC2626;
   font-size: 14px;
   font-weight: 500;
 }
 .venc-error button {
   margin-left: auto;
-  padding: 8px 14px;
+  padding: 7px 14px;
   background: var(--rojo);
   color: #fff;
   border: none;
@@ -595,29 +615,30 @@ html, body {
 .venc-empty {
   text-align: center;
   padding: 60px 20px;
-  color: #94a3b8;
+  color: #9CA3AF;
   font-size: 14px;
   font-weight: 500;
 }
 
-/* ── Footer bar (info + paginador) ── */
+/* ── Footer bar ── */
 .venc-footer-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 14px 20px;
-  background: rgba(255,255,255,0.85);
-  border-radius: 0 0 18px 18px;
-  border: 1px solid rgba(255,255,255,0.9);
-  border-top: 1px solid var(--borde);
-  box-shadow: 0 4px 24px rgba(30,58,138,0.12);
+  padding: 14px 18px;
+  background: var(--card);
+  border-radius: 0 0 16px 16px;
+  border: 1px solid var(--borde);
+  border-top: 1px solid #F3F4F6;
+  box-shadow: var(--shadow-md);
+  margin-top: -1px;
 }
 
 .venc-footer-info {
   font-size: 12px;
-  color: #64748b;
+  color: var(--texto-2);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -626,17 +647,16 @@ html, body {
 .venc-paginador {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
 }
 
 .venc-pag-btn {
-  min-width: 36px;
   height: 36px;
-  padding: 0 8px;
-  border-radius: 10px;
-  border: 2px solid var(--borde);
-  background: #fff;
-  color: #475569;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  background: var(--card);
+  color: #374151;
   font-size: 13px;
   font-weight: 600;
   font-family: inherit;
@@ -644,85 +664,60 @@ html, body {
   transition: all 0.15s;
   display: flex;
   align-items: center;
-  justify-content: center;
+  white-space: nowrap;
 }
-.venc-pag-btn:hover:not(:disabled) {
+.venc-pag-btn--nav:hover:not(:disabled) {
   border-color: var(--azul);
   color: var(--azul);
 }
-.venc-pag-btn.active {
-  background: var(--azul);
-  border-color: var(--azul);
-  color: #fff;
-}
-.venc-pag-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
+.venc-pag-btn:disabled { opacity: 0.35; cursor: default; }
 
-.venc-pag-dots {
-  color: #94a3b8;
+.venc-pag-info {
   font-size: 13px;
-  padding: 0 4px;
+  font-weight: 700;
+  color: var(--texto);
+  min-width: 60px;
+  text-align: center;
 }
-
-/* ── Ocultar columnas opcionales en mobile ── */
-.venc-th-fecha, .venc-th-cant {
-  /* visibles siempre en desktop */
+.venc-pag-de {
+  font-weight: 500;
+  color: var(--texto-2);
+  margin: 0 3px;
 }
 
 /* ── Móvil ── */
 @media (max-width: 600px) {
-  .venc-header { padding: 0 14px; height: 52px; }
+  .venc-header { padding: 0 16px; height: 54px; }
+  .venc-header__vendedor { display: none; }
   .venc-header__logout { font-size: 12px; padding: 5px 10px; }
 
-  .venc-hero { padding: 20px 14px 14px; }
-  .venc-hero__title { font-size: 22px; margin-bottom: 12px; }
-  .venc-hero__search { font-size: 14px; padding: 12px 12px 12px 40px; border-radius: 14px; }
+  .venc-hero { padding: 20px 16px 14px; }
+  .venc-hero__title { font-size: 20px; margin-bottom: 12px; }
+  .venc-hero__search { font-size: 14px; }
 
-  .venc-controls { padding: 0 14px 12px; gap: 8px; flex-wrap: nowrap; }
+  .venc-controls { padding: 0 12px 14px; gap: 8px; flex-wrap: nowrap; }
   .venc-chip-30 { padding: 7px 12px; flex-shrink: 0; }
   .venc-chip-30__num { font-size: 15px; }
   .venc-chip-30__label { font-size: 10px; }
-  .venc-select { font-size: 12px; padding: 7px 8px; flex: 1; min-width: 0; }
+  .venc-select { font-size: 12px; padding: 7px 10px; flex: 1; min-width: 0; }
   .venc-refresh-btn { padding: 7px 10px; font-size: 12px; flex-shrink: 0; }
 
-  .venc-table-outer { padding: 0 14px 40px; }
+  .venc-list-outer { padding: 0 12px 40px; }
 
-  .venc-table-wrap {
-    min-height: 400px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    /* scrollbar visible y estilizada */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(37,86,255,0.3) transparent;
-  }
-  .venc-table-wrap::-webkit-scrollbar { height: 4px; }
-  .venc-table-wrap::-webkit-scrollbar-track { background: transparent; }
-  .venc-table-wrap::-webkit-scrollbar-thumb { background: rgba(37,86,255,0.3); border-radius: 4px; }
-  .venc-table { font-size: 12px; min-width: 620px; table-layout: fixed; }
+  .venc-card__main { padding: 12px 14px; gap: 10px; }
+  .venc-card__desc { font-size: 13px; }
+  .venc-card__meta { font-size: 11px; }
+  .venc-card__cant { font-size: 12px; }
+  .venc-dias-badge { font-size: 11px; padding: 4px 8px; min-width: 38px; }
 
-  /* Anchos fijos para scroll horizontal */
-  .venc-table th:nth-child(1),
-  .venc-table td:nth-child(1) { width: 80px; }
-  .venc-table th:nth-child(2),
-  .venc-table td:nth-child(2) { width: 220px; white-space: normal; }
-  .venc-table th:nth-child(3),
-  .venc-table td:nth-child(3) { width: 100px; }
-  .venc-table th:nth-child(4),
-  .venc-table td:nth-child(4) { width: 70px; }
-  .venc-table th:nth-child(5),
-  .venc-table td:nth-child(5) { width: 60px; }
-
-  .venc-table th, .venc-table td { padding: 9px 10px; font-size: 12px; }
-  .venc-td-codigo { font-size: 11px; }
-  .venc-td-desc { font-size: 12px; white-space: normal; word-break: break-word; }
-  .venc-dias-badge { font-size: 11px; padding: 3px 8px; }
+  .venc-card__detail > div { padding: 10px 14px; }
+  .venc-card__detail strong { font-size: 13px; }
 
   .venc-footer-bar { padding: 12px 14px; flex-direction: column; align-items: stretch; }
   .venc-footer-info { text-align: center; }
   .venc-paginador { justify-content: center; }
-  .venc-pag-btn { min-width: 34px; height: 34px; font-size: 12px; }
+  .venc-pag-btn { height: 34px; padding: 0 12px; font-size: 12px; }
+  .venc-pag-info { font-size: 12px; }
 
-  .venc-login-card { padding: 32px 18px; }
+  .venc-login-card { padding: 32px 20px; }
 }

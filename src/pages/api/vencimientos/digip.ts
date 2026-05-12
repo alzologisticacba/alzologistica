@@ -142,16 +142,30 @@ function sampleKeys(value: unknown) {
   return Object.keys(value as Record<string, unknown>);
 }
 
-async function wmsGet<T>(endpoint: string): Promise<T[]> {
-  const res = await fetch(`${WMS_BASE}${endpoint}`, { headers: wmsHeaders() });
-  const text = await res.text();
+async function wmsGet<T>(endpoint: string, intentos = 3): Promise<T[]> {
+  let ultimoError: Error | null = null;
 
-  if (!res.ok) {
-    throw new Error(`WMS ${endpoint}: ${res.status} ${text}`);
+  for (let i = 0; i < intentos; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, 1000 * i));
+
+    try {
+      const res = await fetch(`${WMS_BASE}${endpoint}`, { headers: wmsHeaders() });
+      const text = await res.text();
+
+      if (!res.ok) {
+        ultimoError = new Error(`El servidor WMS no está disponible (${res.status}). Intentá de nuevo en unos minutos.`);
+        if (res.status >= 500) continue;
+        throw ultimoError;
+      }
+
+      const parsed = text ? JSON.parse(text) : [];
+      return asArray<T>(parsed);
+    } catch (e) {
+      ultimoError = e instanceof Error ? e : new Error(String(e));
+    }
   }
 
-  const parsed = text ? JSON.parse(text) : [];
-  return asArray<T>(parsed);
+  throw ultimoError ?? new Error("Error al conectar con el WMS.");
 }
 
 function inicioDelDia(fecha: Date) {

@@ -28,7 +28,7 @@ if (codigo) {
 
   try {
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/articulos?codigo=eq.${encodeURIComponent(codigo)}&stock=gt.0&select=descripcion,rubro`,
+      `${supabaseUrl}/rest/v1/articulos?codigo=eq.${encodeURIComponent(codigo)}&stock=gt.0&select=descripcion,rubro,precioFinal,descuento`,
       {
         headers: {
           apikey: supabaseKey,
@@ -38,11 +38,21 @@ if (codigo) {
       }
     );
     if (res.ok) {
-      const rows: Array<{ descripcion: string; rubro: string }> = await res.json();
+      const rows: Array<{ descripcion: string; rubro: string; precioFinal: number; descuento: number }> = await res.json();
       const data = rows[0];
       if (data) {
-        ogTitle       = `${data.descripcion} | Alzo 24/7`;
-        ogDescription = `${data.rubro} · Disponible en Alzo 24/7`;
+        const nombre = data.descripcion
+          .toLowerCase()
+          .replace(/\b\w/g, (c: string) => c.toUpperCase());
+        const precio = data.descuento > 0
+          ? data.precioFinal * (1 - data.descuento / 100)
+          : data.precioFinal;
+        const precioFmt = precio.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        const rubro = data.rubro
+          .toLowerCase()
+          .replace(/\b\w/g, (c: string) => c.toUpperCase());
+        ogTitle       = `${nombre} | Alzo 24/7`;
+        ogDescription = `${precioFmt} · ${rubro} · Pedí sin registro, fácil y rápido`;
       }
     }
   } catch {
