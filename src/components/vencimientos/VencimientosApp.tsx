@@ -52,7 +52,7 @@ function LoginScreen({ errorDominio }: { errorDominio?: string }) {
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: { hd: "alzologistica.com" },
+        queryParams: { hd: "alzologistica.com", prompt: "select_account" },
       },
     });
     if (error) {
