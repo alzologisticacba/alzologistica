@@ -252,7 +252,7 @@ function GoogleLoginScreen() {
     setError("");
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/reparto` },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=/reparto` },
     });
     if (error) {
       setError("No se pudo iniciar sesión. Intentá de nuevo.");

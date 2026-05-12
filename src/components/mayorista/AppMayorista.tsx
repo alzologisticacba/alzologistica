@@ -21,7 +21,7 @@ function LoginMayorista() {
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/247/mayorista${window.location.search}`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/247/mayorista" + window.location.search)}`,
       },
     });
     if (error) {

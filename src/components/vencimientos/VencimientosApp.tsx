@@ -50,7 +50,7 @@ function LoginScreen({ errorDominio }: { errorDominio?: string }) {
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + window.location.pathname,
+        redirectTo: `${window.location.origin}/auth/callback?next=${window.location.pathname}`,
         queryParams: { hd: "alzologistica.com" },
       },
     });
