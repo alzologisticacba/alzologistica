@@ -250,9 +250,10 @@ function GoogleLoginScreen() {
   async function handleGoogle() {
     setLoading(true);
     setError("");
+    localStorage.setItem("auth_next", "/reparto");
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=/reparto` },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) {
       setError("No se pudo iniciar sesión. Intentá de nuevo.");

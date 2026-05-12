@@ -47,10 +47,11 @@ function LoginScreen({ errorDominio }: { errorDominio?: string }) {
   async function handleGoogleLogin() {
     setLoading(true);
     setError("");
+    localStorage.setItem("auth_next", window.location.pathname);
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${window.location.pathname}`,
+        redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: { hd: "alzologistica.com" },
       },
     });

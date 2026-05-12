@@ -3,9 +3,11 @@ import { supabaseClient } from "../../lib/supabaseClient";
 
 export default function AuthCallback() {
   useEffect(() => {
+    const next = localStorage.getItem("auth_next") ?? "/";
+    localStorage.removeItem("auth_next");
+
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-    const next = params.get("next") ?? "/";
 
     if (code) {
       supabaseClient.auth
