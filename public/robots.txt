@@ -16,3 +16,4 @@ Disallow: /247/mayorista
 Disallow: /api/
 
 Sitemap: https://alzologistica.com/sitemap-index.xml
+Sitemap: https://alzologistica.com/api/image-sitemap.xml
