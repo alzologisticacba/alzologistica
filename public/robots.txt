@@ -13,6 +13,8 @@ Disallow: /auth/
 Disallow: /247/carrito
 Disallow: /247/pedidos
 Disallow: /247/mayorista
+Allow: /api/image-sitemap.xml
+Allow: /api/feed.xml
 Disallow: /api/
 
 Sitemap: https://alzologistica.com/sitemap-index.xml
