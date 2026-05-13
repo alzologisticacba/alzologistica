@@ -215,7 +215,6 @@ export default function ProductoDetalle() {
                     {precioConDescuento && (
                       <div className="pd__ahorro-row">
                         <p className="pd__precio-original">{fmt(articulo!.precioFinal)}</p>
-                        <span className="pd__ahorro-chip">Ahorrás {fmt(articulo!.precioFinal - precioConDescuento)}</span>
                       </div>
                     )}
                     <div className="pd__precio-row">
