@@ -9,6 +9,7 @@ const {
   ogTitle,
   ogDescription,
   ogImage,
+  ogImageAlt,
   ogUrl,
 } = Astro.props;
 
@@ -35,6 +36,8 @@ const resolvedOgUrl   = ogUrl ?? canonical;
     {ogImage && <meta property="og:image:type" content="image/png" />}
     {ogImage && <meta property="og:image:width" content="800" />}
     {ogImage && <meta property="og:image:height" content="800" />}
+    {ogImage && <meta property="og:image:alt" content={ogImageAlt ?? resolvedOgTitle} />}
+    <slot name="head" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={resolvedOgTitle} />
     <meta name="twitter:description" content={resolvedOgDesc} />

@@ -11,8 +11,10 @@ const SUPABASE_STORAGE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/ob
 
 let ogTitle       = "Alzo 24/7 — Tu mayorista online";
 let ogDescription = "Hacé tu pedido simple, sin registros y sin vueltas";
-let ogImage       = `${SUPABASE_STORAGE}/assets/og-default.png`; // imagen fallback
+let ogImage       = `${SUPABASE_STORAGE}/assets/og-default.png`;
 let ogUrl         = `https://alzologistica.com/247/producto/${codigo ? `?codigo=${codigo}` : ""}`;
+let jsonLdProduct: string | null = null;
+let jsonLdBreadcrumb: string | null = null;
 
 if (codigo) {
   const productImageUrl = `${SUPABASE_STORAGE}/Productos/articulos/${codigo}.png`;
@@ -28,7 +30,7 @@ if (codigo) {
 
   try {
     const res = await fetch(
-      `${supabaseUrl}/rest/v1/articulos?codigo=eq.${encodeURIComponent(codigo)}&stock=gt.0&select=descripcion,rubro,precioFinal,descuento`,
+      `${supabaseUrl}/rest/v1/articulos?codigo=eq.${encodeURIComponent(codigo)}&stock=gt.0&select=descripcion,rubro,familiaNombre,precioFinal,descuento`,
       {
         headers: {
           apikey: supabaseKey,
@@ -38,7 +40,7 @@ if (codigo) {
       }
     );
     if (res.ok) {
-      const rows: Array<{ descripcion: string; rubro: string; precioFinal: number; descuento: number }> = await res.json();
+      const rows: Array<{ descripcion: string; rubro: string; familiaNombre: string; precioFinal: number; descuento: number }> = await res.json();
       const data = rows[0];
       if (data) {
         const nombre = data.descripcion
@@ -53,6 +55,32 @@ if (codigo) {
           .replace(/\b\w/g, (c: string) => c.toUpperCase());
         ogTitle       = `${nombre} | Alzo 24/7`;
         ogDescription = `${precioFmt} · ${rubro} · Pedí sin registro, fácil y rápido`;
+        const categoriaSlug = data.familiaNombre.toLowerCase().replace(/\s+/g, "-");
+        jsonLdBreadcrumb = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Alzo 24/7", "item": "https://alzologistica.com/247" },
+            { "@type": "ListItem", "position": 2, "name": data.familiaNombre, "item": `https://alzologistica.com/247/categoria/${categoriaSlug}` },
+            { "@type": "ListItem", "position": 3, "name": nombre, "item": ogUrl }
+          ]
+        });
+        jsonLdProduct = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": nombre,
+          "image": ogImage,
+          "description": `${rubro} · Mayorista Alzo 24/7`,
+          "sku": codigo,
+          "offers": {
+            "@type": "Offer",
+            "priceCurrency": "ARS",
+            "price": precio.toFixed(2),
+            "availability": "https://schema.org/InStock",
+            "url": ogUrl,
+            "seller": { "@type": "Organization", "name": "Alzo 24/7" }
+          }
+        });
       }
     }
   } catch {
@@ -67,7 +95,14 @@ if (codigo) {
   ogTitle={ogTitle}
   ogDescription={ogDescription}
   ogImage={ogImage}
+  ogImageAlt={ogTitle}
   ogUrl={ogUrl}
 >
+  {jsonLdBreadcrumb && (
+    <script is:inline slot="head" type="application/ld+json" set:html={jsonLdBreadcrumb} />
+  )}
+  {jsonLdProduct && (
+    <script is:inline slot="head" type="application/ld+json" set:html={jsonLdProduct} />
+  )}
   <ProductoDetalle client:only="react" />
 </Layout247>

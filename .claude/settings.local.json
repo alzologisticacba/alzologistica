@@ -23,7 +23,16 @@
       "Bash(git checkout *)",
       "PowerShell($lines = Get-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; $lines[0..4978] | Set-Content \"c:\\\\workspace\\\\alzologistica\\\\src\\\\styles\\\\247.css\" -Encoding UTF8; Write-Host \"Lines now: $\\($lines[0..4978].Count\\)\")",
       "Bash(Get-ChildItem -Path \"c:\\\\workspace\\\\alzologistica\" -Force)",
-      "Bash(Select-Object Name, FullName)"
+      "Bash(Select-Object Name, FullName)",
+      "Bash(Get-ChildItem -Path \"c:\\\\workspace\\\\alzologistica\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20)",
+      "Bash(Format-Table FullName)",
+      "Bash(Get-ChildItem -Path \"c:\\\\workspace\\\\alzologistica\\\\public\" -File)",
+      "Bash(Select-Object Name)",
+      "Bash(Sort-Object Name)",
+      "Bash(ls -la \"c:\\\\workspace\\\\alzologistica\\\\\" | head -30)",
+      "Read(//c/workspace/**)",
+      "Bash(npm list *)"
     ]
   }
 }

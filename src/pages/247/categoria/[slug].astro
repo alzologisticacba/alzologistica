@@ -22,9 +22,20 @@ export async function getStaticPaths() {
 }
 
 const { familia, titulo } = Astro.props;
+const slug = familia.toLowerCase().replace(/\s+/g, "-");
+
+const breadcrumbLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Alzo 24/7", "item": "https://alzologistica.com/247" },
+    { "@type": "ListItem", "position": 2, "name": titulo, "item": `https://alzologistica.com/247/categoria/${slug}` }
+  ]
+});
 ---
 
 <Layout247 title={`${titulo} | Alzo 24/7`}>
+  <script is:inline slot="head" type="application/ld+json" set:html={breadcrumbLd} />
   <!-- client:only evita problemas de hidratación SSR con props -->
   <CategoryPage familia={familia} titulo={titulo} client:only="react" />
 </Layout247>

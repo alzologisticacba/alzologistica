@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /247/
+Allow: /247/categoria/
+Allow: /247/producto/
+Allow: /247/todos
+Allow: /247/descuentos
+Allow: /247/combos
+Disallow: /admin/
+Disallow: /reparto/
+Disallow: /vencimientos/
+Disallow: /auth/
+Disallow: /247/carrito
+Disallow: /247/pedidos
+Disallow: /247/mayorista
+Disallow: /api/
+
+Sitemap: https://alzologistica.com/sitemap-index.xml
