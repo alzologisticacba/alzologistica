@@ -18,6 +18,7 @@ interface LineaPresupuesto {
 interface Props {
   lineas: LineaPresupuesto[];
   totalPedido: number;
+  profit: number;
   onClose: () => void;
   onClearAndClose: () => void;
 }
@@ -26,11 +27,20 @@ function fmt(n: number) {
   return n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onClearAndClose }: Props) {
+export default function ExportarPresupuesto({ lineas, totalPedido, profit, onClose, onClearAndClose }: Props) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [loadingImg, setLoadingImg] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
+  const [nroCliente, setNroCliente] = useState("");
+  const [clienteError, setClienteError] = useState(false);
   const fecha = new Date().toLocaleDateString("es-AR");
+
+  const clienteOk = nroCliente.trim() !== "";
+
+  function checkCliente() {
+    if (!clienteOk) { setClienteError(true); return false; }
+    return true;
+  }
 
   function handleClose() {
     setConfirmando(true);
@@ -38,22 +48,20 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
 
   // ── Excel ──────────────────────────────────────────────
   function exportExcel() {
-    const rows = lineas.map(l => ({
-      "Código":      l.codArt,
-      "Descripción": l.descripcion,
-      "Precio Unit.": l.precio,
-      "Cantidad":    l.cantidad,
-      "Descuento %": l.descuento || 0,
-      "Subtotal":    l.subtotal,
-    }));
+    if (!checkCliente()) return;
 
-    const ws = XLSX.utils.json_to_sheet(rows);
+    const aoa: (string | number)[][] = [
+      ["Alzo Logística"],
+      [`Cliente N°: ${nroCliente}`, "", "", "", "Fecha:", fecha],
+      [],
+      ["Código", "Descripción", "Precio Unit.", "Cantidad", "Descuento %", "Subtotal"],
+      ...lineas.map(l => [l.codArt, l.descripcion, l.precio, l.cantidad, l.descuento || 0, l.subtotal]),
+      [],
+      ["", "", "", "", "TOTAL", totalPedido],
+      ["", "", "", "", "PROFIT", `${profit.toFixed(1)}%`],
+    ];
 
-    // Fila de total
-    const totalRow = lineas.length + 2;
-    XLSX.utils.sheet_add_aoa(ws, [["", "", "", "", "TOTAL", totalPedido]], { origin: `A${totalRow}` });
-
-    // Ancho de columnas
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
     ws["!cols"] = [{ wch: 12 }, { wch: 40 }, { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 14 }];
 
     const wb = XLSX.utils.book_new();
@@ -63,11 +71,13 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
 
   // ── PDF ────────────────────────────────────────────────
   function exportPDF() {
+    if (!checkCliente()) return;
+
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
     // Encabezado
     doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, 210, 28, "F");
+    doc.rect(0, 0, 210, 34, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
@@ -76,11 +86,12 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
     doc.setFont("helvetica", "normal");
     doc.text("Presupuesto Mayorista", 14, 20);
     doc.text(`Fecha: ${fecha}`, 150, 20);
+    doc.text(`Cliente N°: ${nroCliente}`, 14, 28);
 
     doc.setTextColor(0, 0, 0);
 
     autoTable(doc, {
-      startY: 34,
+      startY: 40,
       head: [["Código", "Descripción", "Precio Unit.", "Cant.", "Dto.", "Subtotal"]],
       body: lineas.map(l => [
         l.codArt,
@@ -90,7 +101,10 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
         l.descuento > 0 ? `${l.descuento.toFixed(2)}%` : "-",
         `$ ${fmt(l.subtotal)}`,
       ]),
-      foot: [["", "", "", "", "Total", `$ ${fmt(totalPedido)}`]],
+      foot: [
+        ["", "", "", "", "Total", `$ ${fmt(totalPedido)}`],
+        ["", "", "", "", "Profit", `${profit.toFixed(1)}%`],
+      ],
       styles: { font: "helvetica", fontSize: 9, cellPadding: 3 },
       headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: "bold" },
       footStyles: { fillColor: [240, 242, 245], textColor: [15, 23, 42], fontStyle: "bold" },
@@ -109,6 +123,7 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
 
   // ── Imagen ─────────────────────────────────────────────
   async function exportImage() {
+    if (!checkCliente()) return;
     if (!previewRef.current) return;
     setLoadingImg(true);
     try {
@@ -148,6 +163,24 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
               {lineas.length} ítem{lineas.length !== 1 ? "s" : ""} · Total $ {fmt(totalPedido)}
             </p>
 
+            {/* ── N° de cliente (obligatorio) ── */}
+            <div className="may-export-cliente">
+              <label className="may-export-cliente__label">
+                N° de Cliente <span className="may-export-cliente__req">*</span>
+              </label>
+              <input
+                type="text"
+                className={`may-export-cliente__input${clienteError && !clienteOk ? " may-export-cliente__input--error" : ""}`}
+                placeholder="Ingresá el nro. de cliente"
+                value={nroCliente}
+                onChange={e => { setNroCliente(e.target.value); if (e.target.value.trim()) setClienteError(false); }}
+                autoFocus
+              />
+              {clienteError && !clienteOk && (
+                <span className="may-export-cliente__error">Requerido para exportar</span>
+              )}
+            </div>
+
             <div className="may-export-options">
               <button className="may-export-btn" onClick={exportImage} disabled={loadingImg}>
                 <span className="may-export-btn__icon">🖼️</span>
@@ -179,12 +212,19 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
           overflow: "hidden",
         }}>
           {/* Header */}
-          <div style={{ background: "#0f172a", padding: "20px 28px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ background: "#0f172a", padding: "20px 28px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
               <div style={{ color: "#fff", fontSize: 20, fontWeight: 800 }}>Alzo Logística</div>
               <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, marginTop: 2 }}>Presupuesto Mayorista</div>
             </div>
-            <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>{fecha}</div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>{fecha}</div>
+              {nroCliente && (
+                <div style={{ color: "#fff", fontSize: 13, fontWeight: 700, marginTop: 4 }}>
+                  Cliente N°: {nroCliente}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Tabla */}
@@ -214,6 +254,10 @@ export default function ExportarPresupuesto({ lineas, totalPedido, onClose, onCl
               <tr style={{ background: "#0f172a" }}>
                 <td colSpan={5} style={{ padding: "14px 12px", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 13 }}>TOTAL</td>
                 <td style={{ padding: "14px 12px", color: "#fff", fontWeight: 800, fontSize: 15 }}>$ {fmt(totalPedido)}</td>
+              </tr>
+              <tr style={{ background: "#1e293b" }}>
+                <td colSpan={5} style={{ padding: "10px 12px", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 12 }}>PROFIT</td>
+                <td style={{ padding: "10px 12px", color: "#22c55e", fontWeight: 800, fontSize: 14 }}>{profit.toFixed(1)}%</td>
               </tr>
             </tfoot>
           </table>

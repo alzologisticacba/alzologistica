@@ -1079,6 +1079,60 @@ body {
   letter-spacing: .5px;
 }
 
+/* ── Export: N° de cliente ── */
+.may-export-cliente {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.may-export-cliente__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.may-export-cliente__req {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.may-export-cliente__input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  color: #1a1a2e;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color .15s;
+  box-sizing: border-box;
+}
+
+.may-export-cliente__input:focus {
+  border-color: #3300ff;
+  background: #fff;
+}
+
+.may-export-cliente__input--error {
+  border-color: #ef4444;
+  background: #fff5f5;
+}
+
+.may-export-cliente__error {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+}
+
 /* ── Consulta UxB ── */
 .may-uxb-empty {
   text-align: center;

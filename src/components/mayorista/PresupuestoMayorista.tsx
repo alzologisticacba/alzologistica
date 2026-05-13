@@ -543,6 +543,7 @@ export default function PresupuestoMayorista() {
         <ExportarPresupuesto
           lineas={lineas}
           totalPedido={totalPedido}
+          profit={rentTotal}
           onClose={() => setExportOpen(false)}
           onClearAndClose={() => {
             setLineas([]);
