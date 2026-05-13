@@ -87,6 +87,7 @@ export default function ProductoDetalle() {
   const [error, setError]             = useState(false);
   const [cantidad, setCantidad]       = useState(1);
   const [inputVal, setInputVal]       = useState("1");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   // const [bgIdx, setBgIdx]             = useState(0);
   // const [bgNext, setBgNext]           = useState(1);
   // const [bgFading, setBgFading]       = useState(false);
@@ -136,6 +137,11 @@ export default function ProductoDetalle() {
   //   return () => clearInterval(interval);
   // }, [esFiguritas, bgIdx]);
 
+  useEffect(() => {
+    document.body.style.overflow = lightboxOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [lightboxOpen]);
+
   const relRowRef = useRef<HTMLDivElement>(null);
   const scrollRel = (dir: "left" | "right") => {
     if (relRowRef.current) relRowRef.current.scrollBy({ left: dir === "right" ? 320 : -320, behavior: "smooth" });
@@ -182,6 +188,11 @@ export default function ProductoDetalle() {
               </nav>
 
               <div className="pd__body">
+                {/* Título mobile-only: aparece encima de la imagen */}
+                <div className="pd__title-block">
+                  <h1 className="pd__titulo">{articulo.descripcion}</h1>
+                </div>
+
                 <div className="pd__img-col">
                   <div className="pd__img-wrap">
                     {imgError
@@ -189,16 +200,16 @@ export default function ProductoDetalle() {
                       : <img
                           src={`https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos/${articulo.codigo}.png`}
                           alt={articulo.descripcion}
-                          className="pd__img"
+                          className="pd__img pd__img--zoomable"
                           onError={() => setImgError(true)}
+                          onClick={() => setLightboxOpen(true)}
                         />
                     }
                   </div>
                 </div>
 
                 <div className="pd__info-col">
-                  <p className="pd__rubro">{articulo.rubro} · {articulo.familiaNombre}</p>
-                  <h1 className="pd__titulo">{articulo.descripcion}</h1>
+                  <h1 className="pd__titulo pd__titulo--desktop">{articulo.descripcion}</h1>
 
                   <div className={`pd__precio-wrap${tieneDescuento ? " pd__precio-wrap--descuento" : ""}`}>
                     {precioConDescuento && (
@@ -298,6 +309,18 @@ export default function ProductoDetalle() {
 
       {/* Footer con volver, categorías y footer */}
       {!loading && !error && <PageFooterSection />}
+
+      {lightboxOpen && articulo && !imgError && (
+        <div className="pd__lightbox" onClick={() => setLightboxOpen(false)}>
+          <button className="pd__lightbox-close" aria-label="Cerrar">✕</button>
+          <img
+            src={`https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos/${articulo.codigo}.png`}
+            alt={articulo.descripcion}
+            className="pd__lightbox-img"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
