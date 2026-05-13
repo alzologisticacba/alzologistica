@@ -5,27 +5,29 @@ const title = "Alzo Logistica";
 const description =
   "Distribuidor mayorista en Córdoba. Abastecemos kioscos, autoservicios y supermercados con marcas líderes. Pedidos ágiles y atención por WhatsApp.";
 const canonical = "https://alzologistica.com/";
+
+const orgLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": ["Organization", "LocalBusiness"],
+  "name": "Alzo Logística",
+  "url": "https://alzologistica.com",
+  "logo": "https://alzologistica.com/img/alzo_logo.png",
+  "description": "Mayorista de golosinas, alimentos y distribuidor logístico en Córdoba, Argentina. Abastecemos kioscos, autoservicios y supermercados.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Córdoba",
+    "addressRegion": "Córdoba",
+    "addressCountry": "AR"
+  },
+  "areaServed": "Córdoba, Argentina",
+  "sameAs": []
+});
 ---
 
 <BaseLayout {title} {description} {canonical}>
   <link slot="head" rel="preload" as="image" href="/logos/alzo_logo.png" fetchpriority="high" />
   <link slot="head" rel="preload" as="image" href="/img/fondo-alzo.png" />
-  <script is:inline slot="head" type="application/ld+json">{JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": ["Organization", "LocalBusiness"],
-    "name": "Alzo Logística",
-    "url": "https://alzologistica.com",
-    "logo": "https://alzologistica.com/img/alzo_logo.png",
-    "description": "Mayorista de golosinas, alimentos y distribuidor logístico en Córdoba, Argentina. Abastecemos kioscos, autoservicios y supermercados.",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Córdoba",
-      "addressRegion": "Córdoba",
-      "addressCountry": "AR"
-    },
-    "areaServed": "Córdoba, Argentina",
-    "sameAs": []
-  })}</script>
+  <script is:inline slot="head" type="application/ld+json" set:html={orgLd} />
 
   <header class="top-nav">
     <h1 class="site-title">Alzo</h1>
