@@ -1,0 +1,335 @@
+---
+import "../styles/global.css";
+
+const { title = "Admin · Alzo Logística" } = Astro.props;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="icon" type="image/png" href="/img/alzo_logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+  </head>
+
+  <body class="admin-body">
+    <div class="admin-shell">
+      <!-- Sidebar -->
+      <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+          <img src="/img/alzo_logo.png" alt="Alzo" class="sidebar-logo" />
+          <span class="sidebar-title">Alzo Admin</span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#resumen" class="nav-item active" data-section="resumen">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span>Resumen</span>
+          </a>
+          <a href="#ventas" class="nav-item" data-section="ventas">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Ventas</span>
+          </a>
+          <a href="#productos" class="nav-item" data-section="productos">
+            <i class="fa-solid fa-box"></i>
+            <span>Top Productos</span>
+          </a>
+          <a href="#clientes" class="nav-item" data-section="clientes">
+            <i class="fa-solid fa-users"></i>
+            <span>Clientes</span>
+          </a>
+          <a href="#reparto" class="nav-item" data-section="reparto">
+            <i class="fa-solid fa-truck"></i>
+            <span>Reparto</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button id="btn-logout" class="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Salir</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <div class="admin-main">
+        <header class="admin-header">
+          <button class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="header-info">
+            <span class="header-date" id="header-date"></span>
+            <div class="header-user" id="header-user">
+              <i class="fa-solid fa-circle-user"></i>
+              <span id="user-email-display">—</span>
+            </div>
+          </div>
+        </header>
+
+        <main class="admin-content">
+          <slot />
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+  // Fecha en header
+  const dateEl = document.getElementById("header-date");
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString("es-AR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  // Sidebar toggle mobile
+  const toggle = document.getElementById("sidebar-toggle");
+  const sidebar = document.querySelector(".admin-sidebar");
+  toggle?.addEventListener("click", () => {
+    sidebar?.classList.toggle("open");
+  });
+
+  // Nav active state por hash
+  const navItems = document.querySelectorAll(".nav-item");
+  function setActive() {
+    const hash = window.location.hash || "#resumen";
+    navItems.forEach((item) => {
+      item.classList.toggle("active", item.getAttribute("href") === hash);
+    });
+  }
+  window.addEventListener("hashchange", setActive);
+  setActive();
+
+  // Logout
+  document.getElementById("btn-logout")?.addEventListener("click", async () => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(
+      import.meta.env.PUBLIC_SUPABASE_URL,
+      import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+    );
+    await supabase.auth.signOut();
+    window.location.href = "/admin";
+  });
+</script>
+
+<style>
+  .admin-body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f1f5f9;
+    font-family: "Poppins", system-ui, sans-serif;
+    color: #0f172a;
+  }
+
+  .admin-shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .admin-sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: transform 0.25s ease;
+    box-shadow: 1px 0 0 #e2e8f0;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .sidebar-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .sidebar-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #2556ff;
+    letter-spacing: 0.02em;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .nav-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+
+  .nav-item.active {
+    background: #eff6ff;
+    color: #2556ff;
+  }
+
+  .nav-item i {
+    width: 16px;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .btn-logout:hover {
+    background: #fff0f0;
+    color: #ef4444;
+  }
+
+  /* ── Main ── */
+  .admin-main {
+    flex: 1;
+    margin-left: 220px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .header-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto;
+  }
+
+  .header-date {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    text-transform: capitalize;
+  }
+
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 4px 10px 4px 8px;
+  }
+
+  .admin-content {
+    flex: 1;
+    padding: 28px 28px 48px;
+    max-width: 1400px;
+    width: 100%;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .admin-sidebar {
+      transform: translateX(-100%);
+    }
+
+    .admin-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .admin-main {
+      margin-left: 0;
+    }
+
+    .sidebar-toggle {
+      display: block;
+    }
+
+    .header-date {
+      display: none;
+    }
+
+    .admin-content {
+      padding: 16px 16px 48px;
+    }
+  }
+</style>
