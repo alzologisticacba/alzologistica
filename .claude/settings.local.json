@@ -32,7 +32,8 @@
       "Bash(Sort-Object Name)",
       "Bash(ls -la \"c:\\\\workspace\\\\alzologistica\\\\\" | head -30)",
       "Read(//c/workspace/**)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(node -e ' *)"
     ]
   }
 }
