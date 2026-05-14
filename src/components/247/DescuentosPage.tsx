@@ -10,7 +10,11 @@ import { useArticulos } from "./hooks/useArticulos";
 
 const PAGE_SIZE = 24;
 
-export default function DescuentosPage() {
+interface DescuentosPageProps {
+  initialArticulos?: import("./hooks/useArticulos").Articulo[];
+}
+
+export default function DescuentosPage({ initialArticulos }: DescuentosPageProps = {}) {
   const [busqueda, setBusqueda] = useState("");
   const deferredQ               = useDeferredValue(busqueda);
   const [visibles, setVisibles] = useState(PAGE_SIZE);
@@ -19,6 +23,7 @@ export default function DescuentosPage() {
     q:         deferredQ || undefined,
     descuento: true,
     limit:     200,
+    initial:   initialArticulos,
   } as any);
 
   const {

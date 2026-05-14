@@ -112,6 +112,10 @@ export default function App247() {
         {buscando
           ? <SearchResults q={deferredQ} />
           : <div className="home-sections">
+              <div className="sr-only">
+                <h1>Alzo 24/7 — Tu mayorista online en Córdoba</h1>
+                <p>Golosinas, bebidas, almacén, cigarrillos y más · Sin registros · 24 horas</p>
+              </div>
               {mounted && <>
                 {/* 1. Descuentos */}
                 <HomeSection id="descuentos" titulo="Descuentos Exclusivos" filtro={{ descuento: true }} verTodosHref="/247/descuentos" banner="/img/247/secciones/descuentosExlusivosBanner.png" />

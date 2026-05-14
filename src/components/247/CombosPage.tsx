@@ -28,9 +28,13 @@ function applyCombosSort(items: Combo[], filters: FilterState): Combo[] {
   return result;
 }
 
-export default function CombosPage() {
-  const [combos, setCombos]     = useState<Combo[]>([]);
-  const [loading, setLoading]   = useState(true);
+interface CombosPageProps {
+  initialCombos?: Combo[];
+}
+
+export default function CombosPage({ initialCombos = [] }: CombosPageProps) {
+  const [combos, setCombos]     = useState<Combo[]>(initialCombos);
+  const [loading, setLoading]   = useState(initialCombos.length === 0);
   const [busqueda, setBusqueda] = useState("");
   const deferredQ               = useDeferredValue(busqueda);
 
@@ -40,6 +44,7 @@ export default function CombosPage() {
   } = useFilterSort();
 
   useEffect(() => {
+    if (initialCombos.length > 0) return;
     supabaseClient
       .from("combos")
       .select("cod_combo, nombre, precio, descripcion, imagen")

@@ -3,8 +3,41 @@
 import Layout247 from "../../layouts/Layout247.astro";
 import App247 from "../../components/247/App247";
 import "../../styles/247.css";
+
+const websiteLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Alzo 24/7",
+  "url": "https://alzologistica.com/247",
+  "description": "Plataforma mayorista online de Alzo Logística. Golosinas, bebidas, almacén y más para kioscos y autoservicios de Córdoba.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://alzologistica.com/247/todos?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+});
+
+const orgLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Alzo Logística",
+  "url": "https://alzologistica.com",
+  "logo": "https://alzologistica.com/img/alzo_logo.png",
+  "contactPoint": [
+    { "@type": "ContactPoint", "telephone": "+54-9-351-327-6516", "contactType": "sales", "areaServed": "AR", "availableLanguage": "Spanish" },
+    { "@type": "ContactPoint", "telephone": "+54-9-351-201-9862", "contactType": "billing", "areaServed": "AR", "availableLanguage": "Spanish" }
+  ]
+});
 ---
 
-<Layout247>
+<Layout247
+  canonical="https://alzologistica.com/247"
+  description="Pedí mayorista online 24/7 sin registros. Golosinas, bebidas, almacén, cigarrillos y más para kioscos, autoservicios y comercios de Córdoba."
+>
+  <script is:inline slot="head" type="application/ld+json" set:html={websiteLd} />
+  <script is:inline slot="head" type="application/ld+json" set:html={orgLd} />
   <App247 client:load />
 </Layout247>

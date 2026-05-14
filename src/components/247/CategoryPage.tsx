@@ -11,9 +11,10 @@ import { useFilterSort, applyFilterSort, extractFilterOptions } from "./hooks/us
 interface CategoryPageProps {
   familia?: string;
   titulo?: string;
+  initialArticulos?: import("./hooks/useArticulos").Articulo[];
 }
 
-export default function CategoryPage({ familia: familiaProp, titulo: tituloProp }: CategoryPageProps) {
+export default function CategoryPage({ familia: familiaProp, titulo: tituloProp, initialArticulos }: CategoryPageProps) {
   const [busqueda, setBusqueda] = useState("");
   const deferredBusqueda        = useDeferredValue(busqueda);
   const [familia, setFamilia]   = useState<string>(familiaProp ?? "");
@@ -30,9 +31,10 @@ export default function CategoryPage({ familia: familiaProp, titulo: tituloProp 
   }, [familiaProp, tituloProp]);
 
   const { data: articulos, loading, error, meta } = useArticulos({
-    familia: familia || undefined,
-    q:       deferredBusqueda || undefined,
-    limit:   200,
+    familia:  familia || undefined,
+    q:        deferredBusqueda || undefined,
+    limit:    200,
+    initial:  initialArticulos,
   });
 
   const {

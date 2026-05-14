@@ -8,6 +8,18 @@
   box-sizing: border-box;;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---- Header ---- */
 
 .header-247 {
@@ -215,6 +227,22 @@
 
 .home-sections {
   display: flex; flex-direction: column; gap: 0;;
+}
+
+.home-hero {
+  padding: 20px 4px 8px;
+}
+.home-hero__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.home-hero__sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 400;
 }
 
 .home-section {

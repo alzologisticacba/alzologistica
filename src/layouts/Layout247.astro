@@ -5,13 +5,15 @@ import AgeGateModal from "../components/247/AgeGateModal";
 const {
   title       = "Alzo 24/7",
   description = "Alzo 24/7: Hace tu pedido simple, sin registros y sin vueltas",
-  canonical   = "https://alzologistica.com/247",
+  canonical,
   ogTitle,
   ogDescription,
-  ogImage,
+  ogImage     = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/assets/og-default.png",
   ogImageAlt,
   ogUrl,
 } = Astro.props;
+
+if (!canonical) throw new Error(`Layout247: prop "canonical" requerida en ${Astro.url.pathname}`);
 
 const resolvedOgTitle = ogTitle ?? title;
 const resolvedOgDesc  = ogDescription ?? description;

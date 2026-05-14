@@ -15,12 +15,13 @@ export interface Articulo {
 }
 
 interface Meta { total: number; page: number; limit: number; totalPages: number; }
-interface Filters { familia?: string; familias?: string[]; rubro?: string; q?: string; page?: number; limit?: number; descuento?: boolean; seccion?: string; }
+interface Filters { familia?: string; familias?: string[]; rubro?: string; q?: string; page?: number; limit?: number; descuento?: boolean; seccion?: string; initial?: Articulo[]; }
 
 export function useArticulos(filters: Filters) {
-  const [data, setData]       = useState<Articulo[]>([]);
+  const hasInitial = (filters.initial?.length ?? 0) > 0;
+  const [data, setData]       = useState<Articulo[]>(filters.initial ?? []);
   const [meta, setMeta]       = useState<Meta | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!hasInitial);
   const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {

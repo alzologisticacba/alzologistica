@@ -9,19 +9,25 @@ import { supabase } from "../../../lib/supabase";
 export async function getStaticPaths() {
   const { data } = await supabase
     .from("articulos")
-    .select("familiaNombre")
-    .gt("stock", 0);
+    .select("familiaNombre, codigo, descripcion, proveedor, rubro, precioFinal, descuento, multiplo, stock")
+    .gt("stock", 0)
+    .order("orden", { ascending: true });
 
-  const familias = [...new Set(data?.map((r) => r.familiaNombre as string) ?? [])]
-    .filter(Boolean);
+  const familiasMap = new Map<string, typeof data>();
+  for (const row of data ?? []) {
+    const f = row.familiaNombre as string;
+    if (!f) continue;
+    if (!familiasMap.has(f)) familiasMap.set(f, []);
+    familiasMap.get(f)!.push(row);
+  }
 
-  return familias.map((familia) => ({
+  return [...familiasMap.entries()].map(([familia, articulos]) => ({
     params: { slug: familia.toLowerCase().replace(/\s+/g, "-") },
-    props: { familia, titulo: familia },
+    props: { familia, titulo: familia, articulos: articulos ?? [] },
   }));
 }
 
-const { familia, titulo } = Astro.props;
+const { familia, titulo, articulos } = Astro.props;
 const slug = familia.toLowerCase().replace(/\s+/g, "-");
 
 const breadcrumbLd = JSON.stringify({
@@ -34,8 +40,11 @@ const breadcrumbLd = JSON.stringify({
 });
 ---
 
-<Layout247 title={`${titulo} | Alzo 24/7`}>
+<Layout247
+  title={`${titulo} | Alzo 24/7`}
+  description={`Comprá ${titulo} al por mayor 24/7 sin registros. Precios mayoristas para kioscos, autoservicios y comercios de Córdoba. Pedí online con Alzo Logística.`}
+  canonical={`https://alzologistica.com/247/categoria/${slug}`}
+>
   <script is:inline slot="head" type="application/ld+json" set:html={breadcrumbLd} />
-  <!-- client:only evita problemas de hidratación SSR con props -->
-  <CategoryPage familia={familia} titulo={titulo} client:only="react" />
+  <CategoryPage familia={familia} titulo={titulo} initialArticulos={articulos} client:load />
 </Layout247>

@@ -4,7 +4,20 @@ import Layout247 from "../../layouts/Layout247.astro";
 import DescuentosPage from "../../components/247/DescuentosPage";
 import "../../styles/247.css";
 import "../../styles/categoria.css";
+import { supabase } from "../../lib/supabase";
+
+const { data: articulos } = await supabase
+  .from("articulos")
+  .select("codigo, descripcion, proveedor, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+  .gt("stock", 0)
+  .gt("descuento", 0)
+  .order("descuento", { ascending: false })
+  .limit(200);
 ---
-<Layout247 title="Descuentos Exclusivos | Alzo 24/7">
-  <DescuentosPage client:only="react" />
+<Layout247
+  title="Descuentos Exclusivos | Alzo 24/7"
+  description="Descuentos exclusivos en golosinas, bebidas, almacén y más. Precios mayoristas sin registros, disponibles 24/7. Pedí directo desde tu kiosco o autoservicio."
+  canonical="https://alzologistica.com/247/descuentos"
+>
+  <DescuentosPage initialArticulos={articulos ?? []} client:load />
 </Layout247>

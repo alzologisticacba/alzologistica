@@ -19,7 +19,15 @@ export default defineConfig({
         !page.includes("/carrito") &&
         !page.includes("/pedidos") &&
         !page.includes("/mayorista") &&
-        !page.includes("/api/"),
+        !page.includes("/api/") &&
+        !page.includes("/ultimo-pedido") &&
+        !page.includes("/vistos") &&
+        !page.endsWith("/247/producto/") &&
+        !page.endsWith("/247/seccion/") &&
+        !page.endsWith("/247/combo/"),
+      changefreq: "weekly",
+      priority: 0.7,
+      lastmod: new Date(),
     }),
   ],
 });

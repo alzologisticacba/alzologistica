@@ -10,9 +10,13 @@ import { supabaseClient } from "../../lib/supabaseClient";
 
 const PAGE_SIZE = 40;
 
-export default function TodosPage() {
-  const [todos, setTodos]       = useState<any[]>([]);
-  const [loading, setLoading]   = useState(true);
+interface TodosPageProps {
+  initialArticulos?: any[];
+}
+
+export default function TodosPage({ initialArticulos = [] }: TodosPageProps) {
+  const [todos, setTodos]       = useState<any[]>(initialArticulos);
+  const [loading, setLoading]   = useState(initialArticulos.length === 0);
   const [busqueda, setBusqueda] = useState("");
   const [page, setPage]         = useState(1);
   const deferredQ               = useDeferredValue(busqueda);
@@ -25,6 +29,7 @@ export default function TodosPage() {
 
   // Carga TODOS los productos de una vez — shuffle en cliente
   useEffect(() => {
+    if (initialArticulos.length > 0) return;
     supabaseClient
       .from("articulos")
       .select("codigo, descripcion, precioFinal, descuento, multiplo, rubro, familiaNombre, seccion, stock")

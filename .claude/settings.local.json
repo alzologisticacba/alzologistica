@@ -33,7 +33,21 @@
       "Bash(ls -la \"c:\\\\workspace\\\\alzologistica\\\\\" | head -30)",
       "Read(//c/workspace/**)",
       "Bash(npm list *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "WebFetch(domain:www.alzologistica.com)",
+      "WebFetch(domain:alzologistica.com)",
+      "Bash(stat -c '%y' c:/workspace/alzologistica/dist/client/247/index.html c:/workspace/alzologistica/src/layouts/Layout247.astro 2>/dev/null || ls -la c:/workspace/alzologistica/dist/client/247/index.html c:/workspace/alzologistica/src/layouts/Layout247.astro)",
+      "Read(//c/workspace/alzologistica/**)",
+      "Bash(curl -s \"https://alzologistica.com/247\" -o c:/tmp/alzo247.html)",
+      "Read(//c/tmp/**)",
+      "Bash(mkdir -p /tmp)",
+      "Bash(curl -sL \"https://alzologistica.com/247\" -o /tmp/alzo247.html)",
+      "Read(//tmp/**)",
+      "Bash(curl -sL \"https://alzologistica.com/247/descuentos\" -o /tmp/desc.html)",
+      "Bash(curl -sL \"https://alzologistica.com/247/categoria/golosinas\" -o /tmp/golo.html)",
+      "Bash(curl -sL \"https://alzologistica.com/247/combos\")",
+      "Bash(curl -sL \"https://alzologistica.com/247/producto/?codigo=1\")",
+      "Bash(curl -sL \"https://alzologistica.com/247\")"
     ]
   }
 }

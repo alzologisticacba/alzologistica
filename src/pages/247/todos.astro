@@ -4,7 +4,21 @@ import Layout247 from "../../layouts/Layout247.astro";
 import TodosPage from "../../components/247/TodosPage";
 import "../../styles/247.css";
 import "../../styles/categoria.css";
+import { supabase } from "../../lib/supabase";
+
+// Primer lote para SSR — el cliente carga el resto
+const { data: articulos } = await supabase
+  .from("articulos")
+  .select("codigo, descripcion, precioFinal, descuento, multiplo, rubro, familiaNombre, seccion, stock")
+  .gt("stock", 0)
+  .neq("familiaNombre", "Cigarrillos")
+  .order("orden", { ascending: true })
+  .limit(200);
 ---
-<Layout247 title="Todos los productos | Alzo 24/7">
-  <TodosPage client:only="react" />
+<Layout247
+  title="Todos los productos | Alzo 24/7"
+  description="Catálogo completo de golosinas, bebidas, cigarrillos, almacén, cuidado personal y más. Precios mayoristas disponibles 24/7 para kioscos y autoservicios de Córdoba."
+  canonical="https://alzologistica.com/247/todos"
+>
+  <TodosPage initialArticulos={articulos ?? []} client:load />
 </Layout247>
