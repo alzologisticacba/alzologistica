@@ -5154,3 +5154,34 @@ body.modal-open {
   border-radius: 0 0 14px 14px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.18);
 }
+
+/* Banners 24/7: los assets de secciones son 1200x300.
+   Mantener 4:1 evita el zoom/corte que se nota en mobile. */
+.home-section__banner {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 1;
+  object-fit: contain;
+}
+
+.home-canal-dif-banner img,
+.canal-dif-banner-inline img,
+.seccion-banner,
+.brand-section__banner-img,
+.seccion-page__hero-img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 1;
+  object-fit: contain;
+}
+
+.brand-section__banner-wrap {
+  aspect-ratio: 4 / 1;
+}
+
+@media (max-width: 600px) {
+  .seccion-page__hero-img,
+  .brand-section__banner-wrap {
+    aspect-ratio: 4 / 1;
+  }
+}
