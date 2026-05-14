@@ -363,6 +363,21 @@ body {
   color: #64748b;
 }
 
+.may-buscador-item__stock {
+  font-size: 10px;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.may-buscador-item__stock--zero {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
 /* ── Chip producto seleccionado ── */
 .may-selected-chip {
   display: flex;

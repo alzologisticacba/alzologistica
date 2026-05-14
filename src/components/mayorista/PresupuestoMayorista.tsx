@@ -19,6 +19,8 @@ interface ArticuloMayorista {
   // aliases en minúsculas (según como guarda PG)
   descripcion?: string;
   proveedor?: string;
+  // stock anotado al momento de la búsqueda
+  __stock?: number;
 }
 
 interface LineaPresupuesto {
@@ -55,24 +57,6 @@ function BuscadorProducto({
   const [seleccionado, setSeleccionado] = useState<ArticuloMayorista | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const stockCodes = useRef<number[]>([]);
-
-  // Carga códigos con stock al montar
-  useEffect(() => {
-    async function fetchStock() {
-      const { data, error } = await supabaseClient
-        .from("stocks")
-        .select("codigo")
-        .gt("stock", 0);
-      if (error) {
-        console.error("Error cargando stocks:", error);
-      }
-      const codes = (data ?? []).map((s: any) => s.codigo);
-      console.log(`Stocks cargados: ${codes.length} artículos con stock`);
-      stockCodes.current = codes;
-    }
-    fetchStock();
-  }, []);
 
   useEffect(() => {
     if (query.length < 2) { setResultados([]); setOpen(false); return; }
@@ -122,19 +106,26 @@ function BuscadorProducto({
       }
 
       // Código primero, luego texto
-      let merged = [...codeData, ...(textRes.data ?? [])];
+      const merged = dedup([...codeData, ...(textRes.data ?? [])]).slice(0, 10);
 
-      // Filtro de stock client-side — solo si ya cargaron
-      const codes = stockCodes.current;
+      // Anotar stock para cada resultado (default 0 si no está en la tabla)
+      const codes = merged
+        .map((item: any) => item["Cod. Art"] ?? item["cod. art"])
+        .filter((c: any): c is number => typeof c === "number");
+      const stockMap = new Map<number, number>();
       if (codes.length > 0) {
-        const codesSet = new Set(codes);
-        merged = merged.filter((item: any) => {
-          const cod = item["Cod. Art"] ?? item["cod. art"];
-          return codesSet.has(cod);
-        });
+        const { data: stockData } = await supabaseClient
+          .from("stocks")
+          .select("codigo, stock")
+          .in("codigo", codes);
+        (stockData ?? []).forEach((s: any) => stockMap.set(s.codigo, s.stock ?? 0));
       }
+      const annotated = merged.map((item: any) => ({
+        ...item,
+        __stock: stockMap.get(item["Cod. Art"] ?? item["cod. art"]) ?? 0,
+      }));
 
-      setResultados(dedup(merged).slice(0, 10));
+      setResultados(annotated);
       setOpen(true);
       setLoading(false);
     }, 150);
@@ -202,23 +193,29 @@ function BuscadorProducto({
           {!loading && resultados.length === 0 && (
             <div className="may-buscador-empty">Sin resultados para "{query}"</div>
           )}
-          {resultados.map((a: any) => (
-            <button
-              key={a["Cod. Art"] ?? a["cod. art"]}
-              className="may-buscador-item"
-              onMouseDown={e => { e.preventDefault(); handleSelect(a); }}
-            >
-              <span className="may-buscador-item__name">{a.Descripcion ?? a.descripcion}</span>
-              <span className="may-buscador-item__meta">
-                <span className="may-buscador-item__cod">#{a["Cod. Art"] ?? a["cod. art"]}</span>
-                {(a["Precio Vta Final"] ?? a["precio vta final"]) > 0 && (
-                  <span className="may-buscador-item__price">
-                    $ {(a["Precio Vta Final"] ?? a["precio vta final"]).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {resultados.map((a: any) => {
+            const stock = a.__stock ?? 0;
+            return (
+              <button
+                key={a["Cod. Art"] ?? a["cod. art"]}
+                className="may-buscador-item"
+                onMouseDown={e => { e.preventDefault(); handleSelect(a); }}
+              >
+                <span className="may-buscador-item__name">{a.Descripcion ?? a.descripcion}</span>
+                <span className="may-buscador-item__meta">
+                  <span className="may-buscador-item__cod">#{a["Cod. Art"] ?? a["cod. art"]}</span>
+                  {(a["Precio Vta Final"] ?? a["precio vta final"]) > 0 && (
+                    <span className="may-buscador-item__price">
+                      $ {(a["Precio Vta Final"] ?? a["precio vta final"]).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  )}
+                  <span className={`may-buscador-item__stock${stock > 0 ? "" : " may-buscador-item__stock--zero"}`}>
+                    {stock > 0 ? `Stock: ${stock} un.` : "Sin stock"}
                   </span>
-                )}
-              </span>
-            </button>
-          ))}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
@@ -238,6 +235,7 @@ export default function PresupuestoMayorista() {
   const [buscadorKey, setBuscadorKey] = useState(0);
   const [exportOpen, setExportOpen] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<number | null>(null);
+  const [confirmStockOpen, setConfirmStockOpen] = useState(false);
   const [pactada, setPactada]           = useState(false);
   const nextId = useRef(1);
 
@@ -295,7 +293,7 @@ export default function PresupuestoMayorista() {
   const descExcedeTope = articulo && (parseFloat(descuento) || 0) > topeDto && (parseFloat(descuento) || 0) > 0;
   const cantInvalida   = multiplo > 1 && cant > 0 && cant % multiplo !== 0;
 
-  function handleCargar() {
+  function doCargar() {
     if (!articulo || cant <= 0 || prec <= 0) return;
 
     const id = nextId.current++;
@@ -321,6 +319,16 @@ export default function PresupuestoMayorista() {
     setDescuento("");
     setPrecio("");
     setBuscadorKey(k => k + 1);
+  }
+
+  function handleCargar() {
+    if (!articulo || cant <= 0 || prec <= 0) return;
+    const stock = articulo.__stock ?? 0;
+    if (stock > 0 && stock < 10) {
+      setConfirmStockOpen(true);
+      return;
+    }
+    doCargar();
   }
 
   function handleRemove(id: number) {
@@ -359,7 +367,7 @@ export default function PresupuestoMayorista() {
                 .from("articulos")
                 .select("multiplo, uxb")
                 .eq("codigo", a["Cod. Art"])
-                .single();
+                .maybeSingle();
               setMultiplo(data?.multiplo ?? 0);
               setUxbValue(data?.uxb ?? null);
             }}
@@ -372,10 +380,22 @@ export default function PresupuestoMayorista() {
               setUxbValue(null);
             }}
           />
-          {uxbValue !== null && (
+          {(uxbValue !== null || articulo) && (
             <div className="may-uxb-inline">
-              <span className="may-uxb-inline__label">UxB:</span>
-              <span className="may-uxb-inline__val">{uxbValue}</span>
+              {uxbValue !== null && (
+                <>
+                  <span className="may-uxb-inline__label">UxB:</span>
+                  <span className="may-uxb-inline__val">{uxbValue}</span>
+                </>
+              )}
+              {articulo && (
+                <>
+                  <span className="may-uxb-inline__label">Stock:</span>
+                  <span className="may-uxb-inline__val">
+                    {(articulo.__stock ?? 0) > 0 ? articulo.__stock : "Sin stock"}
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -509,6 +529,32 @@ export default function PresupuestoMayorista() {
             >
               Enviar pedido
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Confirmar stock bajo ── */}
+      {confirmStockOpen && articulo && (
+        <div className="may-export-overlay" onClick={() => setConfirmStockOpen(false)}>
+          <div className="may-export-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="may-export-title">⚠️ Producto con poco stock</h3>
+            <p className="may-export-sub">
+              Quedan {articulo.__stock} unidades de {articulo.Descripcion ?? articulo.descripcion}. ¿Querés cargarlo igual?
+            </p>
+            <div className="may-export-confirm-btns">
+              <button
+                className="may-export-confirm-btn may-export-confirm-btn--seguir"
+                onClick={() => setConfirmStockOpen(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="may-export-confirm-btn may-export-confirm-btn--borrar"
+                onClick={() => { setConfirmStockOpen(false); doCargar(); }}
+              >
+                Sí, cargar
+              </button>
+            </div>
           </div>
         </div>
       )}
