@@ -1,29 +1,19 @@
-export const prerender = false;
+export const prerender = true;
 import type { APIRoute } from "astro";
-import { supabase } from "../lib/supabase";
+import { getAllArticulosConStock } from "../lib/articulosCache";
+import { productSlug } from "../lib/slugify";
 
 const STORAGE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public";
-const SITE = "https://alzologistica.com";
+const SITE    = "https://alzologistica.com";
 
 export const GET: APIRoute = async () => {
-  const { data, error } = await supabase
-    .from("articulos")
-    .select("codigo, descripcion, rubro, familiaNombre, stock")
-    .gt("stock", 0)
-    .order("orden", { ascending: true });
+  const data = await getAllArticulosConStock();
 
-  if (error) {
-    return new Response(`<?xml version="1.0"?><error>${error.message}</error>`, {
-      status: 500,
-      headers: { "Content-Type": "application/xml" },
-    });
-  }
-
-  const urls = (data ?? []).map((p) => {
-    const titulo = p.descripcion.toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase());
+  const urls = data.map((p) => {
+    const titulo   = p.descripcion.toLowerCase().replace(/\b\w/g, (c: string) => c.toUpperCase());
     const imageUrl = `${STORAGE}/Productos/articulos/${p.codigo}.png`;
-    const pageUrl = `${SITE}/247/producto/?codigo=${p.codigo}`;
-    const caption = `${p.familiaNombre} · ${p.rubro} · Mayorista Alzo 24/7`;
+    const pageUrl  = `${SITE}/247/producto/${productSlug(p.descripcion, p.codigo)}`;
+    const caption  = `${p.familiaNombre} · ${p.rubro} · Mayorista Alzo 24/7`;
 
     return `
   <url>
@@ -44,9 +34,6 @@ export const GET: APIRoute = async () => {
 
   return new Response(xml, {
     status: 200,
-    headers: {
-      "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, max-age=3600",
-    },
+    headers: { "Content-Type": "application/xml; charset=utf-8" },
   });
 };

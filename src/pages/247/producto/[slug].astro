@@ -3,20 +3,14 @@
 import Layout247 from "../../../layouts/Layout247.astro";
 import ProductoDetalle from "../../../components/247/ProductoDetalle";
 import "../../../styles/247.css";
-import { supabase } from "../../../lib/supabase";
+import { getAllArticulosConStock } from "../../../lib/articulosCache";
 import { productSlug } from "../../../lib/slugify";
 
 const STORAGE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public";
 
 export async function getStaticPaths() {
-  const { data } = await supabase
-    .from("articulos")
-    .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock, uxb")
-    .gt("stock", 0)
-    .order("orden", { ascending: true })
-    .limit(5000);
-
-  return (data ?? []).map((articulo) => ({
+  const data = await getAllArticulosConStock();
+  return data.map((articulo) => ({
     params: { slug: productSlug(articulo.descripcion, articulo.codigo) },
     props: { articulo },
   }));
