@@ -3,6 +3,33 @@
 import Layout247 from "../../layouts/Layout247.astro";
 import App247 from "../../components/247/App247";
 import "../../styles/247.css";
+import { getAllArticulosConStock } from "../../lib/articulosCache";
+import { supabase } from "../../lib/supabase";
+
+const EXCLUIR = ["Cigarrillos", "Tabaco", "Tabacos", "Cigarros", "Cigarette"];
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const allArticulos = await getAllArticulosConStock();
+
+const initialDescuentos  = shuffle(allArticulos.filter(a => a.descuento > 0)).slice(0, 8);
+const initialTodos       = shuffle(allArticulos.filter(a => !EXCLUIR.includes(a.familiaNombre))).slice(0, 8);
+const initialCigarrillos = shuffle(allArticulos.filter(a => (a.familiaNombre ?? "").toLowerCase() === "cigarrillos")).slice(0, 8);
+
+const { data: combosData } = await supabase
+  .from("combos")
+  .select("cod_combo, nombre, precio, descripcion, imagen")
+  .eq("activo", true)
+  .limit(10);
+
+const initialFamilias = [...new Set(allArticulos.map(a => a.familiaNombre).filter(Boolean))].sort();
 
 const websiteLd = JSON.stringify({
   "@context": "https://schema.org",
@@ -39,5 +66,14 @@ const orgLd = JSON.stringify({
 >
   <script is:inline slot="head" type="application/ld+json" set:html={websiteLd} />
   <script is:inline slot="head" type="application/ld+json" set:html={orgLd} />
-  <App247 client:load />
+  <App247
+    initialSections={{
+      descuentos:   initialDescuentos,
+      combos:       combosData ?? [],
+      todos:        initialTodos,
+      cigarrillos:  initialCigarrillos,
+    }}
+    initialFamilias={initialFamilias}
+    client:load
+  />
 </Layout247>

@@ -48,7 +48,8 @@
       "Bash(curl -sL \"https://alzologistica.com/247/combos\")",
       "Bash(curl -sL \"https://alzologistica.com/247/producto/?codigo=1\")",
       "Bash(curl -sL \"https://alzologistica.com/247\")",
-      "WebFetch(domain:pagespeed.web.dev)"
+      "WebFetch(domain:pagespeed.web.dev)",
+      "Bash(sort -k5 -h -r)"
     ]
   }
 }

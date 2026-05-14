@@ -54,13 +54,19 @@ const PALETA = [
   { bg: "#fef9c3", icon: "#ca8a04" },
 ];
 
-interface CatProps { brandBg?: string; brandText?: string; }
+interface CatProps {
+  brandBg?: string;
+  brandText?: string;
+  initialFamilias?: string[];
+}
 
-export default function CategoriesSection({ brandBg, brandText }: CatProps = {}) {
-  const [familias, setFamilias] = useState<string[]>([]);
-  const [loading, setLoading]   = useState(true);
+export default function CategoriesSection({ brandBg, brandText, initialFamilias }: CatProps = {}) {
+  const hasInitial = !!(initialFamilias && initialFamilias.length > 0);
+  const [familias, setFamilias] = useState<string[]>(initialFamilias ?? []);
+  const [loading, setLoading]   = useState(!hasInitial);
 
   useEffect(() => {
+    if (hasInitial) return;
     supabaseClient
       .from("articulos").select("familiaNombre").gt("stock", 0)
       .then(({ data }) => {

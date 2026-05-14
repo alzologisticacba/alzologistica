@@ -34,15 +34,18 @@ interface Props {
   hideVerTodos?: boolean;
   maxItems?: number;
   banner?: string;
+  initialItems?: any[];
 }
 
-export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerTodos = false, maxItems, banner }: Props) {
+export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerTodos = false, maxItems, banner, initialItems }: Props) {
   const isGrid2x2      = filtro.grid2x2 ?? false;
-  const [items, setItems]     = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const hasInitial     = !!(initialItems && initialItems.length > 0);
+  const [items, setItems]     = useState<any[]>(initialItems ?? []);
+  const [loading, setLoading] = useState(!hasInitial);
   const [seed, setSeed]       = useState(0);
   const [page, setPage]         = useState(0);
   const [hasNext, setHasNext]   = useState(false);
+  const skipFirstFetchRef     = useRef(hasInitial);
   const baseOffsetRef         = useRef(-1);
   const discountPoolRef       = useRef<any[]>([]);
   const shufflePoolRef        = useRef<any[]>([]);
@@ -75,6 +78,10 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
   }, [seed]);
 
   useEffect(() => {
+    if (skipFirstFetchRef.current) {
+      skipFirstFetchRef.current = false;
+      return;
+    }
     setLoading(true);
     if (rowRef.current) rowRef.current.scrollLeft = 0;
     let cancelled = false;

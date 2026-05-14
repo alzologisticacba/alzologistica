@@ -26,6 +26,7 @@ interface Props {
   onBusquedaClear?: () => void;
   showSearch?: boolean;
   showBack?: boolean;
+  initialFamilias?: string[];
 }
 
 export default function Header247({
@@ -35,10 +36,11 @@ export default function Header247({
   onBusquedaClear,
   showSearch = false,
   showBack = false,
+  initialFamilias,
 }: Props) {
   // useState(0) para evitar hydration mismatch SSR/client
   const [count, setCount]       = useState(0);
-  const [familias, setFamilias] = useState<string[]>([]);
+  const [familias, setFamilias] = useState<string[]>(initialFamilias ?? []);
   const [ddOpen, setDdOpen]     = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const ddRef                   = useRef<HTMLDivElement>(null);
@@ -159,6 +161,7 @@ export default function Header247({
   }, [fcModalOpen, menuOpen]);
 
   useEffect(() => {
+    if (initialFamilias && initialFamilias.length > 0) return;
     supabaseClient
       .from("articulos").select("familiaNombre").gt("stock", 0)
       .then(({ data }) => {
