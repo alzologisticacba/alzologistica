@@ -49,7 +49,10 @@
       "Bash(curl -sL \"https://alzologistica.com/247/producto/?codigo=1\")",
       "Bash(curl -sL \"https://alzologistica.com/247\")",
       "WebFetch(domain:pagespeed.web.dev)",
-      "Bash(sort -k5 -h -r)"
+      "Bash(sort -k5 -h -r)",
+      "Bash(echo \"=== Comentarios CSS rotos \\(\\\\\\\\* en vez de /*\\) ===\")",
+      "Bash(grep -c '\\\\\\\\\\\\*' src/styles/247.css)",
+      "Bash(echo \"líneas con \\\\\\\\*\")"
     ]
   }
 }

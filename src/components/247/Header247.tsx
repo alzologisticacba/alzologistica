@@ -193,7 +193,7 @@ export default function Header247({
 
   const Logo = () => (
     <a href="/247" className="header-247__logo-link">
-      <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" className="header-247__logo-img" />
+      <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" className="header-247__logo-img" width="463" height="464" />
     </a>
   );
 
@@ -277,7 +277,7 @@ export default function Header247({
               />
             </div>
             <button className={cartBtnClass} onClick={() => { window.location.href = "/247/carrito"; }} aria-label="Carrito">
-              <img src="/img/247/bolsaCompras.png" alt="" className="header-247__cart-icon" />
+              <img src="/img/247/bolsaCompras.png" alt="" className="header-247__cart-icon" width="512" height="512" />
               {count > 0 && <span className="header-247__cart-badge">{count}</span>}
             </button>
           </div>
@@ -289,7 +289,7 @@ export default function Header247({
             <Logo />
             <div className="header-247__right">
               <button className={cartBtnClass} onClick={() => { window.location.href = "/247/carrito"; }} aria-label="Carrito">
-                <img src="/img/247/bolsaCompras.png" alt="" className="header-247__cart-icon" />
+                <img src="/img/247/bolsaCompras.png" alt="" className="header-247__cart-icon" width="512" height="512" />
                 {count > 0 && <span className="header-247__cart-badge">{count}</span>}
               </button>
             </div>

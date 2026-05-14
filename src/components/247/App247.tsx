@@ -119,7 +119,7 @@ export default function App247({ initialSections, initialFamilias }: Props = {})
                 <p>Golosinas, bebidas, almacén, cigarrillos y más · Sin registros · 24 horas</p>
               </div>
 
-              {/* 1. Descuentos — pre-renderizado */}
+              {/* 1. Descuentos — pre-renderizado, banner es el LCP */}
               <HomeSection
                 id="descuentos"
                 titulo="Descuentos Exclusivos"
@@ -127,6 +127,7 @@ export default function App247({ initialSections, initialFamilias }: Props = {})
                 verTodosHref="/247/descuentos"
                 banner="/img/247/secciones/descuentosExlusivosBanner.png"
                 initialItems={initialSections?.descuentos}
+                priority
               />
 
               {/* 2. Inspirado en lo último que viste — personalizado */}
@@ -200,7 +201,7 @@ export default function App247({ initialSections, initialFamilias }: Props = {})
                 rel="noopener noreferrer"
                 className="home-canal-dif-banner"
               >
-                <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
+                <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" width="1200" height="300" loading="lazy" />
               </a>
 
               {/* 11. Cigarrillos — pre-renderizado */}

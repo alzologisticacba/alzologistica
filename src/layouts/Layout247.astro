@@ -70,18 +70,26 @@ const resolvedOgUrl   = ogUrl ?? canonical;
       }
     </style>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9Q1TQ7Y5BH"></script>
+    <!-- Google tag (gtag.js) — diferido hasta idle para no bloquear TBT -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-9Q1TQ7Y5BH');
+      (function loadGA() {
+        var load = function() {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-9Q1TQ7Y5BH';
+          document.head.appendChild(s);
+        };
+        if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 4000 });
+        else window.addEventListener('load', function() { setTimeout(load, 1000); });
+      })();
     </script>
   </head>
   <body>
     <slot />
-    <AgeGateModal client:load />
+    <AgeGateModal client:idle />
   </body>
 </html>

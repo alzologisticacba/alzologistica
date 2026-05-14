@@ -35,9 +35,10 @@ interface Props {
   maxItems?: number;
   banner?: string;
   initialItems?: any[];
+  priority?: boolean;
 }
 
-export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerTodos = false, maxItems, banner, initialItems }: Props) {
+export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerTodos = false, maxItems, banner, initialItems, priority = false }: Props) {
   const isGrid2x2      = filtro.grid2x2 ?? false;
   const hasInitial     = !!(initialItems && initialItems.length > 0);
   const [items, setItems]     = useState<any[]>(initialItems ?? []);
@@ -236,13 +237,21 @@ export default function HomeSection({ id, titulo, filtro, verTodosHref, hideVerT
     <section className="home-section home-section--banner">
       {banner ? (
         <a href={verTodosHref} className="home-section__banner-link">
-          <img src={banner} alt={titulo} className="home-section__banner" loading="lazy" />
+          <img
+            src={banner}
+            alt={titulo}
+            className="home-section__banner"
+            width="1200"
+            height="300"
+            loading={priority ? "eager" : "lazy"}
+            {...(priority ? { fetchPriority: "high" as any } : {})}
+          />
         </a>
       ) : (
         <a href={verTodosHref} className="home-section__banner-link home-section__banner-link--css">
           <div className="home-section__css-banner">
             <h2 className="home-section__css-banner__titulo">{titulo}</h2>
-            <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" className="home-section__css-banner__logo" loading="lazy" />
+            <img src="/img/247/logoAlzo247.png" alt="Alzo 24/7" className="home-section__css-banner__logo" width="463" height="464" loading="lazy" />
           </div>
         </a>
       )}
