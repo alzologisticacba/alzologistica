@@ -324,7 +324,7 @@ export default function PresupuestoMayorista() {
   function handleCargar() {
     if (!articulo || cant <= 0 || prec <= 0) return;
     const stock = articulo.__stock ?? 0;
-    if (stock > 0 && stock < 10) {
+    if (stock < 10) {
       setConfirmStockOpen(true);
       return;
     }
@@ -537,9 +537,13 @@ export default function PresupuestoMayorista() {
       {confirmStockOpen && articulo && (
         <div className="may-export-overlay" onClick={() => setConfirmStockOpen(false)}>
           <div className="may-export-modal" onClick={e => e.stopPropagation()}>
-            <h3 className="may-export-title">⚠️ Producto con poco stock</h3>
+            <h3 className="may-export-title">
+              ⚠️ {(articulo.__stock ?? 0) === 0 ? "Producto sin stock" : "Producto con poco stock"}
+            </h3>
             <p className="may-export-sub">
-              Quedan {articulo.__stock} unidades de {articulo.Descripcion ?? articulo.descripcion}. ¿Querés cargarlo igual?
+              {(articulo.__stock ?? 0) === 0
+                ? `${articulo.Descripcion ?? articulo.descripcion} no tiene stock disponible. ¿Querés cargarlo igual?`
+                : `Quedan ${articulo.__stock} unidades de ${articulo.Descripcion ?? articulo.descripcion}. ¿Querés cargarlo igual?`}
             </p>
             <div className="may-export-confirm-btns">
               <button
