@@ -8,6 +8,7 @@ import PageFooterSection from "./PageFooterSection";
 import { addToCart } from "./hooks/cartStore";
 import { supabaseClient } from "../../lib/supabaseClient";
 import ShareButton from "./ShareButton";
+import { productSlug } from "../../lib/slugify";
 
 // const FONDOS_FIG = [
 //   "/img/247/figuritasFondo.webp",
@@ -79,11 +80,15 @@ function BtnAgregar({ articulo, cantidad, precioConDescuento }: { articulo: Arti
   );
 }
 
-export default function ProductoDetalle() {
-  const [articulo, setArticulo]       = useState<Articulo | null>(null);
+interface ProductoDetalleProps {
+  initialArticulo?: Articulo;
+}
+
+export default function ProductoDetalle({ initialArticulo }: ProductoDetalleProps = {}) {
+  const [articulo, setArticulo]       = useState<Articulo | null>(initialArticulo ?? null);
   const [relacionados, setRelacionados] = useState<any[]>([]);
   const [imgError, setImgError]       = useState(false);
-  const [loading, setLoading]         = useState(true);
+  const [loading, setLoading]         = useState(!initialArticulo);
   const [error, setError]             = useState(false);
   const [cantidad, setCantidad]       = useState(1);
   const [inputVal, setInputVal]       = useState("1");
@@ -93,6 +98,21 @@ export default function ProductoDetalle() {
   // const [bgFading, setBgFading]       = useState(false);
 
   useEffect(() => {
+    if (initialArticulo) {
+      setCantidad(initialArticulo.multiplo || 1);
+      setInputVal(String(initialArticulo.multiplo || 1));
+      try { if (initialArticulo.familiaNombre) localStorage.setItem("alzo_ultimo_visto", initialArticulo.familiaNombre); } catch {}
+      supabaseClient
+        .from("articulos")
+        .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
+        .eq("familiaNombre", initialArticulo.familiaNombre)
+        .gt("stock", 0)
+        .neq("codigo", initialArticulo.codigo)
+        .limit(40)
+        .then(({ data: pool }) => setRelacionados(shuffleArray(pool ?? []).slice(0, 10)));
+      return;
+    }
+
     const codigo = new URLSearchParams(window.location.search).get("codigo");
     if (!codigo) { setError(true); setLoading(false); return; }
 
@@ -108,8 +128,6 @@ export default function ProductoDetalle() {
         setCantidad(data.multiplo || 1);
         setInputVal(String(data.multiplo || 1));
         try { if (data.familiaNombre) localStorage.setItem("alzo_ultimo_visto", data.familiaNombre); } catch {}
-
-        // Traer 40 de la misma familia, shufflear, tomar 10 (excluir el actual)
         supabaseClient
           .from("articulos")
           .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock")
@@ -117,9 +135,7 @@ export default function ProductoDetalle() {
           .gt("stock", 0)
           .neq("codigo", parseInt(codigo))
           .limit(40)
-          .then(({ data: pool }) => {
-            setRelacionados(shuffleArray(pool ?? []).slice(0, 10));
-          });
+          .then(({ data: pool }) => setRelacionados(shuffleArray(pool ?? []).slice(0, 10)));
       })
       .finally(() => setLoading(false));
   }, []);
@@ -277,7 +293,7 @@ export default function ProductoDetalle() {
                     <BtnAgregar articulo={articulo} cantidad={cantidad} precioConDescuento={precioConDescuento} />
                     <ShareButton
                       productName={articulo.descripcion}
-                      productUrl={`https://alzologistica.com/247/producto/?codigo=${articulo.codigo}`}
+                      productUrl={`https://alzologistica.com/247/producto/${productSlug(articulo.descripcion, articulo.codigo)}`}
                     />
                   </div>
                 </div>

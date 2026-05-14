@@ -1,0 +1,87 @@
+---
+// src/pages/247/producto/[slug].astro
+import Layout247 from "../../../layouts/Layout247.astro";
+import ProductoDetalle from "../../../components/247/ProductoDetalle";
+import "../../../styles/247.css";
+import { supabase } from "../../../lib/supabase";
+import { productSlug } from "../../../lib/slugify";
+
+const STORAGE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public";
+
+export async function getStaticPaths() {
+  const { data } = await supabase
+    .from("articulos")
+    .select("codigo, descripcion, rubro, precioFinal, descuento, multiplo, familiaNombre, stock, uxb")
+    .gt("stock", 0)
+    .order("orden", { ascending: true })
+    .limit(5000);
+
+  return (data ?? []).map((articulo) => ({
+    params: { slug: productSlug(articulo.descripcion, articulo.codigo) },
+    props: { articulo },
+  }));
+}
+
+const { articulo } = Astro.props;
+const { slug } = Astro.params;
+
+const nombre = articulo.descripcion
+  .toLowerCase()
+  .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+const precio = articulo.descuento > 0
+  ? articulo.precioFinal * (1 - articulo.descuento / 100)
+  : articulo.precioFinal;
+
+const precioFmt = precio.toLocaleString("es-AR", {
+  style: "currency", currency: "ARS",
+  minimumFractionDigits: 0, maximumFractionDigits: 0,
+});
+
+const ogTitle       = `${nombre} | Alzo 24/7`;
+const ogDescription = `${precioFmt} · ${articulo.rubro} · Pedí sin registro, fácil y rápido`;
+const ogImage       = `${STORAGE}/Productos/articulos/${articulo.codigo}.png`;
+const canonicalUrl  = `https://alzologistica.com/247/producto/${slug}`;
+const categoriaSlug = articulo.familiaNombre.toLowerCase().replace(/\s+/g, "-");
+
+const breadcrumbLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Alzo 24/7",            "item": "https://alzologistica.com/247" },
+    { "@type": "ListItem", "position": 2, "name": articulo.familiaNombre, "item": `https://alzologistica.com/247/categoria/${categoriaSlug}` },
+    { "@type": "ListItem", "position": 3, "name": nombre,                 "item": canonicalUrl },
+  ],
+});
+
+const productLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": nombre,
+  "image": ogImage,
+  "description": `${articulo.rubro} · Mayorista Alzo 24/7`,
+  "sku": String(articulo.codigo),
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "ARS",
+    "price": precio.toFixed(2),
+    "availability": "https://schema.org/InStock",
+    "url": canonicalUrl,
+    "seller": { "@type": "Organization", "name": "Alzo 24/7" },
+  },
+});
+---
+<Layout247
+  title={ogTitle}
+  description={ogDescription}
+  canonical={canonicalUrl}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  ogImage={ogImage}
+  ogImageAlt={ogTitle}
+  ogUrl={canonicalUrl}
+>
+  <script is:inline slot="head" type="application/ld+json" set:html={breadcrumbLd} />
+  <script is:inline slot="head" type="application/ld+json" set:html={productLd} />
+  <ProductoDetalle initialArticulo={articulo} client:load />
+</Layout247>

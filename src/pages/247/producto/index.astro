@@ -1,108 +1,23 @@
 ---
 // src/pages/247/producto/index.astro
+// Redirige URLs viejas (?codigo=X) a las URLs limpias (/247/producto/slug)
 export const prerender = false;
-import Layout247 from "../../../layouts/Layout247.astro";
-import ProductoDetalle from "../../../components/247/ProductoDetalle";
-import "../../../styles/247.css";
+import { supabase } from "../../../lib/supabase";
+import { productSlug } from "../../../lib/slugify";
 
 const codigo = Astro.url.searchParams.get("codigo");
 
-const SUPABASE_STORAGE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public";
-
-let ogTitle       = "Alzo 24/7 — Tu mayorista online";
-let ogDescription = "Hacé tu pedido simple, sin registros y sin vueltas";
-let ogImage       = `${SUPABASE_STORAGE}/assets/og-default.png`;
-let ogUrl         = `https://alzologistica.com/247/producto/${codigo ? `?codigo=${codigo}` : ""}`;
-let jsonLdProduct: string | null = null;
-let jsonLdBreadcrumb: string | null = null;
-
 if (codigo) {
-  const productImageUrl = `${SUPABASE_STORAGE}/Productos/articulos/${codigo}.png`;
-  try {
-    const imgCheck = await fetch(productImageUrl, { method: "HEAD" });
-    ogImage = imgCheck.ok ? productImageUrl : `${SUPABASE_STORAGE}/assets/og-default.png`;
-  } catch {
-    ogImage = `${SUPABASE_STORAGE}/assets/og-default.png`;
-  }
+  const { data } = await supabase
+    .from("articulos")
+    .select("codigo, descripcion")
+    .eq("codigo", parseInt(codigo))
+    .single();
 
-  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-  const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-
-  try {
-    const res = await fetch(
-      `${supabaseUrl}/rest/v1/articulos?codigo=eq.${encodeURIComponent(codigo)}&stock=gt.0&select=descripcion,rubro,familiaNombre,precioFinal,descuento`,
-      {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-          Accept: "application/json",
-        },
-      }
-    );
-    if (res.ok) {
-      const rows: Array<{ descripcion: string; rubro: string; familiaNombre: string; precioFinal: number; descuento: number }> = await res.json();
-      const data = rows[0];
-      if (data) {
-        const nombre = data.descripcion
-          .toLowerCase()
-          .replace(/\b\w/g, (c: string) => c.toUpperCase());
-        const precio = data.descuento > 0
-          ? data.precioFinal * (1 - data.descuento / 100)
-          : data.precioFinal;
-        const precioFmt = precio.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        const rubro = data.rubro
-          .toLowerCase()
-          .replace(/\b\w/g, (c: string) => c.toUpperCase());
-        ogTitle       = `${nombre} | Alzo 24/7`;
-        ogDescription = `${precioFmt} · ${rubro} · Pedí sin registro, fácil y rápido`;
-        const categoriaSlug = data.familiaNombre.toLowerCase().replace(/\s+/g, "-");
-        jsonLdBreadcrumb = JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Alzo 24/7", "item": "https://alzologistica.com/247" },
-            { "@type": "ListItem", "position": 2, "name": data.familiaNombre, "item": `https://alzologistica.com/247/categoria/${categoriaSlug}` },
-            { "@type": "ListItem", "position": 3, "name": nombre, "item": ogUrl }
-          ]
-        });
-        jsonLdProduct = JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Product",
-          "name": nombre,
-          "image": ogImage,
-          "description": `${rubro} · Mayorista Alzo 24/7`,
-          "sku": codigo,
-          "offers": {
-            "@type": "Offer",
-            "priceCurrency": "ARS",
-            "price": precio.toFixed(2),
-            "availability": "https://schema.org/InStock",
-            "url": ogUrl,
-            "seller": { "@type": "Organization", "name": "Alzo 24/7" }
-          }
-        });
-      }
-    }
-  } catch {
-    // título/descripción quedan como fallback genérico, ogImage ya está seteado
+  if (data) {
+    return Astro.redirect(`/247/producto/${productSlug(data.descripcion, data.codigo)}`, 301);
   }
 }
+
+return Astro.redirect("/247", 302);
 ---
-<Layout247
-  title={ogTitle}
-  description={ogDescription}
-  canonical={ogUrl}
-  ogTitle={ogTitle}
-  ogDescription={ogDescription}
-  ogImage={ogImage}
-  ogImageAlt={ogTitle}
-  ogUrl={ogUrl}
->
-  {jsonLdBreadcrumb && (
-    <script is:inline slot="head" type="application/ld+json" set:html={jsonLdBreadcrumb} />
-  )}
-  {jsonLdProduct && (
-    <script is:inline slot="head" type="application/ld+json" set:html={jsonLdProduct} />
-  )}
-  <ProductoDetalle client:only="react" />
-</Layout247>

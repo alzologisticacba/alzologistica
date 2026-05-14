@@ -3,6 +3,7 @@ import { useState } from "react";
 import React from "react";
 import { addToCart } from "./hooks/cartStore";
 import type { Articulo } from "./hooks/useArticulos";
+import { productSlug } from "../../lib/slugify";
 
 function fmt(n: number) {
   return n.toLocaleString("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 });
@@ -63,7 +64,7 @@ export default function ProductCard({ articulo }: { articulo: Articulo }) {
   return (
     <article
       className={`product-card${tieneDescuento ? " product-card--descuento" : ""}`}
-      onClick={() => window.location.href = `/247/producto/?codigo=${articulo.codigo}`}
+      onClick={() => window.location.href = `/247/producto/${productSlug(articulo.descripcion, articulo.codigo)}`}
       style={{ cursor: "pointer" }}
     >
       {tieneDescuento && <div className="product-card__badge">-{articulo.descuento}%</div>}
