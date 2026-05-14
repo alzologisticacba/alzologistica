@@ -47,7 +47,8 @@
       "Bash(curl -sL \"https://alzologistica.com/247/categoria/golosinas\" -o /tmp/golo.html)",
       "Bash(curl -sL \"https://alzologistica.com/247/combos\")",
       "Bash(curl -sL \"https://alzologistica.com/247/producto/?codigo=1\")",
-      "Bash(curl -sL \"https://alzologistica.com/247\")"
+      "Bash(curl -sL \"https://alzologistica.com/247\")",
+      "WebFetch(domain:pagespeed.web.dev)"
     ]
   }
 }
