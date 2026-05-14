@@ -18,6 +18,7 @@ export default function App247() {
   const [familiasVistos, setFamiliasVistos] = useState<string[]>([]);
   const [familiasOpuestas, setFamiliasOpuestas] = useState<string[]>([]);
   const [marcas, setMarcas]   = useState<{seccion: string; titulo: string}[]>([]);
+  const [mounted, setMounted] = useState(false);
   const deferredQ = useDeferredValue(busqueda);
   const buscando  = deferredQ.length >= 2;
 
@@ -89,6 +90,7 @@ export default function App247() {
         setMarcas(todas);
       });
 
+    setMounted(true);
     return () => window.removeEventListener("cart-updated", sync);
   }, []);
 
@@ -114,31 +116,33 @@ export default function App247() {
                 <h1>Alzo 24/7 — Tu mayorista online en Córdoba</h1>
                 <p>Golosinas, bebidas, almacén, cigarrillos y más · Sin registros · 24 horas</p>
               </div>
-              {/* 1. Descuentos */}
-              <HomeSection id="descuentos" titulo="Descuentos Exclusivos" filtro={{ descuento: true }} verTodosHref="/247/descuentos" banner="/img/247/secciones/descuentosExlusivosBanner.png" />
-              {/* 2. Inspirado en lo último que viste */}
-              {familiasVistos.length > 0 && <HomeSection id="vistos" titulo="Inspirado en lo último que viste" filtro={{ familias: familiasVistos }} verTodosHref={`/247/vistos/?familias=${encodeURIComponent(familiasVistos.join(","))}`} />}
-              {/* 3. Sección marca 1 */}
-              {marcasRandom[0] && <BrandSection seccion={marcasRandom[0].seccion} titulo={marcasRandom[0].titulo} />}
-              {/* 4. Te puede interesar (categoría opuesta a la última visitada) */}
-              {familiasOpuestas.length > 0 && <HomeSection id="te-puede-interesar" titulo="Te puede interesar" filtro={{ familias: familiasOpuestas }} verTodosHref={`/247/categoria/${familiasOpuestas[0].toLowerCase().replace(/\s+/g, "-")}`} />}
-              {/* 5. Combos */}
-              <HomeSection id="combos" titulo="Combos" filtro={{ combos: true }} verTodosHref="/247/combos" banner="/img/247/secciones/combosBanner.png" />
-              {/* 6. Según tu último pedido */}
-              {familiasUltimoPedido.length > 0 && <HomeSection id="ultimo-pedido" titulo="Según tu último pedido" filtro={{ familias: familiasUltimoPedido, grid2x2: true }} verTodosHref={`/247/ultimo-pedido/?familias=${encodeURIComponent(familiasUltimoPedido.join(","))}`} />}
-              {/* 7. Sección marca 2 */}
-              {marcasRandom[1] && <BrandSection seccion={marcasRandom[1].seccion} titulo={marcasRandom[1].titulo} />}
-              {/* 8. Todos los productos */}
-              <HomeSection id="todos" titulo="Todos los productos" filtro={{}} verTodosHref="/247/todos" />
-              {/* 9. Sección marca 3 */}
-              {marcasRandom[2] && <BrandSection seccion={marcasRandom[2].seccion} titulo={marcasRandom[2].titulo} />}
-              {/* 10. Banner canal de difusión */}
-              <a href="https://whatsapp.com/channel/0029VbC00Vd3QxS30oAEN60G" target="_blank" rel="noopener noreferrer" className="home-canal-dif-banner">
-                <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
-              </a>
-              {/* 11. Cigarrillos */}
-              <HomeSection id="cigarrillos" titulo="Cigarrillos" filtro={{ familia: "Cigarrillos" }} verTodosHref="/247/categoria/cigarrillos" />
-              <CategoriesSection />
+              {mounted && <>
+                {/* 1. Descuentos */}
+                <HomeSection id="descuentos" titulo="Descuentos Exclusivos" filtro={{ descuento: true }} verTodosHref="/247/descuentos" banner="/img/247/secciones/descuentosExlusivosBanner.png" />
+                {/* 2. Inspirado en lo último que viste */}
+                {familiasVistos.length > 0 && <HomeSection id="vistos" titulo="Inspirado en lo último que viste" filtro={{ familias: familiasVistos }} verTodosHref={`/247/vistos/?familias=${encodeURIComponent(familiasVistos.join(","))}`} />}
+                {/* 3. Sección marca 1 */}
+                {marcasRandom[0] && <BrandSection seccion={marcasRandom[0].seccion} titulo={marcasRandom[0].titulo} />}
+                {/* 4. Te puede interesar (categoría opuesta a la última visitada) */}
+                {familiasOpuestas.length > 0 && <HomeSection id="te-puede-interesar" titulo="Te puede interesar" filtro={{ familias: familiasOpuestas }} verTodosHref={`/247/categoria/${familiasOpuestas[0].toLowerCase().replace(/\s+/g, "-")}`} />}
+                {/* 5. Combos */}
+                <HomeSection id="combos" titulo="Combos" filtro={{ combos: true }} verTodosHref="/247/combos" banner="/img/247/secciones/combosBanner.png" />
+                {/* 6. Según tu último pedido */}
+                {familiasUltimoPedido.length > 0 && <HomeSection id="ultimo-pedido" titulo="Según tu último pedido" filtro={{ familias: familiasUltimoPedido, grid2x2: true }} verTodosHref={`/247/ultimo-pedido/?familias=${encodeURIComponent(familiasUltimoPedido.join(","))}`} />}
+                {/* 7. Sección marca 2 */}
+                {marcasRandom[1] && <BrandSection seccion={marcasRandom[1].seccion} titulo={marcasRandom[1].titulo} />}
+                {/* 8. Todos los productos */}
+                <HomeSection id="todos" titulo="Todos los productos" filtro={{}} verTodosHref="/247/todos" />
+                {/* 9. Sección marca 3 */}
+                {marcasRandom[2] && <BrandSection seccion={marcasRandom[2].seccion} titulo={marcasRandom[2].titulo} />}
+                {/* 10. Banner canal de difusión */}
+                <a href="https://whatsapp.com/channel/0029VbC00Vd3QxS30oAEN60G" target="_blank" rel="noopener noreferrer" className="home-canal-dif-banner">
+                  <img src="/img/247/secciones/canalDeDifBanner.png" alt="Canal de difusión Alzo" />
+                </a>
+                {/* 11. Cigarrillos */}
+                <HomeSection id="cigarrillos" titulo="Cigarrillos" filtro={{ familia: "Cigarrillos" }} verTodosHref="/247/categoria/cigarrillos" />
+                <CategoriesSection />
+              </>}
             </div>
         }
       </div>
