@@ -1,5 +1,5 @@
 // src/components/mayorista/AppMayorista.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabaseClient } from "../../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 import HeaderMayorista from "./HeaderMayorista";
@@ -9,6 +9,29 @@ import ImagenesProducto from "./ImagenesProducto";
 import MapaVentas from "./MapaVentas";
 import ListaExcel from "./ListaExcel";
 import GeneradorFlyer from "./GeneradorFlyer";
+
+// ─── Vencimientos embebido (oculta su header propio) ─────
+function VencimientosFrame() {
+  const ref = useRef<HTMLIFrameElement>(null);
+
+  function onLoad() {
+    const doc = ref.current?.contentDocument;
+    if (!doc) return;
+    const style = doc.createElement("style");
+    style.textContent = ".venc-header{display:none !important;}";
+    doc.head.appendChild(style);
+  }
+
+  return (
+    <iframe
+      ref={ref}
+      src="/vencimientos"
+      title="Vencimientos"
+      onLoad={onLoad}
+      style={{ width: "100%", height: "calc(100vh - 58px)", border: 0, display: "block" }}
+    />
+  );
+}
 
 // ─── Login Screen ─────────────────────────────────────────
 function LoginMayorista() {
@@ -144,6 +167,7 @@ export default function AppMayorista() {
         {seccion === "mapa"        && <MapaVentas usuario={session.user.email ?? ""} />}
         {seccion === "lista"       && <ListaExcel />}
         {seccion === "flyer"       && <GeneradorFlyer />}
+        {seccion === "vencimientos" && <VencimientosFrame />}
       </main>
     </div>
   );

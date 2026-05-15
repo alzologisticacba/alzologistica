@@ -10,6 +10,7 @@ interface Props {
 
 export default function HeaderMayorista({ usuario, onLogout, seccion, onSeccion }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const esInterno = usuario?.toLowerCase().endsWith("@alzologistica.com") ?? false;
 
   function ir(s: string) {
     onSeccion(s);
@@ -74,13 +75,15 @@ export default function HeaderMayorista({ usuario, onLogout, seccion, onSeccion 
               <span className="may-menu__item-icon">📥</span>
               Lista de Precios
             </button>
-            <button
-              className={`may-menu__item${seccion === "flyer" ? " may-menu__item--active" : ""}`}
-              onClick={() => ir("flyer")}
-            >
-              <span className="may-menu__item-icon">🎨</span>
-              Generador de Flyers
-            </button>
+            {esInterno && (
+              <button
+                className={`may-menu__item${seccion === "vencimientos" ? " may-menu__item--active" : ""}`}
+                onClick={() => ir("vencimientos")}
+              >
+                <span className="may-menu__item-icon">⏰</span>
+                Vencimientos
+              </button>
+            )}
 
             <div className="may-menu__divider" />
 
