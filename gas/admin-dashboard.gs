@@ -208,14 +208,50 @@ function getDashboardData() {
   detalleMes.forEach(r => {
     const sku = String(r[D.sku]);
     if (!sku || sku === "0" || sku === "") return;
-    if (!mapProd[sku]) mapProd[sku] = { codigo: sku, nombre: r[D.name] || sku, categoria: esCigarrillo(r[D.rubro]) ? "cigarrillos" : "varios", cantidadBultos: 0, _nros: new Set() };
+    if (!mapProd[sku]) mapProd[sku] = { codigo: sku, nombre: r[D.name] || sku, categoria: esCigarrillo(r[D.familia]) ? "cigarrillos" : "varios", cantidadBultos: 0, _nros: new Set() };
     mapProd[sku].cantidadBultos += gNum(r[D.qty]);
     if (r[D.nro]) mapProd[sku]._nros.add(r[D.nro]);
   });
-  const topProductos = Object.values(mapProd)
+  const todosProds = Object.values(mapProd)
     .map(p => ({ codigo: p.codigo, nombre: p.nombre, categoria: p.categoria, cantidadBultos: p.cantidadBultos, cantidadPedidos: p._nros.size }))
-    .sort((a, b) => b.cantidadBultos - a.cantidadBultos)
-    .slice(0, 30);
+    .sort((a, b) => b.cantidadBultos - a.cantidadBultos);
+  const topProductos = [
+    ...todosProds.filter(p => p.categoria !== "cigarrillos").slice(0, 30),
+    ...todosProds.filter(p => p.categoria === "cigarrillos").slice(0, 30),
+  ];
+
+  // ── Clientes: agrupados por telefono (todos los pedidos históricos) ──
+  const mapClientes = {};
+  pedidosTodos.forEach(r => {
+    const tel = String(r[I.telefono] || "").trim();
+    if (!tel) return;
+    if (!mapClientes[tel]) mapClientes[tel] = {
+      telefono: tel,
+      vendedor: r[I.vendedor] || "",
+      pedidos: 0,
+      montoTotal: 0,
+      _ultimaFechaNum: 0,
+      ultimoPedido: "",
+    };
+    mapClientes[tel].pedidos++;
+    mapClientes[tel].montoTotal += gNum(r[I.total]);
+    const fechaNum = Number(r[I.anio]) * 10000 + Number(r[I.mes]) * 100 + Number(r[I.dia]);
+    if (fechaNum > mapClientes[tel]._ultimaFechaNum) {
+      mapClientes[tel]._ultimaFechaNum = fechaNum;
+      mapClientes[tel].ultimoPedido = pad(r[I.dia]) + "/" + pad(r[I.mes]) + "/" + r[I.anio];
+      mapClientes[tel].vendedor = r[I.vendedor] || mapClientes[tel].vendedor;
+    }
+  });
+  const clientes = Object.values(mapClientes)
+    .map(c => ({
+      telefono: c.telefono,
+      vendedor: c.vendedor,
+      pedidos: c.pedidos,
+      montoTotal: Math.round(c.montoTotal),
+      ticketPromedio: Math.round(c.montoTotal / c.pedidos),
+      ultimoPedido: c.ultimoPedido,
+    }))
+    .sort((a, b) => b.pedidos - a.pedidos);
 
   // Pedidos livianos para filtrado por fecha en el browser (últimos 12 meses)
   const rawPedidos = pedidosTodos
@@ -233,14 +269,15 @@ function getDashboardData() {
 
   return {
     resumen: { totalPedidosHoy: pedidosHoy.length, totalPedidosMes: pedidosMes.length, clientesActivos: telsMes.size, ticketPromedio, variacionPedidosMes: varPedidos, variacionClientes: varClientes },
-    ventasPorDia, ventasPorVendedor, ventasPorMes, topProductos, clientes: [],
+    ventasPorDia, ventasPorVendedor, ventasPorMes, topProductos, clientes,
     rawPedidos,
   };
 }
 
-function esCigarrillo(rubro) {
-  const r = String(rubro || "").toLowerCase();
-  return r.includes("cigarr") || r.includes("tabac");
+function esCigarrillo(familia) {
+  // La familia viene de Supabase (familiaNombre). El valor exacto es "Cigarrillos".
+  // Cualquier otra familia (Golosinas, Cuidado Personal, etc) cuenta como "Varios".
+  return String(familia || "").trim().toLowerCase() === "cigarrillos";
 }
 
 function gNum(val) {

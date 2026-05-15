@@ -4,6 +4,7 @@ import KpiCards from "./KpiCards";
 import VentasChart from "./VentasChart";
 import TopProductos from "./TopProductos";
 import ClientesTable from "./ClientesTable";
+import ConfigSection from "./ConfigSection";
 import { useAdminData } from "./useAdminData";
 
 const ALLOWED_DOMAIN = "@alzologistica.com";
@@ -14,13 +15,13 @@ const supabase = createClient(
 );
 
 type AuthState = "checking" | "unauthenticated" | "unauthorized" | "authorized";
-type Section = "resumen" | "ventas" | "productos" | "clientes" | "reparto";
+type Section = "resumen" | "ventas" | "productos" | "clientes" | "config";
 
 export default function AdminDashboard() {
   const [authState, setAuthState] = useState<AuthState>("checking");
   const [userEmail, setUserEmail] = useState("");
   const [activeSection, setActiveSection] = useState<Section>("resumen");
-  const { data, status, lastUpdated, refetch } = useAdminData();
+  const { data, status, lastUpdated, refetch, saveMeta, addInversion, deleteInversion } = useAdminData();
 
   useEffect(() => {
     checkSession();
@@ -165,7 +166,7 @@ export default function AdminDashboard() {
             {activeSection === "ventas" && "Ventas"}
             {activeSection === "productos" && "Top Productos"}
             {activeSection === "clientes" && "Cartera de Clientes"}
-            {activeSection === "reparto" && "Reparto"}
+            {activeSection === "config" && "Configuración"}
           </h1>
           {lastUpdated && (
             <p className="dash-updated">
@@ -181,7 +182,13 @@ export default function AdminDashboard() {
       {/* Sección: Resumen */}
       {activeSection === "resumen" && (
         <div id="resumen">
-          <KpiCards resumen={data.resumen} loading={isLoading} />
+          <KpiCards
+            resumen={data.resumen}
+            metaMensual={data.metaMensual}
+            facturadoMes={data.facturadoMes}
+            inversionMes={data.inversionMes}
+            loading={isLoading}
+          />
           <VentasChart
             ventasPorDia={data.ventasPorDia}
             ventasPorVendedor={data.ventasPorVendedor}
@@ -196,7 +203,13 @@ export default function AdminDashboard() {
       {/* Sección: Ventas */}
       {activeSection === "ventas" && (
         <div id="ventas">
-          <KpiCards resumen={data.resumen} loading={isLoading} />
+          <KpiCards
+            resumen={data.resumen}
+            metaMensual={data.metaMensual}
+            facturadoMes={data.facturadoMes}
+            inversionMes={data.inversionMes}
+            loading={isLoading}
+          />
           <VentasChart
             ventasPorDia={data.ventasPorDia}
             ventasPorVendedor={data.ventasPorVendedor}
@@ -221,16 +234,19 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Sección: Reparto */}
-      {activeSection === "reparto" && (
-        <div id="reparto" className="reparto-link-card">
-          <i className="fa-solid fa-truck-fast"></i>
-          <h3>Dashboard de Reparto</h3>
-          <p>El seguimiento de reparto está en su propio módulo.</p>
-          <a href="/reparto" target="_blank" className="btn-goto-reparto">
-            Ir al módulo de Reparto
-            <i className="fa-solid fa-arrow-right"></i>
-          </a>
+      {/* Sección: Configuración */}
+      {activeSection === "config" && (
+        <div id="config">
+          <ConfigSection
+            metaMensual={data.metaMensual}
+            inversiones={data.inversiones}
+            inversionMes={data.inversionMes}
+            inversionTotal={data.inversionTotal}
+            saveMeta={saveMeta}
+            addInversion={addInversion}
+            deleteInversion={deleteInversion}
+            loading={isLoading}
+          />
         </div>
       )}
 
@@ -440,56 +456,6 @@ export default function AdminDashboard() {
           display: inline-block;
         }
 
-        .reparto-link-card {
-          background: #ffffff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 48px 24px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          text-align: center;
-          color: #94a3b8;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .reparto-link-card i {
-          font-size: 2.5rem;
-          color: #2556ff;
-        }
-
-        .reparto-link-card h3 {
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: #0f172a;
-          margin: 0;
-        }
-
-        .reparto-link-card p {
-          font-size: 0.85rem;
-          margin: 0;
-        }
-
-        .btn-goto-reparto {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          margin-top: 8px;
-          padding: 10px 20px;
-          background: #2556ff;
-          border-radius: 8px;
-          color: #fff;
-          font-size: 0.85rem;
-          font-weight: 600;
-          text-decoration: none;
-          transition: opacity 0.15s;
-        }
-
-        .btn-goto-reparto:hover {
-          opacity: 0.85;
-        }
       `}</style>
     </>
   );

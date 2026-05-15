@@ -56,7 +56,8 @@
       "Bash(ls \"C:\\\\Users\\\\nicol\\\\.claude\\\\projects\\\\c--workspace-alzologistica\\\\memory\\\\\")",
       "Read(//c/Users/nicol/.claude/projects/c--workspace-alzologistica/**)",
       "Bash(sort -t':' -k2)",
-      "Bash(uniq -f1 -c -i)"
+      "Bash(uniq -f1 -c -i)",
+      "Bash(dir c:\\\\workspace\\\\alzologistica)"
     ]
   }
 }

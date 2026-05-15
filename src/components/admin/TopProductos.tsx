@@ -7,9 +7,11 @@ interface Props {
 }
 
 export default function TopProductos({ productos, loading }: Props) {
-  const [filtro, setFiltro] = useState<"todos" | "varios" | "cigarrillos">("todos");
+  const [filtro, setFiltro] = useState<"varios" | "cigarrillos">("varios");
 
-  const filtrados = productos.filter((p) => filtro === "todos" || p.categoria === filtro);
+  const filtrados = productos.filter((p) =>
+    filtro === "varios" ? p.categoria !== "cigarrillos" : p.categoria === "cigarrillos"
+  );
 
   const maxBultos = Math.max(...filtrados.map((p) => p.cantidadBultos), 1);
 
@@ -22,13 +24,13 @@ export default function TopProductos({ productos, loading }: Props) {
             Top Productos
           </h3>
           <div className="top-filters">
-            {(["todos", "varios", "cigarrillos"] as const).map((f) => (
+            {(["varios", "cigarrillos"] as const).map((f) => (
               <button
                 key={f}
                 className={`filter-btn ${filtro === f ? "active" : ""}`}
                 onClick={() => setFiltro(f)}
               >
-                {f === "todos" ? "Todos" : f === "varios" ? "Varios" : "Cigarrillos"}
+                {f === "varios" ? "Sin cigarrillos" : "Cigarrillos"}
               </button>
             ))}
           </div>
@@ -50,6 +52,12 @@ export default function TopProductos({ productos, loading }: Props) {
             {filtrados.map((p, i) => (
               <div key={p.codigo} className="top-row">
                 <span className={`rank ${i < 3 ? "rank-top" : ""}`}>{i + 1}</span>
+                <img
+                  src={`https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public/Productos/articulos/${p.codigo}.png`}
+                  alt=""
+                  className="prod-thumb"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                />
                 <div className="prod-info">
                   <span className="prod-nombre">{p.nombre}</span>
                   <span className="prod-codigo">{p.codigo}</span>
@@ -64,7 +72,7 @@ export default function TopProductos({ productos, loading }: Props) {
                   />
                 </div>
                 <div className="prod-nums">
-                  <span className="prod-bultos">{p.cantidadBultos.toLocaleString("es-AR")} blt</span>
+                  <span className="prod-bultos">{p.cantidadBultos.toLocaleString("es-AR")} und.</span>
                   <span className="prod-pedidos">{p.cantidadPedidos} ped.</span>
                 </div>
                 <span className={`cat-badge cat-${p.categoria}`}>
@@ -136,9 +144,19 @@ export default function TopProductos({ productos, loading }: Props) {
           gap: 10px;
         }
 
+        .prod-thumb {
+          width: 36px;
+          height: 36px;
+          object-fit: contain;
+          border-radius: 6px;
+          background: #f8fafc;
+          border: 1px solid #f1f5f9;
+          flex-shrink: 0;
+        }
+
         .top-row {
           display: grid;
-          grid-template-columns: 28px 1fr 120px 90px 52px;
+          grid-template-columns: 28px 36px 1fr 120px 90px 52px;
           align-items: center;
           gap: 12px;
           padding: 10px 0;
@@ -271,7 +289,7 @@ export default function TopProductos({ productos, loading }: Props) {
 
         @media (max-width: 600px) {
           .top-row {
-            grid-template-columns: 24px 1fr 70px;
+            grid-template-columns: 24px 30px 1fr 70px;
           }
           .prod-bar-wrap,
           .cat-badge {
