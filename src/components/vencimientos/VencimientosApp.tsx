@@ -189,6 +189,7 @@ export default function VencimientosApp() {
   const [seleccionados, setSeleccionados] = useState<string[]>([]);
   const [descargando, setDescargando]     = useState(false);
   const imagenRef = useRef<HTMLDivElement>(null);
+  const yaFetcheado = useRef(false);
 
   useEffect(() => {
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
@@ -202,22 +203,31 @@ export default function VencimientosApp() {
       setAuthReady(true);
     });
 
-    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
-      if (session && !emailPermitido(session.user.email)) {
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, newSession) => {
+      if (newSession && !emailPermitido(newSession.user.email)) {
         supabaseClient.auth.signOut();
         setErrorDominio(`Solo se permiten cuentas ${DOMINIO_PERMITIDO}`);
         setSession(null);
+        yaFetcheado.current = false;
         return;
       }
       setErrorDominio("");
-      setSession(session);
+      // Solo actualizar si cambió el usuario (evita re-render por TOKEN_REFRESHED al cambiar de pestaña)
+      setSession((prev) => {
+        if (prev?.user?.id === newSession?.user?.id) return prev;
+        if (!newSession) yaFetcheado.current = false;
+        return newSession;
+      });
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (session) fetchProductos();
+    if (session && !yaFetcheado.current) {
+      yaFetcheado.current = true;
+      fetchProductos();
+    }
   }, [session]);
 
   useEffect(() => { setPagina(1); }, [busqueda, filtro, areaFiltro]);
