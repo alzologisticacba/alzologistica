@@ -52,7 +52,11 @@
       "Bash(sort -k5 -h -r)",
       "Bash(echo \"=== Comentarios CSS rotos \\(\\\\\\\\* en vez de /*\\) ===\")",
       "Bash(grep -c '\\\\\\\\\\\\*' src/styles/247.css)",
-      "Bash(echo \"líneas con \\\\\\\\*\")"
+      "Bash(echo \"líneas con \\\\\\\\*\")",
+      "Bash(ls \"C:\\\\Users\\\\nicol\\\\.claude\\\\projects\\\\c--workspace-alzologistica\\\\memory\\\\\")",
+      "Read(//c/Users/nicol/.claude/projects/c--workspace-alzologistica/**)",
+      "Bash(sort -t':' -k2)",
+      "Bash(uniq -f1 -c -i)"
     ]
   }
 }

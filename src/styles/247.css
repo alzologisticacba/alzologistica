@@ -2570,79 +2570,6 @@ body.modal-open {
   display: none;
 }
 
-/* Botón base del nav */
-
-.nav247-btn {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.85);
-  font-family: "Inter", sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 7px;
-  cursor: pointer;
-  white-space: nowrap;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  transition: color .15s, background .15s;
-  letter-spacing: -0.01em;;
-}
-
-.nav247-btn:hover,
-.nav247-btn--on {
-  color: #fff;
-  background: rgba(255,255,255,0.14);;
-}
-
-/* Dropdown wrapper */
-
-.nav247-dd {
-  position: relative;;
-}
-
-/* Dropdown panel */
-
-.nav247-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  min-width: 190px;
-  z-index: 500;
-  overflow: hidden;
-  animation: ddIn .15s ease;;
-}
-
-@keyframes ddIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: none; }
-}
-
-.nav247-dropdown__item {
-  display: block;
-  padding: 10px 16px;
-  font-family: "Inter", sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1a1a2e;
-  text-decoration: none;
-  transition: background .12s, color .12s;;
-}
-
-.nav247-dropdown__item:hover {
-  background: #f0eeff;
-  color: #3300ff;;
-}
-
-.nav247-dropdown__item + .nav247-dropdown__item {
-  border-top: 1px solid #f0f2f5;;
-}
-
 /* Ajuste sticky offset para el carrito summary */
 
 @media (min-width: 768px) {
@@ -3710,15 +3637,6 @@ body.modal-open {
   .brand-section__banner-wrap { aspect-ratio: 3 / 1; }
 }
 
-/* ── SeccionPage hero banner ── */
-
-/* Mobile: un poco más de altura relativa */
-
-@media (max-width: 600px) {
-  .seccion-page__hero-img { aspect-ratio: 3 / 1; }
-  .brand-section__banner-wrap { aspect-ratio: 3 / 1; }
-}
-
 /* ── Productos relacionados en ProductoDetalle ── */
 
 .pd__relacionados {
@@ -3752,15 +3670,6 @@ body.modal-open {
 
 @media (min-width: 900px) {
   .pd__relacionados-grid { grid-template-columns: repeat(5, 1fr); }
-}
-
-/* ── SeccionPage hero banner ── */
-
-/* Mobile: un poco más de altura relativa */
-
-@media (max-width: 600px) {
-  .seccion-page__hero-img { aspect-ratio: 3 / 1; }
-  .brand-section__banner-wrap { aspect-ratio: 3 / 1; }
 }
 
 /* ── Productos relacionados en ProductoDetalle ── */
@@ -3820,26 +3729,6 @@ body.modal-open {
   margin-top: 24px;
   text-align: center;
 }
-
-/* ── SeccionPage hero banner ── */
-
-/* Mobile: un poco más de altura relativa */
-
-@media (max-width: 600px) {
-  .seccion-page__hero-img { aspect-ratio: 3 / 1; }
-  .brand-section__banner-wrap { aspect-ratio: 3 / 1; }
-}
-
-/* ── Productos relacionados en ProductoDetalle ── */
-
-/* Row scroll horizontal — igual que home sections */
-
-@media (max-width: 400px) {
-  .pd__relacionados-row .product-card { flex: 0 0 140px;
-    min-width: 140px; }
-}
-
-/* Botón volver al inicio */
 
 /* ── Flechas de navegación — solo desktop ── */
 
@@ -4079,66 +3968,6 @@ body.modal-open {
   border-bottom: 1px solid #f0f2f5;
 }
 
-/* ══════════════════════════════════════════
-   HEADER 247 — RESPONSIVE OVERRIDE
-   Pegá esto al final de 247.css
-   ══════════════════════════════════════════ */
-
-/* Mobile primero: nav con scroll horizontal */
-
-/* Botones nav más compactos en mobile */
-
-@media (max-width: 480px) {
-  .h247nav-btn { font-size: 12px !important;
-    padding: 4px 9px !important; }
-  /* Logo más pequeño en mobile */
-  .header-247__logo-img { height: 42px !important; }
-  /* Search row: reducir padding */
-  .header-247-inner { padding: 0 12px !important; }
-  /* Search input más compacto */
-  .header-247__search-input { font-size: 13px !important; }
-}
-
-/* Tablet y desktop: nav no necesita scroll */
-
-@media (min-width: 640px) {
-  .header-247-nav { overflow-x: visible !important;
-    flex-wrap: wrap !important;
-    gap: 2px !important; }
-}
-
-/* Dropdown: en mobile ocupa más ancho */
-
-@media (max-width: 480px) {
-  .h247nav-dropdown { position: fixed !important;
-    top: auto !important;
-    left: 12px !important;
-    right: 12px !important;
-    max-height: 50vh !important;
-    border-radius: 16px !important; }
-}
-
-/* ── Hamburger button ── */
-
-/* Nav desktop: siempre visible en ≥640px */
-
-/* ── Mobile (<640px): ocultar nav, mostrar hamburger ── */
-
-@media (max-width: 639px) {
-  .header-247-nav--desktop { display: none !important; }
-  .header-247-hamburger { display: flex !important; }
-  /* Ajustar inner para dar espacio al hamburger */
-  .header-247-inner { position: relative;
-    padding-right: 60px !important; }
-}
-
-/* ── Mobile menu overlay ── */
-
-@keyframes slideIn {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
-}
-
 /* ── Flechas en BrandSection — sobresalen del contenedor ── */
 
 /* Pero el banner sí necesita overflow hidden para el border-radius */
@@ -4157,72 +3986,6 @@ body.modal-open {
 .brand-section__row-wrap .home-section__arrow--right {
   right: -4px;
 }
-
-/* ══════════════════════════════════════════
-   HEADER 247 — RESPONSIVE OVERRIDE
-   Pegá esto al final de 247.css
-   ══════════════════════════════════════════ */
-
-/* Mobile primero: nav con scroll horizontal */
-
-/* Botones nav más compactos en mobile */
-
-@media (max-width: 480px) {
-  .h247nav-btn { font-size: 12px !important;
-    padding: 4px 9px !important; }
-  /* Logo más pequeño en mobile */
-  .header-247__logo-img { height: 42px !important; }
-  /* Search row: reducir padding */
-  .header-247-inner { padding: 0 12px !important; }
-  /* Search input más compacto */
-  .header-247__search-input { font-size: 13px !important; }
-}
-
-/* Tablet y desktop: nav no necesita scroll */
-
-@media (min-width: 640px) {
-  .header-247-nav { overflow-x: visible !important;
-    flex-wrap: wrap !important;
-    gap: 2px !important; }
-}
-
-/* Dropdown: en mobile ocupa más ancho */
-
-@media (max-width: 480px) {
-  .h247nav-dropdown { position: fixed !important;
-    top: auto !important;
-    left: 12px !important;
-    right: 12px !important;
-    max-height: 50vh !important;
-    border-radius: 16px !important; }
-}
-
-/* ── Hamburger button ── */
-
-/* Nav desktop: siempre visible en ≥640px */
-
-/* ── Mobile (<640px): ocultar nav, mostrar hamburger ── */
-
-@media (max-width: 639px) {
-  .header-247-nav--desktop { display: none !important; }
-  .header-247-hamburger { display: flex !important; }
-  /* Ajustar inner para dar espacio al hamburger */
-  .header-247-inner { position: relative;
-    padding-right: 60px !important; }
-}
-
-/* ── Mobile menu overlay ── */
-
-@keyframes slideIn {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
-}
-
-/* ── Flechas en BrandSection — sobresalen del contenedor ── */
-
-/* Pero el banner sí necesita overflow hidden para el border-radius */
-
-/* Dar margen lateral para que las flechas no se corten */
 
 /* ── Card "Ver todos" al final del row ── */
 
@@ -4262,74 +4025,6 @@ body.modal-open {
   line-height: 1.3;
   letter-spacing: -0.01em;
 }
-
-/* ══════════════════════════════════════════
-   HEADER 247 — RESPONSIVE OVERRIDE
-   Pegá esto al final de 247.css
-   ══════════════════════════════════════════ */
-
-/* Mobile primero: nav con scroll horizontal */
-
-/* Botones nav más compactos en mobile */
-
-@media (max-width: 480px) {
-  .h247nav-btn { font-size: 12px !important;
-    padding: 4px 9px !important; }
-  /* Logo más pequeño en mobile */
-  .header-247__logo-img { height: 42px !important; }
-  /* Search row: reducir padding */
-  .header-247-inner { padding: 0 12px !important; }
-  /* Search input más compacto */
-  .header-247__search-input { font-size: 13px !important; }
-}
-
-/* Tablet y desktop: nav no necesita scroll */
-
-@media (min-width: 640px) {
-  .header-247-nav { overflow-x: visible !important;
-    flex-wrap: wrap !important;
-    gap: 2px !important; }
-}
-
-/* Dropdown: en mobile ocupa más ancho */
-
-@media (max-width: 480px) {
-  .h247nav-dropdown { position: fixed !important;
-    top: auto !important;
-    left: 12px !important;
-    right: 12px !important;
-    max-height: 50vh !important;
-    border-radius: 16px !important; }
-}
-
-/* ── Hamburger button ── */
-
-/* Nav desktop: siempre visible en ≥640px */
-
-/* ── Mobile (<640px): ocultar nav, mostrar hamburger ── */
-
-@media (max-width: 639px) {
-  .header-247-nav--desktop { display: none !important; }
-  .header-247-hamburger { display: flex !important; }
-  /* Ajustar inner para dar espacio al hamburger */
-  .header-247-inner { position: relative;
-    padding-right: 60px !important; }
-}
-
-/* ── Mobile menu overlay ── */
-
-@keyframes slideIn {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
-}
-
-/* ── Flechas en BrandSection — sobresalen del contenedor ── */
-
-/* Pero el banner sí necesita overflow hidden para el border-radius */
-
-/* Dar margen lateral para que las flechas no se corten */
-
-/* ── Card "Ver todos" al final del row ── */
 
 /* ── FamiliasPage hero ── */
 
