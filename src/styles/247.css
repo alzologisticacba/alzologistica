@@ -248,8 +248,8 @@
 .home-section {
   background: #fff;
   border-radius: 0 32px 0 32px;
-  padding: 20px 20px 8px;
-  margin-bottom: 16px;
+  padding: 16px 20px 4px;
+  margin-bottom: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   overflow: hidden;
 }
@@ -261,7 +261,7 @@
 
 .home-section__banner-link {
   display: block;
-  margin: 0 -20px 14px -20px;
+  margin: 0 -20px 8px -20px;
 }
 
 .home-section__banner {
@@ -281,15 +281,15 @@
   justify-content: space-between;
   background: linear-gradient(120deg, #0d0a4a 0%, #1230a0 55%, #1a5fd4 100%);
   border-radius: 0 32px 0 32px;
-  padding: 18px 20px 18px 24px;
-  min-height: 80px;
+  padding: 12px 20px 12px 24px;
+  min-height: 60px;
   overflow: hidden;
   position: relative;
 }
 
 
 .home-section__css-banner__titulo {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 900;
   color: #fff;
   margin: 0;
@@ -301,11 +301,24 @@
 }
 
 .home-section__css-banner__logo {
-  height: 52px;
+  height: 40px;
   width: auto;
   object-fit: contain;
   flex-shrink: 0;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+}
+
+@media (min-width: 768px) {
+  .home-section__css-banner {
+    min-height: 70px;
+    padding: 14px 24px;
+  }
+  .home-section__css-banner__titulo {
+    font-size: 22px;
+  }
+  .home-section__css-banner__logo {
+    height: 48px;
+  }
 }
 
 .home-canal-dif-banner {
@@ -366,10 +379,10 @@
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding-top: 24px;
-  padding-bottom: 16px;
+  padding-top: 12px;
+  padding-bottom: 10px;
   scrollbar-width: none;
-  margin: -20px -4px 0;
+  margin: -12px -4px 0;
   padding-left: 4px;;
 }
 
@@ -4857,13 +4870,22 @@ body.modal-open {
   box-shadow: 0 12px 40px rgba(0,0,0,0.18);
 }
 
-/* Banners 24/7: los assets de secciones son 1200x300.
-   Mantener 4:1 evita el zoom/corte que se nota en mobile. */
+/* Banners 24/7: los assets de secciones son 1200x300 (4:1).
+   En home compactamos el banner para que entren productos en el primer fold:
+   - mobile: 6:1 (recorta arriba/abajo, prioriza productos visibles)
+   - desktop: 8:1 (el contenedor es ancho, sin esto el banner ocupa todo el fold) */
 .home-section__banner {
   width: 100%;
   height: auto;
-  aspect-ratio: 4 / 1;
-  object-fit: contain;
+  aspect-ratio: 6 / 1;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (min-width: 768px) {
+  .home-section__banner {
+    aspect-ratio: 8 / 1;
+  }
 }
 
 .home-canal-dif-banner img,
