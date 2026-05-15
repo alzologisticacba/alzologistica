@@ -18,7 +18,11 @@ function VencimientosFrame() {
     const doc = ref.current?.contentDocument;
     if (!doc) return;
     const style = doc.createElement("style");
-    style.textContent = ".venc-header{display:none !important;}";
+    style.textContent = `
+      .venc-header{display:none !important;}
+      html, body { overflow-x: visible !important; }
+      .venc-page { overflow-x: hidden; }
+    `;
     doc.head.appendChild(style);
   }
 
