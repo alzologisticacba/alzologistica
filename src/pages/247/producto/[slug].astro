@@ -1,23 +1,30 @@
 ---
 // src/pages/247/producto/[slug].astro
+export const prerender = false;
+
 import Layout247 from "../../../layouts/Layout247.astro";
 import ProductoDetalle from "../../../components/247/ProductoDetalle";
 import "../../../styles/247.css";
-import { getAllArticulosConStock } from "../../../lib/articulosCache";
-import { productSlug } from "../../../lib/slugify";
+import { supabase } from "../../../lib/supabase";
 
 const STORAGE = "https://wjnybucyhfbtvrerdvax.supabase.co/storage/v1/object/public";
 
-export async function getStaticPaths() {
-  const data = await getAllArticulosConStock();
-  return data.map((articulo) => ({
-    params: { slug: productSlug(articulo.descripcion, articulo.codigo) },
-    props: { articulo },
-  }));
+const { slug } = Astro.params;
+
+const codigo = Number(slug?.split("-").pop());
+if (!codigo || isNaN(codigo)) {
+  return Astro.redirect("/247");
 }
 
-const { articulo } = Astro.props;
-const { slug } = Astro.params;
+const { data: articulo } = await supabase
+  .from("articulos")
+  .select("codigo, descripcion, proveedor, rubro, precioFinal, descuento, multiplo, familiaNombre, stock, uxb")
+  .eq("codigo", codigo)
+  .maybeSingle();
+
+if (!articulo) {
+  return new Response(null, { status: 404 });
+}
 
 const nombre = articulo.descripcion
   .toLowerCase()
