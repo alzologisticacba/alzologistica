@@ -6,7 +6,7 @@ import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
   site: "https://alzologistica.com",
-  output: "hybrid",
+  output: "static",
   adapter: vercel(),
   integrations: [
     react(),
